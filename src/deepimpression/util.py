@@ -4,6 +4,8 @@ import librosa
 import numpy as np
 import skvideo.io
 import os
+import pylab
+import imageio
 
 
 def load_audio(data):
@@ -25,14 +27,15 @@ def load_video(data):
     print('loading data')
     video_capture = skvideo.io.vread(data)
 
-    # frames = 50
-    # video_capture = video_capture[:frames]
+    frames = 50
+    video_capture = video_capture[:frames]
 
     video_shape = np.shape(video_capture)
     print('video shape: ', video_shape)
-    frames = video_shape[0]
-    video_capture = np.reshape(video_capture, (frames, video_shape[-1], video_shape[1], video_shape[2]), 'float32')
-
+    # frames = video_shape[0]
+    # video_capture = np.reshape(video_capture, (frames, video_shape[-1], video_shape[1], video_shape[2]), 'float32')
+    # video_capture = np.reshape(video_capture, (frames, video_shape[1], video_shape[2], video_shape[-1]), 'float32')
+    # return video_capture
     return np.array(video_capture, 'float32')
 
 
@@ -42,15 +45,15 @@ def predict_trait(data, model):
     print('now really predicting. this will take a while.')
     with chainer.using_config('train', False):
         return model(x)
-    # return model(x)
+        # return model(x)
 
 
 def find_video(video_id):
     print('finding video: ', video_id)
-	# ----------------------------------------------------------------------------
+    # ----------------------------------------------------------------------------
     base_path_1 = 'chalearn_fi_17_compressed/test-1'
     base_path_2 = 'chalearn_fi_17_compressed/test-2'
-	# ----------------------------------------------------------------------------
+    # ----------------------------------------------------------------------------
     video = None
 
     not_found = True
@@ -99,6 +102,5 @@ def get_accuracy(output_path):
 
     result_total = np.mean(result_total)
     print('average accuracy per video:', result_total)
-
 
 # get_accuracy('data/performance_chalearn.txt')

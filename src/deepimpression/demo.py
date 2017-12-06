@@ -7,9 +7,9 @@ def main():
     model = load_model()
 
     # get ground truth from the pkl file
-	# ----------------------------------------------------------------------------
+    # ----------------------------------------------------------------------------
     pkl_path = 'chalearn_fi_17_compressed/annotation_test.pkl'
-	# ----------------------------------------------------------------------------
+    # ----------------------------------------------------------------------------
 
     f = open(pkl_path, 'r')
     annotation_test = pkl.load(f)
@@ -32,8 +32,9 @@ def main():
         print(y)
         print(target_labels)
         track_prediction(video_id, y, target_labels)
-	
-	# calculate and print mean performance
-	get_accuracy('performance_chalearn.txt')
+
+        # calculate and print mean performance
+        get_accuracy('performance_chalearn.txt')
+
 
 main()
