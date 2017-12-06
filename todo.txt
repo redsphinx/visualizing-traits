@@ -1,0 +1,4 @@
+- DONE make github repo
+- commit relevant files from old repo
+- do face landmark with dlib face landmark
+
