@@ -4,8 +4,7 @@ import librosa
 import numpy as np
 import skvideo.io
 import os
-import pylab
-import imageio
+import psutil
 
 
 def load_audio(data):
@@ -104,3 +103,6 @@ def get_accuracy(output_path):
     print('average accuracy per video:', result_total)
 
 # get_accuracy('data/performance_chalearn.txt')
+
+
+
