@@ -11,13 +11,12 @@ def load_audio(data):
     return librosa.load(data, 16000)[0][None, None, None, :]
 
 
-def load_model():
+def load_model(load_trained=True):
     print('loading model')
     model = audiovisual_stream.ResNet18().to_gpu(device='0')
     # model = audiovisual_stream.ResNet18()
-
-    # maybe here?
-    chainer.serializers.load_npz('./model', model)
+    if load_trained:
+        chainer.serializers.load_npz('./model', model)
 
     return model
 
@@ -32,7 +31,7 @@ def load_video(data):
     video_shape = np.shape(video_capture)
     print('video shape: ', video_shape)
     # frames = video_shape[0]
-    # video_capture = np.reshape(video_capture, (frames, video_shape[-1], video_shape[1], video_shape[2]), 'float32')
+    video_capture = np.reshape(video_capture, (frames, video_shape[-1], video_shape[1], video_shape[2]), 'float32')
     # video_capture = np.reshape(video_capture, (frames, video_shape[1], video_shape[2], video_shape[-1]), 'float32')
     # return video_capture
     return np.array(video_capture, 'float32')

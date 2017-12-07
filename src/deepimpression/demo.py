@@ -17,7 +17,7 @@ def main():
     annotation_test_keys = annotation_test.keys()
     all_video_names = annotation_test[annotation_test_keys[0]].keys()
 
-    for ind in range(2000):
+    for ind in range(10):
         print('ind: ', ind)
         video_id = all_video_names[ind]
         target_labels = [annotation_test['extraversion'][video_id],
