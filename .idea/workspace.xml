@@ -2,15 +2,7 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="b6b39d84-3934-43c3-b892-05e6506da432" name="Default" comment="">
-      <change type="DELETED" beforePath="$PROJECT_DIR$/src/align_face/askhjdflaskjhdfasjkldh_0_sdfghasjgdfasjkh.jpg" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/src/align_face/askhjdflaskjhdfasjkldh_1_sdfghasjgdfasjkh.jpg" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/src/align_face/face_utils.py" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/src/align_face/facial_landmarks.py" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/src/align_face/shit.jpg" afterPath="" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.gitignore" afterPath="$PROJECT_DIR$/.gitignore" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/align_face/main.py" afterPath="$PROJECT_DIR$/src/align_face/main.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/deepimpression/util.py" afterPath="$PROJECT_DIR$/src/deepimpression/util.py" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="TRACKING_ENABLED" value="true" />
@@ -26,17 +18,17 @@
   </component>
   <component name="FileEditorManager">
     <leaf>
-      <file leaf-file-name=".gitignore" pinned="false" current-in-tab="false">
+      <file leaf-file-name=".gitignore" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/.gitignore">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="0">
-              <caret line="0" column="5" lean-forward="false" selection-start-line="0" selection-start-column="5" selection-end-line="0" selection-end-column="5" />
+            <state relative-caret-position="16">
+              <caret line="1" column="2" lean-forward="true" selection-start-line="1" selection-start-column="2" selection-end-line="1" selection-end-column="2" />
               <folding />
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="main.py" pinned="false" current-in-tab="true">
+      <file leaf-file-name="main.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/align_face/main.py">
           <provider selected="true" editor-type-id="text-editor">
             <state relative-caret-position="316">
@@ -80,8 +72,8 @@
         <option value="$PROJECT_DIR$/src/align_face/facealigner.py" />
         <option value="$PROJECT_DIR$/src/align_face/face_utils.py" />
         <option value="$PROJECT_DIR$/src/align_face/align_faces.py" />
-        <option value="$PROJECT_DIR$/.gitignore" />
         <option value="$PROJECT_DIR$/src/align_face/main.py" />
+        <option value="$PROJECT_DIR$/.gitignore" />
       </list>
     </option>
   </component>
@@ -438,14 +430,6 @@
         <state />
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/.gitignore">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="0">
-          <caret line="0" column="5" lean-forward="false" selection-start-line="0" selection-start-column="5" selection-end-line="0" selection-end-column="5" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/src/align_face/main.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="316">
@@ -453,6 +437,14 @@
           <folding>
             <element signature="e#24#42#0" expanded="true" />
           </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/.gitignore">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="16">
+          <caret line="1" column="2" lean-forward="true" selection-start-line="1" selection-start-column="2" selection-end-line="1" selection-end-column="2" />
+          <folding />
         </state>
       </provider>
     </entry>
