@@ -33,19 +33,10 @@ def show_frames(data_path, frames):
 
 
 def align_face(image):
-    # construct the argument parser and parse the arguments
-    # ap = argparse.ArgumentParser()
-    # ap.add_argument("-p", "--shape-predictor", required=True,
-    #                 help="path to facial landmark predictor")
-    # ap.add_argument("-i", "--image", required=True,
-    #                 help="path to input image")
-    # args = vars(ap.parse_args())
-
     pred_path = '/home/gabi/PycharmProjects/visualizing-traits/data/predictor/shape_predictor_68_face_landmarks.dat'
 
     # initialize dlib's face detector (HOG-based) and then create the facial landmark predictor and the face aligner
     detector = dlib.get_frontal_face_detector()
-    # predictor = dlib.shape_predictor(args["shape_predictor"])
     predictor = dlib.shape_predictor(pred_path)
     fa = FaceAligner(predictor, desiredFaceWidth=256)
 
@@ -56,20 +47,15 @@ def align_face(image):
     # detect faces in the grayscale image
     rects = detector(gray, 2)
 
+    faceAligned = None
+
     # loop over the face detections
     for rect in rects:
         # extract the ROI of the *original* face, then align the face
         # using facial landmarks
         (x, y, w, h) = rect_to_bb(rect)
-        faceOrig = imutils.resize(image[y:y + h, x:x + w], width=256)
+        # faceOrig = imutils.resize(image[y:y + h, x:x + w], width=256)
         faceAligned = fa.align(image, gray, rect)
-
-        # print(type(faceAligned))
-
-        # display the output images
-        # cv2.imshow("Original", faceOrig)
-        # cv2.imshow("Aligned", faceAligned)
-        # cv2.waitKey(0)
 
     return faceAligned
 
@@ -101,6 +87,6 @@ def align_faces_in_video(data_path, save_location, frames=None):
         print('Error: data_path does not exist')
 
 
-data_path = '/home/gabi/PycharmProjects/visualizing-traits/data/1uC-2TZqplE.003.mp4'
-save_location = '/home/gabi/PycharmProjects/visualizing-traits/data'
-align_faces_in_video(data_path, save_location)
+data_path_ = '/home/gabi/PycharmProjects/visualizing-traits/data/1uC-2TZqplE.003.mp4'
+save_location_ = '/home/gabi/PycharmProjects/visualizing-traits/data'
+align_faces_in_video(data_path_, save_location_)
