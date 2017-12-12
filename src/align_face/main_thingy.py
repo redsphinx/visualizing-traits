@@ -55,7 +55,7 @@ def make_dirs(x):
 
     for i in list_dirs:
         p = os.path.join(base_save_location, x, i)
-        safe_makedirs(p)
+        util.safe_makedirs(p)
 
 
 def align_faces_in_video(data_path, frames=None):
