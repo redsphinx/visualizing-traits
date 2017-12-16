@@ -1,16 +1,11 @@
 # author:    redsphinx
 
 import numpy as np
-import time
-import tqdm
-from PIL import Image
-import psutil
 import skvideo.io
 import os
-from imutils.face_utils import FaceAligner
+from face_utils.facealigner import FaceAligner
+import face_utils.helpers as h
 import util
-# from imutils.face_utils import rect_to_bb
-import imutils
 import dlib
 import cv2
 import imageio
@@ -18,18 +13,23 @@ from multiprocessing import Pool
 import librosa
 
 
-def align_face(image):
-    pred_path = '/home/gabi/PycharmProjects/visualizing-traits/data/predictor/shape_predictor_68_face_landmarks.dat'
-
-    # initialize dlib's face detector (HOG-based) and then create the facial landmark predictor and the face aligner
+def align_face(image, desired_face_width=96, mode='center', radius='fixed'):
+    """
+    Given an image, return processed image where face is aligned according to chosen mode
+    :param image:
+    :return:
+    """
+    # create the facial landmark predictor
+    predictor = '/home/gabi/PycharmProjects/visualizing-traits/data/predictor/shape_predictor_68_face_landmarks.dat'
+    predictor = dlib.shape_predictor(predictor)
+    # initialize dlib's face detector (HOG-based)
     detector = dlib.get_frontal_face_detector()
-    predictor = dlib.shape_predictor(pred_path)
-    # fa = FaceAligner(predictor, desiredFaceWidth=256)
-    fa = FaceAligner(predictor, desiredFaceWidth=96)
+    # create the face aligner
+    fa = FaceAligner(predictor, desiredFaceWidth=desired_face_width)
 
     # resize it, and convert it to grayscale
     # image = imutils.resize(image, width=800)
-    image = imutils.resize(image, width=400)
+    image = h.resize(image, width=400)
     gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
 
     # detect faces in the grayscale image
