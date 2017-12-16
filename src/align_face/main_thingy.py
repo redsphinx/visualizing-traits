@@ -13,11 +13,14 @@ from multiprocessing import Pool
 import librosa
 
 
-def align_face(image, radius, desired_face_width=96, mode='center'):
+def align_face(image, radius=None, desired_face_width=96, mode='center'):
     """
-    Given an image, return processed image where face is aligned according to chosen mode
+    Given an image, return processed image where face is aligned according to chosen mode.
     :param image:
-    :return:
+    :param radius:
+    :param desired_face_width:
+    :param mode:
+    :return: image of aligned face, radius of face if radius is not None
     """
     # create the facial landmark predictor
     predictor = '/home/gabi/PycharmProjects/visualizing-traits/data/predictor/shape_predictor_68_face_landmarks.dat'
@@ -29,11 +32,11 @@ def align_face(image, radius, desired_face_width=96, mode='center'):
     # create the face aligner
     fa = FaceAligner(predictor, desiredFaceWidth=desired_face_width)
 
-    # resize it, and convert it to grayscale
-    image = h.resize(image, width=300)
+    # resize it, and convert it to gray scale
+    image = h.resize(image, width=200)
     gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
 
-    # detect faces in the grayscale image
+    # detect faces in the gray scale image
     face_rectangles = detector(gray, 2)
 
     # initialize variables
@@ -47,78 +50,71 @@ def align_face(image, radius, desired_face_width=96, mode='center'):
             face_aligned = fa.align_geometric_eyes(image, gray, rectangle)
         elif mode == 'center':
             face_aligned, radius = fa.align_center(image, gray, rectangle, radius)
+        elif mode == 'template_affine':
+            face_aligned = fa.align_to_template_affine(image, gray, rectangle)
 
     return face_aligned, radius
 
 
-def make_dirs(x):
-    base_save_location = '/media/gabi/DATADRIVE1/datasets/chalearn_fi_only_faces_aligned'
-    data_path = '/media/gabi/DATADRIVE1/datasets/chalearn_fi_17_compressed/%s' % x
-    list_dirs = os.listdir(data_path)
-
-    for i in list_dirs:
-        p = os.path.join(base_save_location, x, i)
-        util.safe_makedirs(p)
-
-
 def align_faces_in_video(data_path, frames=None):
-    print('aligning: %s' % data_path)
-    base_save_location = '/media/gabi/DATADRIVE1/datasets/chalearn_fi_only_faces_aligned'
-
-    # tmp = '/media/gabi/DATADRIVE1/datasets/chalearn_fi_17_compressed/test-1/test80_01/3gmc2kLV4Bo.003.mp4'
+    """
+    Align face in video.
+    :param data_path:
+    :param frames:
+    :return:
+    """
+    # base_save_location = '/media/gabi/DATADRIVE1/datasets/chalearn_fi_only_faces_aligned'
+    base_save_location = '/home/gabi/PycharmProjects/visualizing-traits/data/chalearn'
 
     which_test = data_path.strip().split('/')[-3]
     which_video_folder = data_path.strip().split('/')[-2]
 
     save_location = os.path.join(base_save_location, which_test, which_video_folder)
 
-    # if not os.path.exists(save_location):
-    #     os.makedirs(save_location)
-
     if os.path.exists(data_path):
-        # returns array with shape (459, 256, 456, 3)
         video_capture = skvideo.io.vread(data_path)
-        print(np.shape(video_capture))
         video_capture = np.array(video_capture, dtype=np.uint8)
-        # returns an array with shape (1, 1, 1, 244800)
         audio_capture = librosa.load(data_path, 16000)[0][None, None, None, :]
-        print(np.shape(audio_capture))
-
-        name_video = data_path.split('/')[-1].split('mp4')[0]
 
         if frames is None:
             frames = np.shape(video_capture)[0]
 
-        # new_height, new_width, channels = 256, 256, 3
-        new_height, new_width, channels = 96, 96, 3
+        side = 96
+        channels = 3
 
-        new_video_array = np.zeros((frames, new_height, new_width, channels), dtype='uint8')
+        new_video_array = np.zeros((frames, side, side, channels), dtype='uint8')
 
         no_face_counter = 0
+        the_radius = 0
 
-        # for i in tqdm.tqdm(range(frames)):
         for i in range(frames):
             frame = video_capture[i]
-            new_frame = align_face(frame)
+            new_frame, radius = align_face(frame, radius=the_radius, desired_face_width=side)
+            if i == 0:
+                the_radius = radius
 
             # if no face detected, copy face from previous frame
             if new_frame is None:
                 new_frame = new_video_array[i - 1]
                 no_face_counter += 1
-                # print('\nno face detected %d' % no_face_counter)
 
             new_frame = np.array(new_frame, dtype='uint8')
             new_video_array[i] = new_frame
 
+        name_video = data_path.split('/')[-1].split('mp4')[0]
         vid_name = os.path.join(save_location, '%s.mp4' % name_video)
         # TODO: add the audio track
-        imageio.mimwrite(vid_name, new_video_array, fps=30.)
+        # TODO: get FPS from video
+        fps = 30.
+        imageio.mimwrite(vid_name, new_video_array, fps=fps)
 
     else:
         print('Error: data_path does not exist')
 
 
-align_faces_in_video('/media/gabi/DATADRIVE1/datasets/chalearn_fi_17_compressed/test-1/test80_01/3gmc2kLV4Bo.003.mp4')
+# data_path = '/media/gabi/DATADRIVE1/datasets/chalearn_fi_17_compressed/test-1/test80_01/3gmc2kLV4Bo.003.mp4'
+dp = '/media/gabi/345148f0-e089-41d9-8570-eb01be812c35/home/gabi/Documents/datasets/chalearn_fi_17_compressed/test-1/test80_01/2Z8Xi_DTlpI.000.mp4'
+align_faces_in_video(dp)
 
 
 def get_path_videos(name_folder):
@@ -143,7 +139,7 @@ def get_path_videos(name_folder):
 def parallel_align(which_folder):
     pool = Pool(processes=10)
     list_path_all_videos = get_path_videos(which_folder)[0:80]
-    make_dirs(which_folder)
+    h.make_dirs(which_folder)
     pool.apply_async(align_faces_in_video)
     pool.map(align_faces_in_video, list_path_all_videos)
 
