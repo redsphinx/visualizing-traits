@@ -10,8 +10,7 @@ from skimage import transform
 
 
 class FaceAligner:
-    def __init__(self, predictor, desiredLeftEye=(0.35, 0.35), desiredFaceWidth=256, desiredFaceHeight=None,
-                 desired_mouth_x=0.5):
+    def __init__(self, predictor, desiredLeftEye=(0.35, 0.35), desiredFaceWidth=256, desiredFaceHeight=None):
         # store the facial landmark predictor, desired output left
         # eye position, and desired output face width + height
         # horizontal mouth position
@@ -25,7 +24,7 @@ class FaceAligner:
         if self.desiredFaceHeight is None:
             self.desiredFaceHeight = self.desiredFaceWidth
 
-    def align_similarity(self, image, gray, rect):
+    def align_to_template_similarity(self, image, gray, rect):
         # example template. Just something I came up with
         template = {'mouth': [48, 66],
                     'left_eye': [32, 33],
@@ -56,7 +55,6 @@ class FaceAligner:
         transform_matrix = transform.estimate_transform('similarity', pts1, pts2)
         # affine_transform_matrix = np.vstack([affine_transform_matrix, [0, 0, 1]])
 
-
         # similarity_transform = SimilarityTransform(matrix=affine_transform_matrix.scale)
         result = transform.warp(image, transform_matrix, output_shape=(self.desiredFaceWidth, self.desiredFaceHeight, 3))
         img = Image.fromarray(result, mode='RGB')
@@ -78,8 +76,8 @@ class FaceAligner:
 
         return result
 
-    def hard_align(self, image, gray, rect):
-        # align by similarity transform image to hard set landmark locations on a template
+    def align_to_template_affine(self, image, gray, rect):
+        # align by affine warping transform image to hard set landmark locations on a template
 
         # example template. Just something I came up with
         template = {'mouth': [48, 66],
@@ -111,18 +109,12 @@ class FaceAligner:
 
         result = cv2.warpAffine(image, affine_transform_matrix, (self.desiredFaceWidth, self.desiredFaceHeight))
 
-        # img = Image.fromarray(result, mode='RGB')
-        # img.show()
-
-        # print('asdf')
-
         return result
 
-    def align_center_fixed_radius(self, image, gray, rect, radius):
+    def align_center(self, image, gray, rect, radius):
         # convert the landmark (x, y)-coordinates to a NumPy array
         shape = self.predictor(gray, rect)
         shape = shape_to_np(shape)
-        the_real_shape = np.shape(image)
 
         # extract the left and right eye (x, y)-coordinates
         (l_start, l_end) = FACIAL_LANDMARKS_IDXS["left_eye"]
@@ -134,14 +126,6 @@ class FaceAligner:
         right_eye_points = shape[r_start:r_end]
         mouth_points = shape[m_start:m_end]
         jaw_points = shape[j_start:j_end]
-
-        # print('lefT_eye_point: %s' % str(left_eye_points))
-        # print('right_eye_point: %s' % str(right_eye_points))
-        # print('mouth_point: %s' % str(mouth_points))
-
-        # compute the center of mass for each eye
-        # left_eye_center = left_eye_points.mean(axis=0).astype("int")
-        # right_eye_center = right_eye_points.mean(axis=0).astype("int")
 
         # compute the geometrical center of each eye
         left_eye_bbox = get_bbox(left_eye_points)
@@ -164,7 +148,7 @@ class FaceAligner:
         img = Image.fromarray(image)
         cropped_image = img.crop((top_left[0], top_left[1], bottom_right[0], bottom_right[1]))
 
-        resized_image = cropped_image.resize((96, 96))
+        resized_image = cropped_image.resize((self.desiredFaceWidth, self.desiredFaceHeight))
         return np.array(resized_image, dtype='uint8'), radius
 
     def align_geometric_eyes(self, image, gray, rect):

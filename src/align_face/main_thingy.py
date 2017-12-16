@@ -13,7 +13,7 @@ from multiprocessing import Pool
 import librosa
 
 
-def align_face(image, desired_face_width=96, mode='center', radius='fixed'):
+def align_face(image, radius, desired_face_width=96, mode='center'):
     """
     Given an image, return processed image where face is aligned according to chosen mode
     :param image:
@@ -22,30 +22,33 @@ def align_face(image, desired_face_width=96, mode='center', radius='fixed'):
     # create the facial landmark predictor
     predictor = '/home/gabi/PycharmProjects/visualizing-traits/data/predictor/shape_predictor_68_face_landmarks.dat'
     predictor = dlib.shape_predictor(predictor)
+
     # initialize dlib's face detector (HOG-based)
     detector = dlib.get_frontal_face_detector()
+
     # create the face aligner
     fa = FaceAligner(predictor, desiredFaceWidth=desired_face_width)
 
     # resize it, and convert it to grayscale
-    # image = imutils.resize(image, width=800)
-    image = h.resize(image, width=400)
+    image = h.resize(image, width=300)
     gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
 
     # detect faces in the grayscale image
-    rects = detector(gray, 2)
+    face_rectangles = detector(gray, 2)
 
-    faceAligned = None
+    # initialize variables
+    face_aligned = None
 
     # loop over the face detections
-    for rect in rects:
-        # extract the ROI of the *original* face, then align the face
-        # using facial landmarks
-        # (x, y, w, h) = rect_to_bb(rect)
-        # faceOrig = imutils.resize(image[y:y + h, x:x + w], width=256)
-        faceAligned = fa.align(image, gray, rect)
+    for rectangle in face_rectangles:
+        if mode == 'eyes_mass':
+            face_aligned = fa.align(image, gray, rectangle)
+        elif mode == 'eyes_geometric':
+            face_aligned = fa.align_geometric_eyes(image, gray, rectangle)
+        elif mode == 'center':
+            face_aligned, radius = fa.align_center(image, gray, rectangle, radius)
 
-    return faceAligned
+    return face_aligned, radius
 
 
 def make_dirs(x):
