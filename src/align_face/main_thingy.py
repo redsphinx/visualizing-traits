@@ -64,17 +64,27 @@ def align_faces_in_video(data_path, frames=None):
     :return:
     """
     # base_save_location = '/media/gabi/DATADRIVE1/datasets/chalearn_fi_only_faces_aligned'
-    base_save_location = '/home/gabi/PycharmProjects/visualizing-traits/data/chalearn'
+    # base_save_location = '/home/gabi/PycharmProjects/visualizing-traits/data/chalearn'
+    base_save_location = '/home/gabi/PycharmProjects/visualizing-traits/data/testing'
 
-    which_test = data_path.strip().split('/')[-3]
-    which_video_folder = data_path.strip().split('/')[-2]
+    # which_test = data_path.strip().split('/')[-3]
+    # which_video_folder = data_path.strip().split('/')[-2]
+    # save_location = os.path.join(base_save_location, which_test, which_video_folder)
 
-    save_location = os.path.join(base_save_location, which_test, which_video_folder)
+    save_location = base_save_location
 
     if os.path.exists(data_path):
         video_capture = skvideo.io.vread(data_path)
+        meta_data = skvideo.io.ffprobe(data_path)
+        fps = str(meta_data['video']['@avg_frame_rate'])
+        fps = int(fps.split('/')[0])
+
+        # alternative vid cap
+        # video_capture = cv2.VideoCapture(data_path)
+        # fps = video_capture.get(cv2.CAP_PROP_FPS)
+
         video_capture = np.array(video_capture, dtype=np.uint8)
-        audio_capture = librosa.load(data_path, 16000)[0][None, None, None, :]
+        # audio_capture = librosa.load(data_path, 16000)[0][None, None, None, :]
 
         if frames is None:
             frames = np.shape(video_capture)[0]
@@ -101,20 +111,17 @@ def align_faces_in_video(data_path, frames=None):
             new_frame = np.array(new_frame, dtype='uint8')
             new_video_array[i] = new_frame
 
-        name_video = data_path.split('/')[-1].split('mp4')[0]
-        vid_name = os.path.join(save_location, '%s.mp4' % name_video)
+        name_video = data_path.split('/')[-1].split('.mp4')[0]
+        vid_name = os.path.join(save_location, '%s_align_center.mp4' % name_video)
         # TODO: add the audio track
-        # TODO: get FPS from video
-        fps = 30.
         imageio.mimwrite(vid_name, new_video_array, fps=fps)
 
     else:
         print('Error: data_path does not exist')
 
 
-# data_path = '/media/gabi/DATADRIVE1/datasets/chalearn_fi_17_compressed/test-1/test80_01/3gmc2kLV4Bo.003.mp4'
-dp = '/media/gabi/345148f0-e089-41d9-8570-eb01be812c35/home/gabi/Documents/datasets/chalearn_fi_17_compressed/test-1/test80_01/2Z8Xi_DTlpI.000.mp4'
-align_faces_in_video(dp)
+dp = '/media/gabi/DATADRIVE1/datasets/chalearn_fi_17_compressed/test-1/test80_01/3hKgh9AB3tk.003.mp4'
+align_faces_in_video(dp, frames=20)
 
 
 def get_path_videos(name_folder):

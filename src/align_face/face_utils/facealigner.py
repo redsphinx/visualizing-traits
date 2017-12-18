@@ -5,8 +5,8 @@ from .helpers import get_bbox
 import numpy as np
 import cv2
 from PIL import Image
-from skimage.transform import SimilarityTransform
-from skimage import transform
+# from skimage.transform import SimilarityTransform
+# from skimage import transform
 
 
 class FaceAligner:
@@ -24,57 +24,57 @@ class FaceAligner:
         if self.desiredFaceHeight is None:
             self.desiredFaceHeight = self.desiredFaceWidth
 
-    def align_to_template_similarity(self, image, gray, rect):
-        # example template. Just something I came up with
-        template = {'mouth': [48, 66],
-                    'left_eye': [32, 33],
-                    'right_eye': [64, 33]}
-
-        shape = shape_to_np(self.predictor(gray, rect))
-
-        (l_start, l_end) = FACIAL_LANDMARKS_IDXS["left_eye"]
-        (r_start, r_end) = FACIAL_LANDMARKS_IDXS["right_eye"]
-        (m_start, m_end) = FACIAL_LANDMARKS_IDXS['mouth']
-
-        left_eye_points = shape[l_start:l_end]
-        right_eye_points = shape[r_start:r_end]
-        mouth_points = shape[m_start:m_end]
-
-        left_eye_bbox = get_bbox(left_eye_points)
-        left_eye_center = [(left_eye_bbox[0][0] + left_eye_bbox[1][0]) / 2,
-                           (left_eye_bbox[2][1] + left_eye_bbox[3][1]) / 2]
-        right_eye_bbox = get_bbox(right_eye_points)
-        right_eye_center = [(right_eye_bbox[0][0] + right_eye_bbox[1][0]) / 2,
-                            (right_eye_bbox[2][1] + right_eye_bbox[3][1]) / 2]
-        mouth_bbox = get_bbox(mouth_points)
-        mouth_center = [(mouth_bbox[0][0] + mouth_bbox[1][0]) / 2, (mouth_bbox[2][1] + mouth_bbox[3][1]) / 2]
-
-        pts1 = np.float32([left_eye_center, right_eye_center, mouth_center])
-        pts2 = np.float32([template['left_eye'], template['right_eye'], template['mouth']])
-
-        transform_matrix = transform.estimate_transform('similarity', pts1, pts2)
-        # affine_transform_matrix = np.vstack([affine_transform_matrix, [0, 0, 1]])
-
-        # similarity_transform = SimilarityTransform(matrix=affine_transform_matrix.scale)
-        result = transform.warp(image, transform_matrix, output_shape=(self.desiredFaceWidth, self.desiredFaceHeight, 3))
-        img = Image.fromarray(result, mode='RGB')
-        img.show()
-
-        # similarity_transform = SimilarityTransform(matrix=affine_transform_matrix.translation)
-        result = transform.warp(image, transform_matrix.rotation,
-                                output_shape=(self.desiredFaceWidth, self.desiredFaceHeight, 3))
-        img = Image.fromarray(result, mode='RGB')
-        img.show()
-
-        # similarity_transform = SimilarityTransform(matrix=affine_transform_matrix.rotation)
-        result = transform.warp(image, transform_matrix.translation,
-                                output_shape=(self.desiredFaceWidth, self.desiredFaceHeight, 3))
-        img = Image.fromarray(result, mode='RGB')
-        img.show()
-
-        print('asdf')
-
-        return result
+    # def align_to_template_similarity(self, image, gray, rect):
+    #     # example template. Just something I came up with
+    #     template = {'mouth': [48, 66],
+    #                 'left_eye': [32, 33],
+    #                 'right_eye': [64, 33]}
+    #
+    #     shape = shape_to_np(self.predictor(gray, rect))
+    #
+    #     (l_start, l_end) = FACIAL_LANDMARKS_IDXS["left_eye"]
+    #     (r_start, r_end) = FACIAL_LANDMARKS_IDXS["right_eye"]
+    #     (m_start, m_end) = FACIAL_LANDMARKS_IDXS['mouth']
+    #
+    #     left_eye_points = shape[l_start:l_end]
+    #     right_eye_points = shape[r_start:r_end]
+    #     mouth_points = shape[m_start:m_end]
+    #
+    #     left_eye_bbox = get_bbox(left_eye_points)
+    #     left_eye_center = [(left_eye_bbox[0][0] + left_eye_bbox[1][0]) / 2,
+    #                        (left_eye_bbox[2][1] + left_eye_bbox[3][1]) / 2]
+    #     right_eye_bbox = get_bbox(right_eye_points)
+    #     right_eye_center = [(right_eye_bbox[0][0] + right_eye_bbox[1][0]) / 2,
+    #                         (right_eye_bbox[2][1] + right_eye_bbox[3][1]) / 2]
+    #     mouth_bbox = get_bbox(mouth_points)
+    #     mouth_center = [(mouth_bbox[0][0] + mouth_bbox[1][0]) / 2, (mouth_bbox[2][1] + mouth_bbox[3][1]) / 2]
+    #
+    #     pts1 = np.float32([left_eye_center, right_eye_center, mouth_center])
+    #     pts2 = np.float32([template['left_eye'], template['right_eye'], template['mouth']])
+    #
+    #     transform_matrix = transform.estimate_transform('similarity', pts1, pts2)
+    #     # affine_transform_matrix = np.vstack([affine_transform_matrix, [0, 0, 1]])
+    #
+    #     # similarity_transform = SimilarityTransform(matrix=affine_transform_matrix.scale)
+    #     result = transform.warp(image, transform_matrix, output_shape=(self.desiredFaceWidth, self.desiredFaceHeight, 3))
+    #     img = Image.fromarray(result, mode='RGB')
+    #     img.show()
+    #
+    #     # similarity_transform = SimilarityTransform(matrix=affine_transform_matrix.translation)
+    #     result = transform.warp(image, transform_matrix.rotation,
+    #                             output_shape=(self.desiredFaceWidth, self.desiredFaceHeight, 3))
+    #     img = Image.fromarray(result, mode='RGB')
+    #     img.show()
+    #
+    #     # similarity_transform = SimilarityTransform(matrix=affine_transform_matrix.rotation)
+    #     result = transform.warp(image, transform_matrix.translation,
+    #                             output_shape=(self.desiredFaceWidth, self.desiredFaceHeight, 3))
+    #     img = Image.fromarray(result, mode='RGB')
+    #     img.show()
+    #
+    #     print('asdf')
+    #
+    #     return result
 
     def align_to_template_affine(self, image, gray, rect):
         # align by affine warping transform image to hard set landmark locations on a template
