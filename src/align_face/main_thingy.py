@@ -6,11 +6,14 @@ import os
 from face_utils.facealigner import FaceAligner
 import face_utils.helpers as h
 import util
+import tqdm
 import dlib
 import cv2
 import imageio
 from multiprocessing import Pool
 import librosa
+import subprocess
+import time
 
 
 def align_face(image, radius=None, desired_face_width=96, mode='center'):
@@ -52,15 +55,18 @@ def align_face(image, radius=None, desired_face_width=96, mode='center'):
             face_aligned, radius = fa.align_center(image, gray, rectangle, radius)
         elif mode == 'template_affine':
             face_aligned = fa.align_to_template_affine(image, gray, rectangle)
+        elif mode == 'similarity':
+            face_aligned = fa.align_to_template_similarity(image, gray, rectangle)
 
     return face_aligned, radius
 
 
-def align_faces_in_video(data_path, frames=None):
+def align_faces_in_video(data_path, frames=None, audio=False):
     """
     Align face in video.
     :param data_path:
     :param frames:
+    :param audio:
     :return:
     """
     # base_save_location = '/media/gabi/DATADRIVE1/datasets/chalearn_fi_only_faces_aligned'
@@ -76,15 +82,20 @@ def align_faces_in_video(data_path, frames=None):
     if os.path.exists(data_path):
         video_capture = skvideo.io.vread(data_path)
         meta_data = skvideo.io.ffprobe(data_path)
+        # not necessary
         fps = str(meta_data['video']['@avg_frame_rate'])
-        fps = int(fps.split('/')[0])
-
-        # alternative vid cap
-        # video_capture = cv2.VideoCapture(data_path)
-        # fps = video_capture.get(cv2.CAP_PROP_FPS)
+        fps = int(fps.split('/')[0][:2])
+        print('fps: %s' % fps)
 
         video_capture = np.array(video_capture, dtype=np.uint8)
         # audio_capture = librosa.load(data_path, 16000)[0][None, None, None, :]
+        # audio_capture = librosa.load(data_path)
+        # ac = audio_capture[0][None, None, None, :]
+        if audio:
+            command = "ffmpeg -i %s -ab 160k -ac 2 -ar 44100 -vn audio.wav" % data_path
+            subprocess.call(command, shell=True)
+
+        # TODO: delete the audio file
 
         if frames is None:
             frames = np.shape(video_capture)[0]
@@ -97,9 +108,9 @@ def align_faces_in_video(data_path, frames=None):
         no_face_counter = 0
         the_radius = 0
 
-        for i in range(frames):
+        for i in tqdm.tqdm(range(frames)):
             frame = video_capture[i]
-            new_frame, radius = align_face(frame, radius=the_radius, desired_face_width=side)
+            new_frame, radius = align_face(frame, radius=the_radius, desired_face_width=side, mode='similarity')
             if i == 0:
                 the_radius = radius
 
@@ -113,15 +124,15 @@ def align_faces_in_video(data_path, frames=None):
 
         name_video = data_path.split('/')[-1].split('.mp4')[0]
         vid_name = os.path.join(save_location, '%s_align_center.mp4' % name_video)
-        # TODO: add the audio track
         imageio.mimwrite(vid_name, new_video_array, fps=fps)
+        if audio:
+            # TODO: add the audio track
+            time.sleep(1)
+            command = "ffmpeg -i %s -i %s -codec copy -shortest %s_output.avi" % (vid_name, 'audio.wav', name_video)
+            subprocess.call(command, shell=True)
 
     else:
         print('Error: data_path does not exist')
-
-
-dp = '/media/gabi/DATADRIVE1/datasets/chalearn_fi_17_compressed/test-1/test80_01/3hKgh9AB3tk.003.mp4'
-align_faces_in_video(dp, frames=20)
 
 
 def get_path_videos(name_folder):
@@ -150,3 +161,19 @@ def parallel_align(which_folder):
     pool.apply_async(align_faces_in_video)
     pool.map(align_faces_in_video, list_path_all_videos)
 
+
+def add_audio(audio_path, video_path):
+    command = "ffmpeg -i %s -ab 160k -ac 2 -ar 44100 -vn audio.wav" % audio_path
+    subprocess.call(command, shell=True)
+
+    name_video = video_path.split('/')[-1].split('.mp4')[0]
+
+    command = "ffmpeg -i %s -i %s -codec copy -shortest %s_output.avi" % (video_path, 'audio.wav', name_video)
+    subprocess.call(command, shell=True)
+
+
+# ap = '/media/gabi/DATADRIVE1/datasets/chalearn_fi_17_compressed/test-1/test80_01/glgfB3vFewc.004.mp4'
+# vp = '/home/gabi/PycharmProjects/visualizing-traits/data/testing/glgfB3vFewc.004_align_center.mp4'
+ap = '/media/gabi/DATADRIVE1/datasets/chalearn_fi_17_compressed/test-1/test80_01/E3z1D7CKoOA.004.mp4'
+# add_audio(ap, vp)
+align_faces_in_video(ap, frames=None)
