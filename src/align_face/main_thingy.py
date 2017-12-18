@@ -36,7 +36,7 @@ def align_face(image, radius=None, desired_face_width=96, mode='center'):
     fa = FaceAligner(predictor, desiredFaceWidth=desired_face_width)
 
     # resize it, and convert it to gray scale
-    image = h.resize(image, width=200)
+    image = h.resize(image, width=300)
     gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
 
     # detect faces in the gray scale image
