@@ -59,6 +59,9 @@ class FaceAligner:
         pts1 = np.float32([left_eye_center, right_eye_center, mouth_center, nose_center])
         pts2 = np.float32([template['left_eye'], template['right_eye'], template['mouth'], template['nose']])
 
+        pts1 = np.float32([left_eye_center, right_eye_center, mouth_center, nose_center])
+        pts2 = np.float32([template['left_eye'], template['right_eye'], template['mouth'], template['nose']])
+
         # sort of works
         # tf = SimilarityTransform()
         # tf.estimate(pts1, pts2)

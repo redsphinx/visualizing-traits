@@ -174,6 +174,7 @@ def add_audio(audio_path, video_path):
 
 # ap = '/media/gabi/DATADRIVE1/datasets/chalearn_fi_17_compressed/test-1/test80_01/glgfB3vFewc.004.mp4'
 # vp = '/home/gabi/PycharmProjects/visualizing-traits/data/testing/glgfB3vFewc.004_align_center.mp4'
-ap = '/media/gabi/DATADRIVE1/datasets/chalearn_fi_17_compressed/test-1/test80_01/E3z1D7CKoOA.004.mp4'
+# ap = '/media/gabi/DATADRIVE1/datasets/chalearn_fi_17_compressed/test-1/test80_01/E3z1D7CKoOA.004.mp4'
+ap = '/media/gabi/345148f0-e089-41d9-8570-eb01be812c35/home/gabi/Documents/datasets/chalearn_fi_17_compressed/test-1/test80_01/E3z1D7CKoOA.004.mp4'
 # add_audio(ap, vp)
 align_faces_in_video(ap, frames=None)
