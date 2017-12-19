@@ -69,16 +69,16 @@ def align_faces_in_video(data_path, frames=None, audio=True, side=96):
     :param side:
     :return:
     """
-    base_save_location = '/media/gabi/DATADRIVE1/datasets/chalearn_fi_faces_aligned_center'
-    # base_save_location = '/home/gabi/PycharmProjects/visualizing-traits/data/testing'
+    # base_save_location = '/media/gabi/DATADRIVE1/datasets/chalearn_fi_faces_aligned_center'
+    base_save_location = '/home/gabi/PycharmProjects/visualizing-traits/data/testing'
 
     # relevant when testing is over
-    which_test = data_path.strip().split('/')[-3]
-    which_video_folder = data_path.strip().split('/')[-2]
-    save_location = os.path.join(base_save_location, which_test, which_video_folder)
+    # which_test = data_path.strip().split('/')[-3]
+    # which_video_folder = data_path.strip().split('/')[-2]
+    # save_location = os.path.join(base_save_location, which_test, which_video_folder)
 
     # uncomment for testing
-    # save_location = base_save_location
+    save_location = base_save_location
 
     if os.path.exists(data_path):
         video_capture = skvideo.io.vread(data_path)
@@ -143,21 +143,4 @@ def align_faces_in_video(data_path, frames=None, audio=True, side=96):
         print('Error: data_path does not exist')
 
 
-# dp = '/media/gabi/DATADRIVE1/datasets/chalearn_fi_17_compressed/test-1/test80_10/4FS7wEOOBNk.004.mp4'
-# align_faces_in_video(dp, frames=None)
-
-# util.avi_to_mp4('/media/gabi/DATADRIVE1/datasets/chalearn_fi_faces_aligned_center/test-1/test80_01/2Z8Xi_DTlpI.000.avi',
-#                 '/media/gabi/DATADRIVE1/datasets/chalearn_fi_faces_aligned_center/test-1/test80_01/2Z8Xi_DTlpI.000_OOO.mp4')
-
-
-util.parallel_align('test-1', align_faces_in_video)
-
-# ap = '/media/gabi/DATADRIVE1/datasets/chalearn_fi_17_compressed/test-1/test80_01/glgfB3vFewc.004.mp4'
-# vp = '/home/gabi/PycharmProjects/visualizing-traits/data/testing/glgfB3vFewc.004_align_center.mp4'
-# ap = '/media/gabi/DATADRIVE1/datasets/chalearn_fi_17_compressed/test-1/test80_01/E3z1D7CKoOA.004.mp4'
-# ap = '/media/gabi/345148f0-e089-41d9-8570-eb01be812c35/home/gabi/Documents/datasets/chalearn_fi_17_compressed/test-1/
-# test80_01/E3z1D7CKoOA.004.mp4'
-# add_audio(ap, vp)
-# align_faces_in_video(ap, frames=None)
-
-
+# util.redis_stuff('test-1', align_faces_in_video)

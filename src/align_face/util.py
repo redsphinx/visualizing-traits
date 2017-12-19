@@ -4,6 +4,8 @@ from multiprocessing import Pool
 import subprocess
 import skvideo.io
 import numpy as np
+from redis import Redis
+from rq import Queue
 
 
 def safe_mkdir(my_path):
@@ -92,3 +94,9 @@ def remove_file(file_path):
         command = "mv %s /tmp" % file_path
         subprocess.call(command, shell=True)
 
+
+def redis_stuff(which_folder, func):
+    list_path_all_videos = get_path_videos(which_folder)[0:5]
+    make_folder_dirs(which_folder)
+    q = Queue(connection=Redis())
+    q.enqueue(func, list_path_all_videos)

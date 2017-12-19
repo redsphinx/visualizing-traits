@@ -24,20 +24,3 @@ def similarity():
     imshow(rotated)
 
     imshow(back_rotated)
-
-
-def runn(parameters):
-    # do something with the parameters
-    pass
-
-
-def do_redis():
-    q = Queue(connection=Redis())
-
-
-
-    default_parameters['experiment_name'] = "test_experiment_worker"
-    default_parameters['validation_step'] = 20
-    default_parameters['batch_size'] = 10
-
-    q.enqueue(run, default_parameters)
