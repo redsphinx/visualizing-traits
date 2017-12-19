@@ -65,6 +65,9 @@ class FaceAligner:
         # sort of works
         tf = SimilarityTransform()
         tf.estimate(pts1, pts2)
+        result = transform.warp(image, inverse_map=tf.inverse, output_shape=(96, 96))
+        imshow(result)
+
         print(tf.params)
         print('scale: %s\ntranslate: %s\nrotation: %s' % (str(tf.scale), str(tf.translation), str(tf.rotation)))
 

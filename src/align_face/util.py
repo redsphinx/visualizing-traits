@@ -49,22 +49,18 @@ def get_path_videos(name_folder):
     return video_path_list
 
 
-def parallel_align(which_folder, func, number_processes=30):
+def parallel_align(which_folder, func, number_processes=5):
     # func has to be align_faces_in_video
     pool = Pool(processes=number_processes)
-    list_path_all_videos = get_path_videos(which_folder)
+    list_path_all_videos = get_path_videos(which_folder)[0:number_processes]
     make_folder_dirs(which_folder)
     pool.apply_async(func)
     pool.map(func, list_path_all_videos)
 
 
-def add_audio(audio_path, video_path):
-    command = "ffmpeg -i %s -ab 160k -ac 2 -ar 44100 -vn audio.wav" % audio_path
-    subprocess.call(command, shell=True)
-
-    name_video = video_path.split('/')[-1].split('.mp4')[0]
-
-    command = "ffmpeg -i %s -i %s -codec copy -shortest %s_output.avi" % (video_path, 'audio.wav', name_video)
+def add_audio(vid_name, name_audio, avi_vid_name):
+    command = "ffmpeg -loglevel panic -i %s -i %s -codec copy -shortest -y %s" % (vid_name, name_audio,
+                                                                                  avi_vid_name)
     subprocess.call(command, shell=True)
 
 
@@ -81,3 +77,18 @@ def open_avi(data_path):
 
 # open_avi('/home/gabi/PycharmProjects/visualizing-traits/data/testing/13kjwEtSyXc.003.mp4')
 # open_avi('/home/gabi/PycharmProjects/visualizing-traits/data/testing/1uC-2TZqplE.003.avi')
+
+
+def avi_to_mp4(old_path, new_path):
+    command = "ffmpeg -loglevel panic -i %s -strict -2 %s" % (old_path, new_path)
+    subprocess.call(command, shell=True)
+
+
+def remove_file(file_path):
+    forbidden = ['/', '/home', '/home/gabi', '*', '']
+    if file_path in forbidden:
+        print('ERROR: deleting this file will lead to catastrophic error')
+    else:
+        command = "mv %s /tmp" % file_path
+        subprocess.call(command, shell=True)
+

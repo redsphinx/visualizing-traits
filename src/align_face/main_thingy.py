@@ -85,7 +85,7 @@ def align_faces_in_video(data_path, frames=None, audio=True, side=96):
         meta_data = skvideo.io.ffprobe(data_path)
         fps = str(meta_data['video']['@avg_frame_rate'])
         fps = int(fps.split('/')[0][:2])
-        # print('fps: %s' % fps)
+        print('fps: %s' % fps)
 
         name_video = data_path.split('/')[-1].split('.mp4')[0]
         name_audio = None
@@ -108,7 +108,7 @@ def align_faces_in_video(data_path, frames=None, audio=True, side=96):
         for i in range(frames):
             if i % 20 == 0:
                 print('%s: %s of %s' % (name_video, i, frames))
-                frame = video_capture[i]
+            frame = video_capture[i]
             new_frame, radius = align_face(frame, radius=the_radius, desired_face_width=side, mode='center')
             if i == 0:
                 the_radius = radius
@@ -122,29 +122,35 @@ def align_faces_in_video(data_path, frames=None, audio=True, side=96):
 
         print('END %s' % name_video)
         vid_name = os.path.join(save_location, '%s.mp4' % name_video)
-        avi_vid_name = os.path.join(save_location, '%s.avi' % name_video)
         imageio.mimwrite(vid_name, new_video_array, fps=fps)
         if audio:
             # add audio to the video
             time.sleep(1)
+            avi_vid_name = os.path.join(save_location, '%s.avi' % name_video)
+            util.add_audio(vid_name, name_audio, avi_vid_name)
             command = "ffmpeg -loglevel panic -i %s -i %s -codec copy -shortest -y %s" % (vid_name, name_audio,
                                                                                           avi_vid_name)
             subprocess.call(command, shell=True)
+            # remove first mp4
+            util.remove_file(vid_name)
             # convert avi to mp4
-            command = "ffmpeg -loglevel panic  -i -y %s -strict -2 %s" % (avi_vid_name, vid_name)
-            subprocess.call(command, shell=True)
+            util.avi_to_mp4(avi_vid_name, vid_name)
             # remove the wav file
-            command = "rm %s" % name_audio
-            subprocess.call(command, shell=True)
+            util.remove_file(name_audio)
             # remove the avi file
-            command = "rm %s" % avi_vid_name
-            subprocess.call(command, shell=True)
+            util.remove_file(avi_vid_name)
     else:
         print('Error: data_path does not exist')
 
 
-util.parallel_align('test-1', align_faces_in_video)
+# dp = '/media/gabi/DATADRIVE1/datasets/chalearn_fi_17_compressed/test-1/test80_10/4FS7wEOOBNk.004.mp4'
+# align_faces_in_video(dp, frames=None)
 
+# util.avi_to_mp4('/media/gabi/DATADRIVE1/datasets/chalearn_fi_faces_aligned_center/test-1/test80_01/2Z8Xi_DTlpI.000.avi',
+#                 '/media/gabi/DATADRIVE1/datasets/chalearn_fi_faces_aligned_center/test-1/test80_01/2Z8Xi_DTlpI.000_OOO.mp4')
+
+
+util.parallel_align('test-1', align_faces_in_video)
 
 # ap = '/media/gabi/DATADRIVE1/datasets/chalearn_fi_17_compressed/test-1/test80_01/glgfB3vFewc.004.mp4'
 # vp = '/home/gabi/PycharmProjects/visualizing-traits/data/testing/glgfB3vFewc.004_align_center.mp4'
@@ -153,3 +159,5 @@ util.parallel_align('test-1', align_faces_in_video)
 # test80_01/E3z1D7CKoOA.004.mp4'
 # add_audio(ap, vp)
 # align_faces_in_video(ap, frames=None)
+
+

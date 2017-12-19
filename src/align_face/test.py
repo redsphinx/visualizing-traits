@@ -1,35 +1,43 @@
-from __future__ import print_function
-
 import math
 import numpy as np
-# import matplotlib.pyplot as plt
-
 from skimage import data
 from skimage import transform as tf
-
 from PIL import Image
 from scipy.misc import imsave, imshow
+from redis import Redis
+from rq import Queue
 
 
-tform = tf.SimilarityTransform(scale=1, rotation=math.pi/2,
-                               translation=(0, 1))
-print(tform.params)
+def similarity():
+    tform = tf.SimilarityTransform(scale=1, rotation=math.pi/2,
+                                   translation=(0, 1))
+    print(tform.params)
 
-text = data.text()
+    text = data.text()
 
-tform = tf.SimilarityTransform(scale=1, rotation=math.pi/4,
-                               translation=(text.shape[0]/2, -100))
+    tform = tf.SimilarityTransform(scale=1, rotation=math.pi/4,
+                                   translation=(text.shape[0]/2, -100))
 
-rotated = tf.warp(text, tform)
-back_rotated = tf.warp(rotated, tform.inverse)
+    rotated = tf.warp(text, tform)
+    back_rotated = tf.warp(rotated, tform.inverse)
 
-imshow(rotated)
+    imshow(rotated)
 
-imshow(back_rotated)
+    imshow(back_rotated)
 
 
-# img1 = Image.fromarray(rotated, mode='RGB')
-# img1.show()
-#
-# img2 = Image.fromarray(back_rotated, mode='RGB')
-# img2.show()
+def runn(parameters):
+    # do something with the parameters
+    pass
+
+
+def do_redis():
+    q = Queue(connection=Redis())
+
+
+
+    default_parameters['experiment_name'] = "test_experiment_worker"
+    default_parameters['validation_step'] = 20
+    default_parameters['batch_size'] = 10
+
+    q.enqueue(run, default_parameters)
