@@ -10,18 +10,17 @@ import tqdm
 import dlib
 import cv2
 import imageio
-from multiprocessing import Pool
-import librosa
+# import librosa
 import subprocess
 import time
 
 
-def align_face(image, radius=None, desired_face_width=96, mode='center'):
+def align_face(image, desired_face_width, radius=None, mode='center'):
     """
     Given an image, return processed image where face is aligned according to chosen mode.
     :param image:
-    :param radius:
     :param desired_face_width:
+    :param radius:
     :param mode:
     :return: image of aligned face, radius of face if radius is not None
     """
@@ -36,7 +35,7 @@ def align_face(image, radius=None, desired_face_width=96, mode='center'):
     fa = FaceAligner(predictor, desiredFaceWidth=desired_face_width)
 
     # resize it, and convert it to gray scale
-    image = h.resize(image, width=300)
+    # image = h.resize(image, width=300)
     gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
 
     # detect faces in the gray scale image
@@ -61,120 +60,96 @@ def align_face(image, radius=None, desired_face_width=96, mode='center'):
     return face_aligned, radius
 
 
-def align_faces_in_video(data_path, frames=None, audio=False):
+def align_faces_in_video(data_path, frames=None, audio=True, side=96):
     """
     Align face in video.
     :param data_path:
     :param frames:
     :param audio:
+    :param side:
     :return:
     """
-    # base_save_location = '/media/gabi/DATADRIVE1/datasets/chalearn_fi_only_faces_aligned'
-    # base_save_location = '/home/gabi/PycharmProjects/visualizing-traits/data/chalearn'
-    base_save_location = '/home/gabi/PycharmProjects/visualizing-traits/data/testing'
+    base_save_location = '/media/gabi/DATADRIVE1/datasets/chalearn_fi_faces_aligned_center'
+    # base_save_location = '/home/gabi/PycharmProjects/visualizing-traits/data/testing'
 
-    # which_test = data_path.strip().split('/')[-3]
-    # which_video_folder = data_path.strip().split('/')[-2]
-    # save_location = os.path.join(base_save_location, which_test, which_video_folder)
+    # relevant when testing is over
+    which_test = data_path.strip().split('/')[-3]
+    which_video_folder = data_path.strip().split('/')[-2]
+    save_location = os.path.join(base_save_location, which_test, which_video_folder)
 
-    save_location = base_save_location
+    # uncomment for testing
+    # save_location = base_save_location
 
     if os.path.exists(data_path):
         video_capture = skvideo.io.vread(data_path)
         meta_data = skvideo.io.ffprobe(data_path)
-        # not necessary
         fps = str(meta_data['video']['@avg_frame_rate'])
         fps = int(fps.split('/')[0][:2])
-        print('fps: %s' % fps)
+        # print('fps: %s' % fps)
+
+        name_video = data_path.split('/')[-1].split('.mp4')[0]
+        name_audio = None
 
         video_capture = np.array(video_capture, dtype=np.uint8)
-        # audio_capture = librosa.load(data_path, 16000)[0][None, None, None, :]
-        # audio_capture = librosa.load(data_path)
-        # ac = audio_capture[0][None, None, None, :]
         if audio:
-            command = "ffmpeg -i %s -ab 160k -ac 2 -ar 44100 -vn audio.wav" % data_path
+            name_audio = os.path.join(save_location, '%s.wav' % name_video)
+            command = "ffmpeg -loglevel panic -i %s -ab 160k -ac 2 -ar 44100 -vn -y %s" % (data_path, name_audio)
             subprocess.call(command, shell=True)
-
-        # TODO: delete the audio file
 
         if frames is None:
             frames = np.shape(video_capture)[0]
 
-        side = 96
         channels = 3
 
         new_video_array = np.zeros((frames, side, side, channels), dtype='uint8')
 
-        no_face_counter = 0
         the_radius = 0
 
-        for i in tqdm.tqdm(range(frames)):
-            frame = video_capture[i]
-            new_frame, radius = align_face(frame, radius=the_radius, desired_face_width=side, mode='similarity')
+        for i in range(frames):
+            if i % 20 == 0:
+                print('%s: %s of %s' % (name_video, i, frames))
+                frame = video_capture[i]
+            new_frame, radius = align_face(frame, radius=the_radius, desired_face_width=side, mode='center')
             if i == 0:
                 the_radius = radius
 
             # if no face detected, copy face from previous frame
             if new_frame is None:
                 new_frame = new_video_array[i - 1]
-                no_face_counter += 1
 
             new_frame = np.array(new_frame, dtype='uint8')
             new_video_array[i] = new_frame
 
-        name_video = data_path.split('/')[-1].split('.mp4')[0]
-        vid_name = os.path.join(save_location, '%s_align_center.mp4' % name_video)
+        print('END %s' % name_video)
+        vid_name = os.path.join(save_location, '%s.mp4' % name_video)
+        avi_vid_name = os.path.join(save_location, '%s.avi' % name_video)
         imageio.mimwrite(vid_name, new_video_array, fps=fps)
         if audio:
-            # TODO: add the audio track
+            # add audio to the video
             time.sleep(1)
-            command = "ffmpeg -i %s -i %s -codec copy -shortest %s_output.avi" % (vid_name, 'audio.wav', name_video)
+            command = "ffmpeg -loglevel panic -i %s -i %s -codec copy -shortest -y %s" % (vid_name, name_audio,
+                                                                                          avi_vid_name)
             subprocess.call(command, shell=True)
-
+            # convert avi to mp4
+            command = "ffmpeg -loglevel panic  -i -y %s -strict -2 %s" % (avi_vid_name, vid_name)
+            subprocess.call(command, shell=True)
+            # remove the wav file
+            command = "rm %s" % name_audio
+            subprocess.call(command, shell=True)
+            # remove the avi file
+            command = "rm %s" % avi_vid_name
+            subprocess.call(command, shell=True)
     else:
         print('Error: data_path does not exist')
 
 
-def get_path_videos(name_folder):
-    top_folder_path = '/media/gabi/DATADRIVE1/datasets/chalearn_fi_17_compressed'
-    top_folder_path = os.path.join(top_folder_path, name_folder)
-
-    video_folders = os.listdir(top_folder_path)
-    video_path_list = []
-
-    for f in video_folders:
-        video_folder_path = os.path.join(top_folder_path, f)
-        videos = os.listdir(video_folder_path)
-        for v in videos:
-            video_path = os.path.join(video_folder_path, v)
-            video_path_list.append(video_path)
-
-    print('length list: %s videos' % str(len(video_path_list)))
-
-    return video_path_list
-
-
-def parallel_align(which_folder):
-    pool = Pool(processes=10)
-    list_path_all_videos = get_path_videos(which_folder)[0:80]
-    h.make_dirs(which_folder)
-    pool.apply_async(align_faces_in_video)
-    pool.map(align_faces_in_video, list_path_all_videos)
-
-
-def add_audio(audio_path, video_path):
-    command = "ffmpeg -i %s -ab 160k -ac 2 -ar 44100 -vn audio.wav" % audio_path
-    subprocess.call(command, shell=True)
-
-    name_video = video_path.split('/')[-1].split('.mp4')[0]
-
-    command = "ffmpeg -i %s -i %s -codec copy -shortest %s_output.avi" % (video_path, 'audio.wav', name_video)
-    subprocess.call(command, shell=True)
+util.parallel_align('test-1', align_faces_in_video)
 
 
 # ap = '/media/gabi/DATADRIVE1/datasets/chalearn_fi_17_compressed/test-1/test80_01/glgfB3vFewc.004.mp4'
 # vp = '/home/gabi/PycharmProjects/visualizing-traits/data/testing/glgfB3vFewc.004_align_center.mp4'
 # ap = '/media/gabi/DATADRIVE1/datasets/chalearn_fi_17_compressed/test-1/test80_01/E3z1D7CKoOA.004.mp4'
-ap = '/media/gabi/345148f0-e089-41d9-8570-eb01be812c35/home/gabi/Documents/datasets/chalearn_fi_17_compressed/test-1/test80_01/E3z1D7CKoOA.004.mp4'
+# ap = '/media/gabi/345148f0-e089-41d9-8570-eb01be812c35/home/gabi/Documents/datasets/chalearn_fi_17_compressed/test-1/
+# test80_01/E3z1D7CKoOA.004.mp4'
 # add_audio(ap, vp)
-align_faces_in_video(ap, frames=None)
+# align_faces_in_video(ap, frames=None)

@@ -5,8 +5,8 @@ from .helpers import get_bbox
 import numpy as np
 import cv2
 from PIL import Image
-from skimage.transform import SimilarityTransform, ProjectiveTransform
-from skimage import transform
+# from skimage.transform import SimilarityTransform, ProjectiveTransform
+# from skimage import transform
 from scipy.misc import imshow, imsave
 
 
@@ -68,11 +68,7 @@ class FaceAligner:
         print(tf.params)
         print('scale: %s\ntranslate: %s\nrotation: %s' % (str(tf.scale), str(tf.translation), str(tf.rotation)))
 
-        alpha = 300/96.
-        new_scale = tf.scale * alpha
-        new_translate = tf.translation * -1
-
-        tf2 = SimilarityTransform(rotation=tf.rotation, translation=new_translate, scale=new_scale)
+        tf2 = SimilarityTransform(rotation=tf.rotation, translation=tf.translation, scale=tf.scale)
         result = transform.warp(image, inverse_map=tf2.inverse, output_shape=(96, 96),  preserve_range=False)
         imshow(result)
 
