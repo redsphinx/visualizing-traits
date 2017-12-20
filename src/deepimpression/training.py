@@ -51,11 +51,9 @@ def make_training_set(side, batch_size, get_audio=True):
     return batch_frames, batch_audio, labels
 
 
-batchsize = 32
-epochs = 900
-
-
 def main():
+    batch_size = 32
+    epochs = 900
     # TODO: define below
     # TODO: create a pipelining tool to get videos and labels and feed to iterator
     # ----------------
@@ -72,8 +70,9 @@ def main():
     optimizer = chainer.optimizers.Adam(alpha=0.0002, beta1=0.5, beta2=0.999, eps=10e-8)
     optimizer.setup(model)
 
-    train_iter = RandomIterator(train, batchsize)
-    test_iter = RandomIterator(test, batchsize)
+    # TODO: write our shit as iterator
+    train_iter = RandomIterator(train, batch_size)
+    test_iter = RandomIterator(test, batch_size)
 
     train_loss = np.zeros(epochs)
     test_loss = np.zeros(epochs)
@@ -85,7 +84,9 @@ def main():
             for data in train_iter:
                 # train step
                 model.cleargrads()  # zero the gradient buffer
-                loss = F.softmax_cross_entropy(model(data[0]), data[1])
+                # loss = F.softmax_cross_entropy(model(data[0]), data[1])
+                frames, audios, labels = make_training_set(side=96, batch_size=batch_size)
+                loss = F.softmax_cross_entropy(model(frames, audios), labels)
                 loss.backward()
                 optimizer.update()
 
