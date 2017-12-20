@@ -3,6 +3,7 @@ import subprocess
 from random import randint
 import skvideo.io
 import time
+from PIL import Image
 
 
 def get_random_frame_number(fps):
@@ -22,23 +23,21 @@ def get_random_frame_number(fps):
     return begin_time, end_time
 
 
-def save_random_frame():
+def get_random_frame():
     video_path = '/home/gabi/Documents/temp_datasets/chalearn_fi_faces_aligned_center/test-1/test80_01/1uC-2TZqplE.003.mp4'
-    save_path = 'test.jpg'
     meta_data = skvideo.io.ffprobe(video_path)
+    h = int(meta_data['video']['@height'])
+    w = int(meta_data['video']['@width'])
     fps = str(meta_data['video']['@avg_frame_rate'])
     fps = int(fps.split('/')[0][:2])
     begin_time, end_time = get_random_frame_number(fps)
+    # save_path = 'test.jpg'
     # command = "ffmpeg -loglevel panic -y -ss %s -t %s -i %s -r %s.0 %s" % (begin_time, end_time, video_path, fps, save_path)
-
-    command = "ffmpeg -loglevel panic -y -ss %s -t %s -i %s -r %s.0 %s" % (begin_time, end_time, video_path, fps, save_path)
-
-
-    subprocess.call(command, shell=True)
-
-# 'ffmpeg -ss 00:00:09.43 -t 00:00:00.033 -i /home/gabi/Documents/temp_datasets/chalearn_fi_faces_aligned_center/test-1/test80_01/1uC-2TZqplE.003.mp4 -r 30.0 test.jpg'
-
-
-t = time.time()
-save_random_frame()
-print('time: %s seconds' % str((time.time() - t) / 60))
+    command = "ffmpeg -loglevel panic -ss %s -t %s -i %s -r %s.0 -f image2pipe -pix_fmt rgb24 -vcodec rawvideo -" % (begin_time, end_time, video_path, fps)
+    pipe = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE)
+    img = pipe.stdout.read(h*w*3)
+    img = np.fromstring(img, dtype='uint8')
+    img = img.reshape((h, w, 3))
+    # im = Image.fromarray(img, mode='RGB')
+    # im.show()
+    return img
