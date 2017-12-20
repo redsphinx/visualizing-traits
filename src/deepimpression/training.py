@@ -33,9 +33,6 @@ def extract_frame_and_audio(video_path, audio=True):
     # return a random frame from the video and a random cropped clip of the audio of that video
     # maybe flip frame?
     # work with ffmpeg
-    'ffmpeg -ss 00:00:25 -t 00:00:00.04 -i YOURMOVIE.MP4 -r 25.0 YOURIMAGE%4d.jpg'
-    'ffmpeg -i inputfile [ ... options ... ] 2>&1 | your-process '
-    command = "ffmpeg -ss "
 
 
     audio_array = None

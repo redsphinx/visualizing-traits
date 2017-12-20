@@ -4,6 +4,7 @@ from random import randint
 import skvideo.io
 import time
 from PIL import Image
+import librosa
 
 
 def get_random_frame_number(fps):
@@ -23,8 +24,8 @@ def get_random_frame_number(fps):
     return begin_time, end_time
 
 
-def get_random_frame():
-    video_path = '/home/gabi/Documents/temp_datasets/chalearn_fi_faces_aligned_center/test-1/test80_01/1uC-2TZqplE.003.mp4'
+def get_random_frame(video_path):
+    # video_path = '/home/gabi/Documents/temp_datasets/chalearn_fi_faces_aligned_center/test-1/test80_01/1uC-2TZqplE.003.mp4'
     meta_data = skvideo.io.ffprobe(video_path)
     h = int(meta_data['video']['@height'])
     w = int(meta_data['video']['@width'])
@@ -41,3 +42,22 @@ def get_random_frame():
     # im = Image.fromarray(img, mode='RGB')
     # im.show()
     return img
+
+
+def get_random_audio_clip(video_path):
+    audio = librosa.load(video_path, 16000)[0][None, None, None, :]
+    sample_length = 50176
+    audio_length = np.shape(audio)[-1]
+    clip_here = randint(0, audio_length-sample_length)
+    audio = audio[:, :, :, clip_here:clip_here+sample_length]
+    return audio
+
+
+def extract_frame_and_audio(video_path, get_audio=True):
+    # get frame
+    frame = get_random_frame(video_path)
+    # get audio
+    audio = None
+    if get_audio:
+        audio = get_random_audio_clip(video_path)
+    return frame, audio
