@@ -143,4 +143,7 @@ def align_faces_in_video(data_path, frames=None, audio=True, side=96):
         print('Error: data_path does not exist')
 
 
-util.parallel_align('test-1', [0, 10], align_faces_in_video)
+# util.parallel_align('test-1', [0, 10], align_faces_in_video)
+# util.parallel_align('test-1', [10, 30], align_faces_in_video)
+util.parallel_align('test-1', [30, 80], align_faces_in_video)
+

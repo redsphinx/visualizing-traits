@@ -5,10 +5,12 @@ import numpy as np
 import tqdm
 import chainer.functions as F
 import matplotlib.pyplot as plt
+from random import randint
+import subprocess
 
 """
 training procedure in Gucluturk et al. 2016 
-http://arxiv.org/abs/1609.05119%0Ahttp://dx.doi.org/10.1007/978-3-319-49409-8_28
+https://arxiv.org/pdf/1609.05119.pdf
 
 - The audio data and the visual data of the video clip are extracted. 
 - A random 50176 sample temporal crop of the audio data is fed into the auditory stream. The activities of the 
@@ -20,6 +22,51 @@ are spatially pooled.
 - The fully-connected layer outputs five continuous prediction values between the range [0, 1] corresponding to each 
 trait for the video clip.
 """
+
+
+def get_names():
+    # return random path to video and the label of that video
+    return [], []
+
+
+def extract_frame_and_audio(video_path, audio=True):
+    # return a random frame from the video and a random cropped clip of the audio of that video
+    # maybe flip frame?
+    # work with ffmpeg
+    'ffmpeg -ss 00:00:25 -t 00:00:00.04 -i YOURMOVIE.MP4 -r 25.0 YOURIMAGE%4d.jpg'
+    'ffmpeg -i inputfile [ ... options ... ] 2>&1 | your-process '
+    command = "ffmpeg -ss "
+
+
+    audio_array = None
+    if audio:
+        audio_array = np.zeros((1, 1, 1, 69))
+    return np.zeros((96, 96, 3)), audio_array
+
+
+def make_training_set(side, batch_size, audio=True):
+    # TODO: figure out the datatype for the training data
+    # TODO: get metadata on the dataset
+
+    batch_frames = np.zeros((batch_size, side, side, 3))
+
+    batch_audio = None
+
+    if audio:
+        # TODO: figure out shape of audio
+        batch_audio = np.zeros((batch_size, 0))
+
+    train, labels = get_names()
+
+    for i in range(len(train)):
+        name = train[i]
+        if audio:
+            batch_frames[i], batch_audio[i] = extract_frame_and_audio(name)
+        else:
+            # batch_audio will stay None
+            batch_frames[i], batch_audio = extract_frame_and_audio(name)
+
+    return batch_frames, batch_audio, labels
 
 
 batchsize = 32
