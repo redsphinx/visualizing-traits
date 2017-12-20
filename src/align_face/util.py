@@ -23,8 +23,8 @@ def get_time(t0):
 
 
 def make_folder_dirs(x):
-    base_save_location = '/media/gabi/DATADRIVE1/datasets/chalearn_fi_faces_aligned_center'
-    data_path = '/media/gabi/DATADRIVE1/datasets/chalearn_fi_17_compressed/%s' % x
+    base_save_location = '/home/gabi/Documents/temp_datasets/chalearn_fi_faces_aligned_center'
+    data_path = '/home/gabi/Documents/temp_datasets/chalearn_fi_17_compressed/%s' % x
     list_dirs = os.listdir(data_path)
 
     for i in list_dirs:
@@ -33,7 +33,6 @@ def make_folder_dirs(x):
 
 
 def get_path_videos(name_folder):
-    # top_folder_path = '/media/gabi/DATADRIVE1/datasets/chalearn_fi_17_compressed'
     top_folder_path = '/home/gabi/Documents/temp_datasets/chalearn_fi_17_compressed'
     top_folder_path = os.path.join(top_folder_path, name_folder)
 
@@ -52,10 +51,12 @@ def get_path_videos(name_folder):
     return video_path_list
 
 
-def parallel_align(which_folder, func, number_processes=10):
+def parallel_align(which_folder, range, func, number_processes=10):
     # func has to be align_faces_in_video
     pool = Pool(processes=number_processes)
     list_path_all_videos = get_path_videos(which_folder)
+    list_path_all_videos.sort()
+    list_path_all_videos = list_path_all_videos[range[0]:range[1]]
     make_folder_dirs(which_folder)
     pool.apply_async(func)
     pool.map(func, list_path_all_videos)
