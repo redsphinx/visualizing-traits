@@ -33,7 +33,8 @@ def make_folder_dirs(x):
 
 
 def get_path_videos(name_folder):
-    top_folder_path = '/media/gabi/DATADRIVE1/datasets/chalearn_fi_17_compressed'
+    # top_folder_path = '/media/gabi/DATADRIVE1/datasets/chalearn_fi_17_compressed'
+    top_folder_path = '/home/gabi/Documents/temp_datasets/chalearn_fi_17_compressed'
     top_folder_path = os.path.join(top_folder_path, name_folder)
 
     video_folders = os.listdir(top_folder_path)
@@ -51,10 +52,10 @@ def get_path_videos(name_folder):
     return video_path_list
 
 
-def parallel_align(which_folder, func, number_processes=5):
+def parallel_align(which_folder, func, number_processes=10):
     # func has to be align_faces_in_video
     pool = Pool(processes=number_processes)
-    list_path_all_videos = get_path_videos(which_folder)[0:number_processes]
+    list_path_all_videos = get_path_videos(which_folder)
     make_folder_dirs(which_folder)
     pool.apply_async(func)
     pool.map(func, list_path_all_videos)
@@ -89,7 +90,7 @@ def avi_to_mp4(old_path, new_path):
 def remove_file(file_path):
     forbidden = ['/', '/home', '/home/gabi', '*', '']
     if file_path in forbidden:
-        print('ERROR: deleting this file will lead to catastrophic error')
+        print('ERROR: removing this file will lead to catastrophic error')
     else:
         command = "mv %s /tmp" % file_path
         subprocess.call(command, shell=True)

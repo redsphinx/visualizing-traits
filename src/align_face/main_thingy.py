@@ -69,16 +69,16 @@ def align_faces_in_video(data_path, frames=None, audio=True, side=96):
     :param side:
     :return:
     """
-    # base_save_location = '/media/gabi/DATADRIVE1/datasets/chalearn_fi_faces_aligned_center'
-    base_save_location = '/home/gabi/PycharmProjects/visualizing-traits/data/testing'
+    base_save_location = '/home/gabi/Documents/temp_datasets/chalearn_fi_faces_aligned_center'
+    # base_save_location = '/home/gabi/PycharmProjects/visualizing-traits/data/testing'
 
     # relevant when testing is over
-    # which_test = data_path.strip().split('/')[-3]
-    # which_video_folder = data_path.strip().split('/')[-2]
-    # save_location = os.path.join(base_save_location, which_test, which_video_folder)
+    which_test = data_path.strip().split('/')[-3]
+    which_video_folder = data_path.strip().split('/')[-2]
+    save_location = os.path.join(base_save_location, which_test, which_video_folder)
 
     # uncomment for testing
-    save_location = base_save_location
+    # save_location = base_save_location
 
     if os.path.exists(data_path):
         video_capture = skvideo.io.vread(data_path)
@@ -143,4 +143,4 @@ def align_faces_in_video(data_path, frames=None, audio=True, side=96):
         print('Error: data_path does not exist')
 
 
-# util.redis_stuff('test-1', align_faces_in_video)
+util.parallel_align('test-1', align_faces_in_video)
