@@ -7,6 +7,7 @@ import chainer.functions as F
 import matplotlib.pyplot as plt
 from random import randint
 import subprocess
+import training_util
 
 """
 training procedure in Gucluturk et al. 2016 
@@ -23,45 +24,29 @@ are spatially pooled.
 trait for the video clip.
 """
 
-
-def get_names():
-    # return random path to video and the label of that video
-    return [], []
+# TODO: get metadata on the dataset like if female or male
 
 
-def extract_frame_and_audio(video_path, audio=True):
-    # return a random frame from the video and a random cropped clip of the audio of that video
-    # maybe flip frame?
-    # work with ffmpeg
-
-
-    audio_array = None
-    if audio:
-        audio_array = np.zeros((1, 1, 1, 69))
-    return np.zeros((96, 96, 3)), audio_array
-
-
-def make_training_set(side, batch_size, audio=True):
-    # TODO: figure out the datatype for the training data
-    # TODO: get metadata on the dataset
+def make_training_set(side, batch_size, get_audio=True):
+    # TODO: figure out the necessary datatype for the training data
 
     batch_frames = np.zeros((batch_size, side, side, 3))
 
     batch_audio = None
 
-    if audio:
-        # TODO: figure out shape of audio
-        batch_audio = np.zeros((batch_size, 0))
+    if get_audio:
+        sample_length = 50176
+        batch_audio = np.zeros((batch_size, sample_length))
 
-    train, labels = get_names()
+    video_names, labels = training_util.get_names()
 
-    for i in range(len(train)):
-        name = train[i]
-        if audio:
-            batch_frames[i], batch_audio[i] = extract_frame_and_audio(name)
+    for i in range(batch_size):
+        name = video_names[i]
+        if get_audio:
+            batch_frames[i], batch_audio[i] = training_util.extract_frame_and_audio(name, get_audio=get_audio)
         else:
             # batch_audio will stay None
-            batch_frames[i], batch_audio = extract_frame_and_audio(name)
+            batch_frames[i], batch_audio = training_util.extract_frame_and_audio(name, get_audio=get_audio)
 
     return batch_frames, batch_audio, labels
 

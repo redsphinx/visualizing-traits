@@ -5,9 +5,11 @@ import skvideo.io
 import time
 from PIL import Image
 import librosa
+import pickle as pkl
+import os
 
 
-def get_random_frame_number(fps):
+def get_random_frame_times(fps):
     seconds = 15
     total_frames = fps * seconds
     random_number = randint(0, total_frames)
@@ -31,7 +33,7 @@ def get_random_frame(video_path):
     w = int(meta_data['video']['@width'])
     fps = str(meta_data['video']['@avg_frame_rate'])
     fps = int(fps.split('/')[0][:2])
-    begin_time, end_time = get_random_frame_number(fps)
+    begin_time, end_time = get_random_frame_times(fps)
     # save_path = 'test.jpg'
     # command = "ffmpeg -loglevel panic -y -ss %s -t %s -i %s -r %s.0 %s" % (begin_time, end_time, video_path, fps, save_path)
     command = "ffmpeg -loglevel panic -ss %s -t %s -i %s -r %s.0 -f image2pipe -pix_fmt rgb24 -vcodec rawvideo -" % (begin_time, end_time, video_path, fps)
@@ -61,3 +63,33 @@ def extract_frame_and_audio(video_path, get_audio=True):
     if get_audio:
         audio = get_random_audio_clip(video_path)
     return frame, audio
+
+
+def get_names(batch_size):
+    # return random path to video and the label of that video in order
+    pkl_path = '/media/gabi/DATADRIVE1/datasets/chalearn_fi_17_train/annotation_training.pkl'
+    f = open(pkl_path, 'r')
+    annotation_train = pkl.load(f)
+    # ['extraversion', 'neuroticism', 'agreeableness', 'conscientiousness', 'interview', 'openness']
+    annotation_train_keys = annotation_train.keys()
+    number_of_classes = len(annotation_train_keys)
+    base_path = '/home/gabi/Documents/temp_datasets/chalearn_fi_faces_aligned_center'
+
+    list_names = []
+    array_labels = np.zeros((batch_size, number_of_classes))
+
+    for b in range(batch_size):
+        # TODO: put all videos in same folder
+        # folder_1 = str(randint(1, number_of_classes))
+        folder_2 = randint(1, 75)
+        name_without_video = os.path.join(base_path, 'train', 'training80_%02d' % folder_2)
+        all_videos_here = os.listdir(name_without_video)
+        name_video = all_videos_here[randint(0, len(all_videos_here))]
+        path_video = os.path.join(name_without_video, name_video)
+        list_names.append(path_video)
+
+        for i in range(number_of_classes):
+            k = annotation_train_keys[i]
+            array_labels[b][i] = annotation_train[k][name_video]
+
+    return list_names, array_labels
