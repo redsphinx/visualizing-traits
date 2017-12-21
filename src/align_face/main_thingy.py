@@ -142,10 +142,13 @@ def align_faces_in_video(data_path, frames=None, audio=True, side=96):
     else:
         print('Error: data_path does not exist')
 
+# TODO: add stuff to add the training folder paths
 
 # util.parallel_align('test-1', [0, 10], align_faces_in_video)
 # util.parallel_align('test-1', [10, 30], align_faces_in_video)
 # util.parallel_align('test-1', [30, 80], align_faces_in_video)
-util.parallel_align('test-1', [80, 160], align_faces_in_video)
-
-
+# util.parallel_align('test-1', [80, 160], align_faces_in_video)
+# util.parallel_align('test-1', [160, 500], align_faces_in_video)
+util.parallel_align('test-1', [500, 600], align_faces_in_video)
+# on server [hinton]: util.parallel_align('test-1', [600, 800], align_faces_in_video)
+# on server [archimedes]: util.parallel_align('test-1', [800, 810], align_faces_in_video)
