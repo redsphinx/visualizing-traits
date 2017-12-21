@@ -155,5 +155,6 @@ util.parallel_align('test-1', [500, 600], align_faces_in_video) # busy
 # on server [archimedes]: util.parallel_align('test-1', [810, None], align_faces_in_video) busy, proper
 # on server [minsky]: util.parallel_align('test-2', [0, 20], align_faces_in_video) done, proper
 # on server [minsky]: util.parallel_align('test-2', [20, 500], align_faces_in_video) busy, proper
-
+# on server [hinton]: util.parallel_align('test-2', [500, 700], align_faces_in_video) busy, proper
+# on server [archimedes]: util.parallel_align('test-1', [700, None], align_faces_in_video) busy, proper
 
