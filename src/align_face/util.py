@@ -51,12 +51,12 @@ def get_path_videos(name_folder):
     return video_path_list
 
 
-def parallel_align(which_folder, range, func, number_processes=10):
+def parallel_align(which_folder, range_, func, number_processes=10):
     # func has to be align_faces_in_video
     pool = Pool(processes=number_processes)
     list_path_all_videos = get_path_videos(which_folder)
     list_path_all_videos.sort()
-    list_path_all_videos = list_path_all_videos[range[0]:range[1]]
+    list_path_all_videos = list_path_all_videos[range_[0]:range_[1]]
     make_folder_dirs(which_folder)
     pool.apply_async(func)
     pool.map(func, list_path_all_videos)
@@ -102,3 +102,7 @@ def redis_stuff(which_folder, func):
     make_folder_dirs(which_folder)
     q = Queue(connection=Redis())
     q.enqueue(func, list_path_all_videos)
+
+
+def save_random_frame():
+    video_path = '/home/gabi/Documents/temp_datasets/chalearn_fi_faces_aligned_center/test-1/test80_01/1uC-2TZqplE.003.mp4'
