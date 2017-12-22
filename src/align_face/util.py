@@ -106,3 +106,27 @@ def redis_stuff(which_folder, func):
 
 def save_random_frame():
     video_path = '/home/gabi/Documents/temp_datasets/chalearn_fi_faces_aligned_center/test-1/test80_01/1uC-2TZqplE.003.mp4'
+
+
+def move_files():
+    folders = ['test80_08', 'test80_09', 'test80_10']
+
+    from_path = '/vol/ccnlab-scratch1/gabras/chalearn_faces_test/test-1-missing-videos/test-1-missing-videos'
+    to_path = '/vol/ccnlab-scratch1/gabras/chalearn_faces_test/test-1'
+    check_path = '/vol/ccnlab-scratch1/gabras/chalearn_compressed/test-1'
+
+    for i in range(len(folders)):
+        f = folders[i]
+        ch_pa = os.path.join(check_path, f)
+        videos_that_should_be = os.listdir(ch_pa)
+        dest = os.path.join(to_path, f)
+        for j in range(len(videos_that_should_be)):
+            video_name = videos_that_should_be[j]
+            is_video_there = os.path.join(dest, video_name)
+            is_video_available = os.path.join(from_path, video_name)
+            if not os.path.exists(is_video_there):
+                if os.path.exists(is_video_available):
+                    command = "mv %s %s" % (is_video_available, dest)
+                    subprocess.call(command, shell=True)
+
+
