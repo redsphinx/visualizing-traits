@@ -54,8 +54,7 @@ def align_face(image, desired_face_width, radius=None, mode='center'):
     # find largest face rectangle
     largest_face_rectangle = util.find_largest_face(face_rectangles)
 
-    # loop over the face detections
-    # for rectangle in face_rectangles:
+    # do alignment
     if mode == 'eyes_mass':
         face_aligned = fa.align(image, gray, largest_face_rectangle)
     elif mode == 'eyes_geometric':

@@ -1,6 +1,7 @@
 import numpy as np
 import subprocess
 from random import randint
+import random
 import skvideo.io
 import time
 from PIL import Image
@@ -9,12 +10,28 @@ import pickle as pkl
 import os
 
 
-def get_random_frame_times(fps):
-    seconds = 15
+def get_random_frame_times(fps, seed, at_time, seconds):
+    if seconds is None:
+        seconds = 15
+    else:
+        seconds = seconds
     total_frames = fps * seconds
+    random.seed(seed)
     random_number = randint(0, total_frames)
     each_frame = 1/(fps*1.0)
-    big_seconds = random_number * each_frame
+    if at_time is None:
+        big_seconds = random_number * each_frame
+    else:
+        if not isinstance(at_time, int):
+            print('error: at_time parameter must be int or None')
+            return None, None
+        else:
+            if at_time > 15 | at_time < 0:
+                print('error: at_time parameter must be between 0 and 15')
+                return None, None
+            else:
+                big_seconds = at_time
+
     time_12 = '00'
     time_34 = '00'
     t_56_int = int(big_seconds)
@@ -26,20 +43,24 @@ def get_random_frame_times(fps):
     return begin_time, end_time
 
 
-def get_random_frame(video_path):
+def get_random_frame(video_path, seed=None, at_time=None, seconds=None):
     # video_path = '/home/gabi/Documents/temp_datasets/chalearn_fi_faces_aligned_center/test-1/test80_01/1uC-2TZqplE.003.mp4'
     meta_data = skvideo.io.ffprobe(video_path)
     h = int(meta_data['video']['@height'])
     w = int(meta_data['video']['@width'])
     fps = str(meta_data['video']['@avg_frame_rate'])
     fps = int(fps.split('/')[0][:2])
-    begin_time, end_time = get_random_frame_times(fps)
-    # save_path = 'test.jpg'
-    # command = "ffmpeg -loglevel panic -y -ss %s -t %s -i %s -r %s.0 %s" % (begin_time, end_time, video_path, fps, save_path)
+    begin_time, end_time = get_random_frame_times(fps, seed, at_time, seconds)
     command = "ffmpeg -loglevel panic -ss %s -t %s -i %s -r %s.0 -f image2pipe -pix_fmt rgb24 -vcodec rawvideo -" % (begin_time, end_time, video_path, fps)
     pipe = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE)
     img = pipe.stdout.read(h*w*3)
     img = np.fromstring(img, dtype='uint8')
+
+    # some videos are shorter than 15 seconds, try to grab a random frame from first 5 seconds instead
+    if np.size(img) == 0:
+        print('1')
+        img = get_random_frame(video_path, seed, at_time=None, seconds=5)
+
     img = img.reshape((h, w, 3))
     # im = Image.fromarray(img, mode='RGB')
     # im.show()
