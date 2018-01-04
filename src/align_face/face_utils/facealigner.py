@@ -5,9 +5,10 @@ from .helpers import get_bbox
 import numpy as np
 import cv2
 from PIL import Image
-# from skimage.transform import SimilarityTransform, ProjectiveTransform
-# from skimage import transform
+from skimage.transform import SimilarityTransform, ProjectiveTransform
+from skimage import transform
 from scipy.misc import imshow, imsave
+from skimage import img_as_ubyte
 
 
 class FaceAligner:
@@ -59,38 +60,17 @@ class FaceAligner:
         pts1 = np.float32([left_eye_center, right_eye_center, mouth_center, nose_center])
         pts2 = np.float32([template['left_eye'], template['right_eye'], template['mouth'], template['nose']])
 
-        # pts1 = np.float32([left_eye_center, right_eye_center, mouth_center, nose_center])
-        # pts2 = np.float32([template['left_eye'], template['right_eye'], template['mouth'], template['nose']])
+        src = pts1
+        dst = pts2
+        tf = transform.estimate_transform('similarity', src, dst)
+        result = img_as_ubyte(transform.warp(image, inverse_map=tf))
+        imshow(result)
 
-        # sort of works
         tf = SimilarityTransform()
-        tf.estimate(pts1, pts2)
-        result = transform.warp(image, inverse_map=tf.inverse, output_shape=(96, 96))
+        b = tf.estimate(pts1, pts2)
+        result = transform.warp(image, inverse_map=tf.inverse)
         imshow(result)
 
-        print(tf.params)
-        print('scale: %s\ntranslate: %s\nrotation: %s' % (str(tf.scale), str(tf.translation), str(tf.rotation)))
-
-        tf2 = SimilarityTransform(rotation=tf.rotation, translation=tf.translation, scale=tf.scale)
-        result = transform.warp(image, inverse_map=tf2.inverse, output_shape=(96, 96),  preserve_range=False)
-        imshow(result)
-
-        tf2 = SimilarityTransform(rotation=tf.rotation, translation=[60, 60], scale=0.8)
-        result = transform.warp(image, inverse_map=tf2.inverse, output_shape=(96, 96), preserve_range=False)
-        imshow(result)
-
-        tf2 = SimilarityTransform(rotation=tf.rotation, translation=[-100, 0], scale=0.8)
-        result = transform.warp(image, inverse_map=tf2.inverse, output_shape=(96, 96), preserve_range=False)
-        imshow(result)
-
-        tf2 = SimilarityTransform(rotation=tf.rotation, translation=[1, 10], scale=0.8)
-        result = transform.warp(image, inverse_map=tf2.inverse, output_shape=(96, 96), preserve_range=False)
-        imshow(result)
-
-        # tf = cv2.estimateRigidTransform(pts1, pts2, fullAffine=False)
-        # result = cv2.warpAffine(image, tf, (self.desiredFaceWidth, self.desiredFaceHeight))
-        # img = Image.fromarray(result, mode='RGB')
-        # img.show()
 
         return result
 

@@ -13,6 +13,7 @@ import imageio
 # import librosa
 import subprocess
 import time
+from scipy import ndimage
 
 
 def align_face(image, desired_face_width, radius=None, mode='center'):
@@ -33,6 +34,12 @@ def align_face(image, desired_face_width, radius=None, mode='center'):
 
     # create the face aligner
     fa = FaceAligner(predictor, desiredFaceWidth=desired_face_width)
+
+    # for debugging
+    if not isinstance(image, np.ndarray):
+        if isinstance(image, str):
+            if os.path.exists(image):
+                image = ndimage.imread(image)
 
     # resize it, and convert it to gray scale
     # image = h.resize(image, width=300)
@@ -58,6 +65,13 @@ def align_face(image, desired_face_width, radius=None, mode='center'):
             face_aligned = fa.align_to_template_similarity(image, gray, rectangle)
 
     return face_aligned, radius
+
+
+img = '/home/gabi/PycharmProjects/visualizing-traits/src/align_face/face_utils/ARYA.jpg'
+dfw = 96
+m = 'similarity'
+
+align_face(img, dfw, mode=m)
 
 
 def align_faces_in_video(data_path, frames=None, audio=True, side=96):
