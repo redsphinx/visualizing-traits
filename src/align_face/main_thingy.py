@@ -51,23 +51,26 @@ def align_face(image, desired_face_width, radius=None, mode='center'):
     # initialize variables
     face_aligned = None
 
+    # find largest face rectangle
+    largest_face_rectangle = util.find_largest_face(face_rectangles)
+
     # loop over the face detections
-    for rectangle in face_rectangles:
-        if mode == 'eyes_mass':
-            face_aligned = fa.align(image, gray, rectangle)
-        elif mode == 'eyes_geometric':
-            face_aligned = fa.align_geometric_eyes(image, gray, rectangle)
-        elif mode == 'center':
-            face_aligned, radius = fa.align_center(image, gray, rectangle, radius)
-        elif mode == 'template_affine':
-            face_aligned = fa.align_to_template_affine(image, gray, rectangle)
-        elif mode == 'similarity':
-            face_aligned = fa.align_to_template_similarity(image, gray, rectangle)
+    # for rectangle in face_rectangles:
+    if mode == 'eyes_mass':
+        face_aligned = fa.align(image, gray, largest_face_rectangle)
+    elif mode == 'eyes_geometric':
+        face_aligned = fa.align_geometric_eyes(image, gray, largest_face_rectangle)
+    elif mode == 'center':
+        face_aligned, radius = fa.align_center(image, gray, largest_face_rectangle, radius)
+    elif mode == 'template_affine':
+        face_aligned = fa.align_to_template_affine(image, gray, largest_face_rectangle)
+    elif mode == 'similarity':
+        face_aligned = fa.align_to_template_similarity(image, gray, largest_face_rectangle)
 
     return face_aligned, radius
 
 
-img = '/home/gabi/PycharmProjects/visualizing-traits/src/align_face/face_utils/ARYA.jpg'
+img = '/home/gabi/PycharmProjects/visualizing-traits/src/align_face/face_utils/arya2face.jpg'
 dfw = 96
 m = 'similarity'
 
