@@ -130,3 +130,22 @@ def move_files():
                     subprocess.call(command, shell=True)
 
 
+def find_largest_face(face_rectangles):
+    number_rectangles = len(face_rectangles)
+
+    if number_rectangles == 0:
+        return None
+    elif number_rectangles == 1:
+        return face_rectangles[0]
+    else:
+        largest = 0
+        which_rectangle = None
+        for i in range(number_rectangles):
+            r = face_rectangles[i]
+            # it's a square so only one side needs to be checked
+            width = r.right() - r.left()
+            if width > largest:
+                largest = width
+                which_rectangle = i
+        # print('rectangle %d is largest with a side of %d' % (which_rectangle, largest))
+        return face_rectangles[which_rectangle]
