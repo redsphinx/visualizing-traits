@@ -1,0 +1,1 @@
+export PYTHONPATH=/home/gabi/PycharmProjects/visualizing-traits/src/deepimpression:/home/gabi/PycharmProjects/visualizing-traits/src/align_face:/home/gabi/PycharmProjects/visualizing-traits/src/align_face/face_utils:$PYTHONPATH
