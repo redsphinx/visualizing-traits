@@ -58,8 +58,8 @@ def get_random_frame(video_path, seed=None, at_time=None, seconds=None):
 
     # some videos are shorter than 15 seconds, try to grab a random frame from first 5 seconds instead
     if np.size(img) == 0:
-        print('1')
-        img = get_random_frame(video_path, seed, at_time=None, seconds=5)
+        print('recursion')
+        img = get_random_frame(video_path, seed, at_time, seconds=1)
 
     img = img.reshape((h, w, 3))
     # im = Image.fromarray(img, mode='RGB')
