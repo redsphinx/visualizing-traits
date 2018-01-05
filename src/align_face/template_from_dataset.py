@@ -45,7 +45,7 @@ predictor = '/home/gabi/PycharmProjects/visualizing-traits/data/predictor/shape_
 predictor = dlib.shape_predictor(predictor)
 detector = dlib.get_frontal_face_detector()
 
-intervals = range(0, num_videos + 1, 100)
+intervals = range(1100, num_videos + 1, 100)
 for i1 in range(len(intervals)):
     if i1 < len(intervals):
         b = intervals[i1]
@@ -99,7 +99,7 @@ for i1 in range(len(intervals)):
             my_file.write('\n')
 
     # compute mean landmark so far
-    mean_landmark = np.mean(random_frame_landmarks_from_all_videos[0:e], axis=0).astype(int)
+    mean_landmark = np.mean(random_frame_landmarks_from_all_videos[1100:e], axis=0).astype(int)
     mean_landmark = np.reshape(mean_landmark, (68, 2))
 
     # draw the landmarks
