@@ -1,12 +1,15 @@
 import numpy as np
 import os
-from src.deepimpression import training_util as tu
+# from src.deepimpression import training_util as tu
+import training_util as tu
 from PIL import Image
 import tqdm
 import dlib
 import cv2
-from src.align_face import util
-from src.align_face.face_utils.helpers import shape_to_np
+# from src.align_face import util
+import util2 as util
+# from src.align_face.face_utils.helpers import shape_to_np
+from helpers import shape_to_np
 from scipy import ndimage
 
 # total of 10000 videos
@@ -45,17 +48,21 @@ predictor = '/home/gabi/PycharmProjects/visualizing-traits/data/predictor/shape_
 predictor = dlib.shape_predictor(predictor)
 detector = dlib.get_frontal_face_detector()
 
-intervals = range(1100, num_videos + 1, 100)
+at = 5100
+
+intervals = range(at, num_videos + 1, 100)
 for i1 in range(len(intervals)):
     if i1 < len(intervals):
         b = intervals[i1]
         e = intervals[i1 + 1]
+    
+    print('\nSTART BEGINNING: %d, END: %d\n' % (b, e))
 
     for i in tqdm.tqdm(range(b, e)):
         retries = 0
         tmp_seed = seed
         p = all_paths[i]
-        print(p)
+        # print(p)
         largest_face_rectangle = None
         gray = None
         while largest_face_rectangle is None and retries < 5:
@@ -92,27 +99,30 @@ for i1 in range(len(intervals)):
     with open(file_path, action) as my_file:
         for k in range(b, e):
             landmark_arr = random_frame_landmarks_from_all_videos[k]
-            for lm in range(number_landmarks):
+            for lm in range(len(landmark_arr)):
                 my_file.write('%d' % landmark_arr[lm])
-                if not lm == number_landmarks - 1:
+                if not lm == len(landmark_arr) - 1:
                     my_file.write(',')
             my_file.write('\n')
 
+    print('\nCOMPLETED BEGINNING: %d, END: %d\n' % (b, e))
+
     # compute mean landmark so far
-    mean_landmark = np.mean(random_frame_landmarks_from_all_videos[1100:e], axis=0).astype(int)
-    mean_landmark = np.reshape(mean_landmark, (68, 2))
+    # mean_landmark = np.mean(random_frame_landmarks_from_all_videos[at:e], axis=0).astype(int)
+    # mean_landmark = np.reshape(mean_landmark, (68, 2))
 
-    # draw the landmarks
-    canvas = np.ones((height, width, 3)).astype(np.uint8)
-    canvas *= 255
-    for p in mean_landmark:
-        x, y = p
-        canvas[y, x] = [0, 0, 0]
+    # # draw the landmarks
+    # canvas = np.ones((height, width, 3)).astype(np.uint8)
+    # canvas *= 255
+    # for p in mean_landmark:
+        # x, y = p
+        # canvas[y, x] = [0, 0, 0]
 
-    img = Image.fromarray(canvas, mode='RGB')
-    template_folder = '/home/gabi/PycharmProjects/visualizing-traits/src/align_face/template_folder'
-    template_name = 'TEMPLATE_%d_%d.jpg' % (0, e)
-    if not os.path.exists(template_folder):
-        os.mkdir(template_folder)
-    img.save(os.path.join(template_folder, template_name))
-    img.show()
+    # img = Image.fromarray(canvas, mode='RGB')
+    # template_folder = '/home/gabi/PycharmProjects/visualizing-traits/src/align_face/template_folder'
+    # template_name = 'TEMPLATE_%d_%d.jpg' % (0, e)
+    # if not os.path.exists(template_folder):
+        # os.mkdir(template_folder)
+    # img.save(os.path.join(template_folder, template_name))
+    # print('\nIMAGE SAVED\n')
+    # img.show()
