@@ -1,13 +1,15 @@
 # import the necessary packages
-from .helpers import FACIAL_LANDMARKS_IDXS
-from .helpers import shape_to_np
-from .helpers import get_bbox
+from helpers import FACIAL_LANDMARKS_IDXS
+from helpers import shape_to_np
+from helpers import get_bbox
+from helpers import get_template_landmark
 import numpy as np
 import cv2
 from PIL import Image
 from skimage.transform import SimilarityTransform, ProjectiveTransform
 from skimage import transform
 from scipy.misc import imshow, imsave
+from scipy.spatial import procrustes
 from skimage import img_as_ubyte
 
 
@@ -25,6 +27,26 @@ class FaceAligner:
         # desired face width (normal behavior)
         if self.desiredFaceHeight is None:
             self.desiredFaceHeight = self.desiredFaceWidth
+
+    def align_procrustes(self, image, gray, rect):
+        template_landmarks = get_template_landmark()
+        detected_landmarks = shape_to_np(self.predictor(gray, rect))
+        m1, m2, disparity = procrustes(template_landmarks, detected_landmarks)
+
+        # tf = transform.estimate_transform('similarity', m1, m2)
+        tf = transform.estimate_transform('similarity', detected_landmarks, template_landmarks)
+        result = img_as_ubyte(transform.warp(image, inverse_map=tf.inverse, output_shape=(198, 198, 3)))
+        imshow(result)
+
+        # overlay template landmarks on result
+        canvas = result
+        for p in template_landmarks:
+            x, y = p
+            canvas[y, x] = [0, 255, 0]
+        imshow(canvas)
+
+
+        return 'asf'
 
     def align_to_template_similarity(self, image, gray, rect):
         # example template. Just something I came up with
@@ -70,7 +92,6 @@ class FaceAligner:
         b = tf.estimate(pts1, pts2)
         result = transform.warp(image, inverse_map=tf.inverse)
         imshow(result)
-
 
         return result
 

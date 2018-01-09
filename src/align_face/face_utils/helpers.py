@@ -139,3 +139,29 @@ def resize(image, width=None, height=None, inter=cv2.INTER_AREA):
 
     # return the resized image
     return resized
+
+
+def get_template_landmark():
+    file_path = '/home/gabi/PycharmProjects/visualizing-traits/src/align_face/cropped_landmark_template.txt'
+    template = list(np.genfromtxt(file_path, dtype=None))
+    num_landmarks = len(template)
+    template_arr = np.zeros((num_landmarks, 2), dtype='int')
+    for i in range(num_landmarks):
+        x, y = template[i].strip().split(',')
+        template_arr[i] = [int(x), int(y)]
+
+    return template_arr
+
+
+def get_bbox_template():
+    template_arr = get_template_landmark()
+    left = np.min([i[0] for i in template_arr])
+    right = np.max([i[0] for i in template_arr])
+    top = np.min([i[1] for i in template_arr])
+    bottom = np.max([i[1] for i in template_arr])
+    print(left, right, top, bottom)
+    offset_horizontal = left
+    offset_vertical = top
+    side1 = right + offset_horizontal
+    side2 = bottom + offset_vertical
+    print(side1, side2, side1 == side2)

@@ -40,6 +40,8 @@ def align_face(image, desired_face_width, radius=None, mode='center'):
         if isinstance(image, str):
             if os.path.exists(image):
                 image = ndimage.imread(image)
+            else:
+                print('incorrect path: %s' % image)
 
     # resize it, and convert it to gray scale
     # image = h.resize(image, width=300)
@@ -65,13 +67,19 @@ def align_face(image, desired_face_width, radius=None, mode='center'):
         face_aligned = fa.align_to_template_affine(image, gray, largest_face_rectangle)
     elif mode == 'similarity':
         face_aligned = fa.align_to_template_similarity(image, gray, largest_face_rectangle)
+    elif mode == 'procrustes':
+        face_aligned = fa.align_procrustes(image, gray, largest_face_rectangle)
 
     return face_aligned, radius
 
 
-img = '/home/gabi/PycharmProjects/visualizing-traits/src/align_face/face_utils/arya2face.jpg'
-dfw = 96
-m = 'similarity'
+# img = '/home/gabi/PycharmProjects/visualizing-traits/src/align_face/face_utils/arya2face.jpg'
+# img = '/home/gabi/PycharmProjects/visualizing-traits/src/align_face/face_utils/ARYA.jpg'
+# img = '/home/gabi/PycharmProjects/visualizing-traits/src/align_face/face_utils/arya.jpeg'
+img = '/home/gabi/PycharmProjects/visualizing-traits/src/align_face/backup_face.jpg'
+# dfw = 96
+dfw = 198
+m = 'procrustes'
 
 align_face(img, dfw, mode=m)
 
