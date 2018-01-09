@@ -1,15 +1,15 @@
 import numpy as np
 import os
-# from src.deepimpression import training_util as tu
-import training_util as tu
+from src.deepimpression import training_util as tu
+# import training_util as tu
 from PIL import Image
 import tqdm
 import dlib
 import cv2
-# from src.align_face import util
-import util2 as util
-# from src.align_face.face_utils.helpers import shape_to_np
-from helpers import shape_to_np
+from src.align_face import util2 as util
+# import util2 as util
+from src.align_face.face_utils.helpers import shape_to_np
+# from helpers import shape_to_np
 from scipy import ndimage
 
 # total of 10000 videos
