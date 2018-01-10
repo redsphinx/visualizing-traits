@@ -6,6 +6,7 @@ import skvideo.io
 import numpy as np
 from redis import Redis
 from rq import Queue
+import project_paths as pp
 
 
 def safe_mkdir(my_path):
@@ -23,8 +24,8 @@ def get_time(t0):
 
 
 def make_folder_dirs(x):
-    base_save_location = '/home/gabi/Documents/temp_datasets/chalearn_fi_faces_aligned_center'
-    data_path = '/home/gabi/Documents/temp_datasets/chalearn_fi_17_compressed/%s' % x
+    base_save_location = pp.BASE_SAVE_LOCATION
+    data_path = pp.DATA_PATH % x
     list_dirs = os.listdir(data_path)
 
     for i in list_dirs:
@@ -33,7 +34,8 @@ def make_folder_dirs(x):
 
 
 def get_path_videos(name_folder):
-    top_folder_path = '/home/gabi/Documents/temp_datasets/chalearn_fi_17_compressed'
+    # top_folder_path = '/home/gabi/Documents/temp_datasets/chalearn_fi_17_compressed'
+    top_folder_path = pp.DATA_PATH
     top_folder_path = os.path.join(top_folder_path, name_folder)
 
     video_folders = os.listdir(top_folder_path)
@@ -79,10 +81,6 @@ def open_avi(data_path):
         print('all good')
 
 
-# open_avi('/home/gabi/PycharmProjects/visualizing-traits/data/testing/13kjwEtSyXc.003.mp4')
-# open_avi('/home/gabi/PycharmProjects/visualizing-traits/data/testing/1uC-2TZqplE.003.avi')
-
-
 def avi_to_mp4(old_path, new_path):
     command = "ffmpeg -loglevel panic -i %s -strict -2 %s" % (old_path, new_path)
     subprocess.call(command, shell=True)
@@ -102,10 +100,6 @@ def redis_stuff(which_folder, func):
     make_folder_dirs(which_folder)
     q = Queue(connection=Redis())
     q.enqueue(func, list_path_all_videos)
-
-
-def save_random_frame():
-    video_path = '/home/gabi/Documents/temp_datasets/chalearn_fi_faces_aligned_center/test-1/test80_01/1uC-2TZqplE.003.mp4'
 
 
 def move_files():
