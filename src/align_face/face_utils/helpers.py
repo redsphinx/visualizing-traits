@@ -2,6 +2,7 @@
 from collections import OrderedDict
 import numpy as np
 import cv2
+from PIL import Image
 
 # define a dictionary that maps the indexes of the facial
 # landmarks to specific face regions
@@ -165,3 +166,21 @@ def get_bbox_template():
     side1 = right + offset_horizontal
     side2 = bottom + offset_vertical
     print(side1, side2, side1 == side2)
+
+    canvas = np.ones((side1, side2, 3)).astype(np.uint8)
+    canvas *= 255
+
+    for p in template_arr:
+        x, y = int(p[0]), int(p[1])
+        canvas[y, x] = [0, 0, 0]
+        canvas[y - 1, x] = [0, 0, 0]
+        canvas[y - 1, x + 1] = [0, 0, 0]
+        canvas[y, x + 1] = [0, 0, 0]
+        canvas[y + 1, x + 1] = [0, 0, 0]
+        canvas[y + 1, x] = [0, 0, 0]
+        canvas[y + 1, x - 1] = [0, 0, 0]
+        canvas[y, x - 1] = [0, 0, 0]
+        canvas[y - 1, x - 1] = [0, 0, 0]
+
+    canvas = Image.fromarray(canvas, mode='RGB')
+    canvas.save('cropped_template_2.jpg')

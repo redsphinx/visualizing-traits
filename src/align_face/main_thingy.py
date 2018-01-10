@@ -1,11 +1,19 @@
 # author:    redsphinx
 
+# import sys
+# missing = ['/home/gabi/.PyCharm2017.3/system/cythonExtensions',
+#  '/home/gabi/Downloads/pycharm-2017.2.3/helpers/pydev',
+#  '/usr/local/lib/python2.7/dist-packages/IPython/extensions']
+# for i in missing:
+#     sys.path.append(i)
+# print(sys.path)
+
 import numpy as np
 import skvideo.io
 import os
 from face_utils.facealigner import FaceAligner
 import face_utils.helpers as h
-import util
+import util2 as util
 import tqdm
 import dlib
 import cv2
@@ -14,19 +22,20 @@ import imageio
 import subprocess
 import time
 from scipy import ndimage
+import project_paths as pp
 
 
-def align_face(image, desired_face_width, radius=None, mode='center'):
+def align_face(image, desired_face_width, radius=None, mode='similarity'):
     """
     Given an image, return processed image where face is aligned according to chosen mode.
     :param image:
-    :param desired_face_width:
+    :param desired_face_width: should be 198
     :param radius:
     :param mode:
     :return: image of aligned face, radius of face if radius is not None
     """
     # create the facial landmark predictor
-    predictor = '/home/gabi/PycharmProjects/visualizing-traits/data/predictor/shape_predictor_68_face_landmarks.dat'
+    predictor = pp.PREDICTOR
     predictor = dlib.shape_predictor(predictor)
 
     # initialize dlib's face detector (HOG-based)
@@ -70,33 +79,33 @@ def align_face(image, desired_face_width, radius=None, mode='center'):
 
     return face_aligned, radius
 
-
-# img = '/home/gabi/PycharmProjects/visualizing-traits/src/align_face/face_utils/arya2face.jpg'
-# img = '/home/gabi/PycharmProjects/visualizing-traits/src/align_face/face_utils/ARYA.jpg'
-# img = '/home/gabi/PycharmProjects/visualizing-traits/src/align_face/face_utils/arya.jpeg'
-img = '/home/gabi/PycharmProjects/visualizing-traits/src/align_face/backup_face_2.jpg'
-# dfw = 96
-dfw = 198
-m = 'similarity'
-
-align_face(img, dfw, mode=m)
+# p = '/home/gabi/PycharmProjects/visualizing-traits/src/align_face/face_utils/arya_250w.jpg'
+# align_face(p, 198)
 
 
-def align_faces_in_video(data_path, frames=None, audio=True, side=96):
+def align_faces_in_video(data_path, frames=None, audio=True, side=198, mode='similarity'):
     """
     Align face in video.
     :param data_path:
     :param frames:
     :param audio:
     :param side:
+    :param mode:
     :return:
     """
-    base_save_location = '/home/gabi/Documents/temp_datasets/chalearn_fi_faces_aligned_center'
+    # uncomment when testing is over
+    # base_save_location = '/home/gabi/Documents/temp_datasets/chalearn_fi_faces_aligned_center'
+    base_save_location = pp.BASE_SAVE_LOCATION
+    print('base_save_location = %s' % base_save_location)
+
+    # use these for testing
     # base_save_location = '/home/gabi/PycharmProjects/visualizing-traits/data/testing'
 
     # relevant when testing is over
     which_test = data_path.strip().split('/')[-3]
+    print('which_test = %s' % which_test)
     which_video_folder = data_path.strip().split('/')[-2]
+    print('which_video_folder = %s' % which_video_folder)
     save_location = os.path.join(base_save_location, which_test, which_video_folder)
 
     # uncomment for testing
@@ -131,7 +140,7 @@ def align_faces_in_video(data_path, frames=None, audio=True, side=96):
             if i % 20 == 0:
                 print('%s: %s of %s' % (name_video, i, frames))
             frame = video_capture[i]
-            new_frame, radius = align_face(frame, radius=the_radius, desired_face_width=side, mode='center')
+            new_frame, radius = align_face(frame, radius=the_radius, desired_face_width=side, mode=mode)
             if i == 0:
                 the_radius = radius
 
@@ -163,3 +172,6 @@ def align_faces_in_video(data_path, frames=None, audio=True, side=96):
             util.remove_file(avi_vid_name)
     else:
         print('Error: data_path does not exist')
+
+
+util.parallel_align('train-1', [0, 10], align_faces_in_video, number_processes=10)  # archimedes

@@ -1,16 +1,22 @@
 # import the necessary packages
+# import sys
+# missing = ['/home/gabi/.PyCharm2017.3/system/cythonExtensions',
+#  '/home/gabi/Downloads/pycharm-2017.2.3/helpers/pydev',
+#  '/usr/local/lib/python2.7/dist-packages/IPython/extensions']
+# for i in missing:
+#     sys.path.append(i)
+# print(sys.path)
+
+import numpy as np
+import cv2
+from PIL import Image
+from skimage import transform
+from scipy.misc import imshow
+from skimage import img_as_ubyte
 from helpers import FACIAL_LANDMARKS_IDXS
 from helpers import shape_to_np
 from helpers import get_bbox
 from helpers import get_template_landmark
-import numpy as np
-import cv2
-from PIL import Image
-from skimage.transform import SimilarityTransform, ProjectiveTransform
-from skimage import transform
-from scipy.misc import imshow, imsave
-from scipy.spatial import procrustes
-from skimage import img_as_ubyte
 
 
 class FaceAligner:
@@ -34,18 +40,27 @@ class FaceAligner:
 
         tf = transform.estimate_transform('similarity', detected_landmarks, template_landmarks)
         result = img_as_ubyte(transform.warp(image, inverse_map=tf.inverse, output_shape=(198, 198, 3)))
-        imshow(result)
+        # imshow(result)
 
         # overlay template landmarks on result -- successful
         # canvas = result
         # for p in template_landmarks:
         #     x, y = p
-        #     canvas[y, x] = [0, 255, 0]
-        # imshow(canvas)
-
-        # save image as jpg -- successful
+        #     result[y, x] = [0, 255, 0]  # OG
+        #     result[y-1, x] = [0, 255, 0]
+        #     result[y-1, x+1] = [0, 255, 0]
+        #     result[y, x+1] = [0, 255, 0]
+        #     result[y+1, x+1] = [0, 255, 0]
+        #     result[y+1, x] = [0, 255, 0]
+        #     result[y+1, x-1] = [0, 255, 0]
+        #     result[y, x-1] = [0, 255, 0]
+        #     result[y-1, x-1] = [0, 255, 0]
+        #
+        # imshow(result)
+        # #
+        # # save image as jpg -- successful
         # result = Image.fromarray(result, mode='RGB')
-        # result.save('testing123.jpg')
+        # result.save('testing123_2.jpg')
 
         return result
 
