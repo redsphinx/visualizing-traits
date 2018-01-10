@@ -3,6 +3,8 @@ from collections import OrderedDict
 import numpy as np
 import cv2
 from PIL import Image
+from src.align_face import project_paths as pp
+
 
 # define a dictionary that maps the indexes of the facial
 # landmarks to specific face regions
@@ -143,7 +145,7 @@ def resize(image, width=None, height=None, inter=cv2.INTER_AREA):
 
 
 def get_template_landmark():
-    file_path = '/home/gabi/PycharmProjects/visualizing-traits/src/align_face/cropped_landmark_template.txt'
+    file_path = pp.TEMPLATE
     template = list(np.genfromtxt(file_path, dtype=None))
     num_landmarks = len(template)
     template_arr = np.zeros((num_landmarks, 2), dtype='int')
