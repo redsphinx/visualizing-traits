@@ -44,7 +44,6 @@ def get_random_frame_times(fps, seed, at_time, seconds):
 
 
 def get_random_frame(video_path, seed=None, at_time=None, seconds=None):
-    # video_path = '/home/gabi/Documents/temp_datasets/chalearn_fi_faces_aligned_center/test-1/test80_01/1uC-2TZqplE.003.mp4'
     meta_data = skvideo.io.ffprobe(video_path)
     h = int(meta_data['video']['@height'])
     w = int(meta_data['video']['@width'])
