@@ -67,8 +67,6 @@ def align_face(image, desired_face_width, radius=None, mode='center'):
         face_aligned = fa.align_to_template_affine(image, gray, largest_face_rectangle)
     elif mode == 'similarity':
         face_aligned = fa.align_to_template_similarity(image, gray, largest_face_rectangle)
-    elif mode == 'procrustes':
-        face_aligned = fa.align_procrustes(image, gray, largest_face_rectangle)
 
     return face_aligned, radius
 
@@ -76,10 +74,10 @@ def align_face(image, desired_face_width, radius=None, mode='center'):
 # img = '/home/gabi/PycharmProjects/visualizing-traits/src/align_face/face_utils/arya2face.jpg'
 # img = '/home/gabi/PycharmProjects/visualizing-traits/src/align_face/face_utils/ARYA.jpg'
 # img = '/home/gabi/PycharmProjects/visualizing-traits/src/align_face/face_utils/arya.jpeg'
-img = '/home/gabi/PycharmProjects/visualizing-traits/src/align_face/backup_face.jpg'
+img = '/home/gabi/PycharmProjects/visualizing-traits/src/align_face/backup_face_2.jpg'
 # dfw = 96
 dfw = 198
-m = 'procrustes'
+m = 'similarity'
 
 align_face(img, dfw, mode=m)
 
