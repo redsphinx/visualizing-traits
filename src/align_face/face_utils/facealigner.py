@@ -28,70 +28,24 @@ class FaceAligner:
         if self.desiredFaceHeight is None:
             self.desiredFaceHeight = self.desiredFaceWidth
 
-    def align_procrustes(self, image, gray, rect):
+    def align_to_template_similarity(self, image, gray, rect):
         template_landmarks = get_template_landmark()
         detected_landmarks = shape_to_np(self.predictor(gray, rect))
-        m1, m2, disparity = procrustes(template_landmarks, detected_landmarks)
 
-        # tf = transform.estimate_transform('similarity', m1, m2)
         tf = transform.estimate_transform('similarity', detected_landmarks, template_landmarks)
         result = img_as_ubyte(transform.warp(image, inverse_map=tf.inverse, output_shape=(198, 198, 3)))
         imshow(result)
 
-        # overlay template landmarks on result
-        canvas = result
-        for p in template_landmarks:
-            x, y = p
-            canvas[y, x] = [0, 255, 0]
-        imshow(canvas)
+        # overlay template landmarks on result -- successful
+        # canvas = result
+        # for p in template_landmarks:
+        #     x, y = p
+        #     canvas[y, x] = [0, 255, 0]
+        # imshow(canvas)
 
-
-        return 'asf'
-
-    def align_to_template_similarity(self, image, gray, rect):
-        # example template. Just something I came up with
-        template = {'mouth': [48, 66],
-                    'left_eye': [32, 33],
-                    'right_eye': [64, 33],
-                    'nose': [48, 54]}
-
-        shape = shape_to_np(self.predictor(gray, rect))
-
-        (l_start, l_end) = FACIAL_LANDMARKS_IDXS["left_eye"]
-        (r_start, r_end) = FACIAL_LANDMARKS_IDXS["right_eye"]
-        (m_start, m_end) = FACIAL_LANDMARKS_IDXS['mouth']
-        (n_start, n_end) = FACIAL_LANDMARKS_IDXS['nose']
-
-        left_eye_points = shape[l_start:l_end]
-        right_eye_points = shape[r_start:r_end]
-        mouth_points = shape[m_start:m_end]
-        nose_points = shape[n_start: n_end]
-
-        left_eye_bbox = get_bbox(left_eye_points)
-        left_eye_center = [(left_eye_bbox[0][0] + left_eye_bbox[1][0]) / 2,
-                           (left_eye_bbox[2][1] + left_eye_bbox[3][1]) / 2]
-        right_eye_bbox = get_bbox(right_eye_points)
-        right_eye_center = [(right_eye_bbox[0][0] + right_eye_bbox[1][0]) / 2,
-                            (right_eye_bbox[2][1] + right_eye_bbox[3][1]) / 2]
-        mouth_bbox = get_bbox(mouth_points)
-        mouth_center = [(mouth_bbox[0][0] + mouth_bbox[1][0]) / 2, (mouth_bbox[2][1] + mouth_bbox[3][1]) / 2]
-        
-        nose_bbox = get_bbox(nose_points)
-        nose_center = [(nose_bbox[0][0] + nose_bbox[1][0]) / 2, (nose_bbox[2][1] + nose_bbox[3][1]) / 2]
-
-        pts1 = np.float32([left_eye_center, right_eye_center, mouth_center, nose_center])
-        pts2 = np.float32([template['left_eye'], template['right_eye'], template['mouth'], template['nose']])
-
-        src = pts1
-        dst = pts2
-        tf = transform.estimate_transform('similarity', src, dst)
-        result = img_as_ubyte(transform.warp(image, inverse_map=tf))
-        imshow(result)
-
-        tf = SimilarityTransform()
-        b = tf.estimate(pts1, pts2)
-        result = transform.warp(image, inverse_map=tf.inverse)
-        imshow(result)
+        # save image as jpg -- successful
+        # result = Image.fromarray(result, mode='RGB')
+        # result.save('testing123.jpg')
 
         return result
 
