@@ -4,8 +4,8 @@ from multiprocessing import Pool
 import subprocess
 import skvideo.io
 import numpy as np
-from redis import Redis
-from rq import Queue
+# from redis import Redis
+# from rq import Queue
 import project_paths as pp
 
 
@@ -25,7 +25,7 @@ def get_time(t0):
 
 def make_folder_dirs(x):
     base_save_location = pp.BASE_SAVE_LOCATION
-    data_path = pp.DATA_PATH % x
+    data_path = os.path.join(pp.DATA_PATH, x)
     list_dirs = os.listdir(data_path)
 
     for i in list_dirs:
@@ -95,11 +95,11 @@ def remove_file(file_path):
         subprocess.call(command, shell=True)
 
 
-def redis_stuff(which_folder, func):
-    list_path_all_videos = get_path_videos(which_folder)[0:5]
-    make_folder_dirs(which_folder)
-    q = Queue(connection=Redis())
-    q.enqueue(func, list_path_all_videos)
+# def redis_stuff(which_folder, func):
+#     list_path_all_videos = get_path_videos(which_folder)[0:5]
+#     make_folder_dirs(which_folder)
+#     q = Queue(connection=Redis())
+#     q.enqueue(func, list_path_all_videos)
 
 
 def move_files():
