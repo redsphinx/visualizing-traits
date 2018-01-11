@@ -20,7 +20,7 @@ from helpers import get_template_landmark
 
 
 class FaceAligner:
-    def __init__(self, predictor, desiredLeftEye=(0.35, 0.35), desiredFaceWidth=256, desiredFaceHeight=None):
+    def __init__(self, predictor, desiredFaceWidth, desiredLeftEye=(0.35, 0.35), desiredFaceHeight=None):
         # store the facial landmark predictor, desired output left
         # eye position, and desired output face width + height
         # horizontal mouth position
@@ -39,7 +39,8 @@ class FaceAligner:
         detected_landmarks = shape_to_np(self.predictor(gray, rect))
 
         tf = transform.estimate_transform('similarity', detected_landmarks, template_landmarks)
-        result = img_as_ubyte(transform.warp(image, inverse_map=tf.inverse, output_shape=(198, 198, 3)))
+        result = img_as_ubyte(transform.warp(image, inverse_map=tf.inverse, output_shape=(self.desiredFaceWidth,
+                                                                                          self.desiredFaceWidth, 3)))
         # imshow(result)
 
         # overlay template landmarks on result -- successful

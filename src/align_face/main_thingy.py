@@ -12,9 +12,9 @@ import numpy as np
 import skvideo.io
 import os
 from face_utils.facealigner import FaceAligner
-import face_utils.helpers as h
+# import face_utils.helpers as h
 import util2 as util
-import tqdm
+# import tqdm
 import dlib
 import cv2
 import imageio
@@ -59,6 +59,9 @@ def align_face(image, desired_face_width, radius=None, mode='similarity'):
     # detect faces in the gray scale image
     face_rectangles = detector(gray, 2)
 
+    if len(face_rectangles) == 0:
+        return None, 0
+
     # initialize variables
     face_aligned = None
 
@@ -80,16 +83,17 @@ def align_face(image, desired_face_width, radius=None, mode='similarity'):
     return face_aligned, radius
 
 # p = '/home/gabi/PycharmProjects/visualizing-traits/src/align_face/face_utils/arya_250w.jpg'
-# align_face(p, 198)
+# p = '/home/gabi/PycharmProjects/visualizing-traits/src/align_face/backup_face.jpg'
+# align_face(p, desired_face_width=196)
 
 
-def align_faces_in_video(data_path, frames=None, audio=True, side=198, mode='similarity'):
+def align_faces_in_video(data_path, frames=None, audio=True, side=196, mode='similarity'):
     """
     Align face in video.
     :param data_path:
     :param frames:
     :param audio:
-    :param side:
+    :param side: 198 originally
     :param mode:
     :return:
     """
@@ -103,9 +107,9 @@ def align_faces_in_video(data_path, frames=None, audio=True, side=198, mode='sim
 
     # relevant when testing is over
     which_test = data_path.strip().split('/')[-3]
-    print('which_test = %s' % which_test)
+    # print('which_test = %s' % which_test)
     which_video_folder = data_path.strip().split('/')[-2]
-    print('which_video_folder = %s' % which_video_folder)
+    # print('which_video_folder = %s' % which_video_folder)
     save_location = os.path.join(base_save_location, which_test, which_video_folder)
 
     # uncomment for testing
@@ -174,4 +178,8 @@ def align_faces_in_video(data_path, frames=None, audio=True, side=198, mode='sim
         print('Error: data_path does not exist')
 
 
-util.parallel_align('train-1', [0, 10], align_faces_in_video, number_processes=10)  # archimedes
+dp = '/media/gabi/DATADRIVE1/datasets/chalearn_fi_17_train/train-1/training80_01/1DCnIad1Y0w.002.mp4'
+align_faces_in_video(dp, frames=30)
+
+
+# util.parallel_align('train-1', [1, 2], align_faces_in_video, number_processes=1)  # archimedes
