@@ -5,6 +5,7 @@ import numpy as np
 import skvideo.io
 import os
 import psutil
+from project_paths2 import ON_GPU
 
 
 def load_audio(data):
@@ -13,7 +14,11 @@ def load_audio(data):
 
 def load_model(load_trained=True):
     print('loading model')
-    model = audiovisual_stream.ResNet18().to_gpu(device='0')
+    if ON_GPU:
+        model = audiovisual_stream.ResNet18().to_gpu(device='0')
+    else:
+        model = audiovisual_stream.ResNet18()
+
     # model = audiovisual_stream.ResNet18()
     if load_trained:
         chainer.serializers.load_npz('./model', model)
