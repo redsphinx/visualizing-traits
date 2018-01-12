@@ -8,6 +8,8 @@ from PIL import Image
 import librosa
 import pickle as pkl
 import os
+import project_constants as pc
+import project_paths2 as pp
 
 
 def get_random_frame_times(fps, seed, at_time, seconds):
@@ -70,8 +72,20 @@ def get_random_audio_clip(video_path):
     audio = librosa.load(video_path, 16000)[0][None, None, None, :]
     sample_length = 50176
     audio_length = np.shape(audio)[-1]
-    clip_here = randint(0, audio_length-sample_length)
-    audio = audio[:, :, :, clip_here:clip_here+sample_length]
+    if audio_length < sample_length:
+        # TODO: pad with zeros
+        missing = sample_length - audio_length
+        audio = audio[:, :, :, 0:audio_length]
+        aud = np.reshape(audio, audio_length)
+        aud = list(aud)
+        aud += [0] * missing
+        aud = np.array(aud)
+        aud = np.reshape(aud, (1, 1, 1, sample_length))
+        audio = aud
+        del aud
+    else:
+        clip_here = randint(0, audio_length-sample_length)
+        audio = audio[:, :, :, clip_here:clip_here+sample_length]
     return audio
 
 
@@ -82,29 +96,28 @@ def extract_frame_and_audio(video_path, get_audio=True):
     audio = None
     if get_audio:
         audio = get_random_audio_clip(video_path)
-    return frame, audio
+    return np.array(frame, 'float32'), np.array(audio, 'float32')
 
 
-def get_names(batch_size):
+def get_names():
     # return random path to video and the label of that video in order
-    pkl_path = '/media/gabi/DATADRIVE1/datasets/chalearn_fi_17_train/annotation_training.pkl'
-    f = open(pkl_path, 'r')
-    annotation_train = pkl.load(f)
+    with open(pp.TRAIN_LABELS, 'r') as my_file:
+        annotation_train = pkl.load(my_file)
+
     # ['extraversion', 'neuroticism', 'agreeableness', 'conscientiousness', 'interview', 'openness']
     annotation_train_keys = annotation_train.keys()
     number_of_classes = len(annotation_train_keys)
-    base_path = '/home/gabi/Documents/temp_datasets/chalearn_fi_faces_aligned_center'
 
     list_names = []
-    array_labels = np.zeros((batch_size, number_of_classes))
+    array_labels = np.zeros((pc.BATCH_SIZE, number_of_classes))
 
-    for b in range(batch_size):
+    for b in range(pc.BATCH_SIZE):
         # TODO: put all videos in same folder
-        # folder_1 = str(randint(1, number_of_classes))
-        folder_2 = randint(1, 75)
-        name_without_video = os.path.join(base_path, 'train', 'training80_%02d' % folder_2)
+        folder_number = randint(1, pc.NUMBER_TRAINING_FOLDERS)
+        name_without_video = os.path.join(pp.TRAIN_DATA, 'training80_%02d' % folder_number)
         all_videos_here = os.listdir(name_without_video)
-        name_video = all_videos_here[randint(0, len(all_videos_here))]
+        random_number = randint(0, len(all_videos_here)-1)
+        name_video = all_videos_here[random_number]
         path_video = os.path.join(name_without_video, name_video)
         list_names.append(path_video)
 
