@@ -6,10 +6,12 @@ import skvideo.io
 import os
 import psutil
 from project_paths2 import ON_GPU
+import project_paths2 as pp
 
 
 def load_audio(data):
-    return librosa.load(data, 16000)[0][None, None, None, :]
+    audio = librosa.load(data, 16000)[0][None, None, None, :]
+    return audio
 
 
 def load_model(load_trained=True):
@@ -21,7 +23,7 @@ def load_model(load_trained=True):
 
     # model = audiovisual_stream.ResNet18()
     if load_trained:
-        chainer.serializers.load_npz('./model', model)
+        chainer.serializers.load_npz(pp.PRE_TRAINED, model)
 
     return model
 
@@ -39,12 +41,18 @@ def load_video(data):
     video_capture = np.reshape(video_capture, (frames, video_shape[-1], video_shape[1], video_shape[2]), 'float32')
     # video_capture = np.reshape(video_capture, (frames, video_shape[1], video_shape[2], video_shape[-1]), 'float32')
     # return video_capture
-    return np.array(video_capture, 'float32')
+    video = np.array(video_capture, 'float32')
+    return video
 
 
 def predict_trait(data, model):
     print('predicting trait')
     x = [load_audio(data), load_video(data)]
+    print(type(x))
+    try:
+        print(np.shape(x))
+    except:
+        print("can't")
     print('now really predicting. this will take a while.')
     with chainer.using_config('train', False):
         return model(x)
@@ -54,8 +62,10 @@ def predict_trait(data, model):
 def find_video(video_id):
     print('finding video: ', video_id)
     # ----------------------------------------------------------------------------
-    base_path_1 = 'chalearn_fi_17_compressed/test-1'
-    base_path_2 = 'chalearn_fi_17_compressed/test-2'
+    # base_path_1 = 'chalearn_fi_17_compressed/test-1'
+    base_path_1 = os.path.join(pp.TEST_DATA, 'test-1')
+    # base_path_2 = 'chalearn_fi_17_compressed/test-2'
+    base_path_2 = os.path.join(pp.TEST_DATA, 'test-2')
     # ----------------------------------------------------------------------------
     video = None
 

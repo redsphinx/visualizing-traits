@@ -1,4 +1,5 @@
 import numpy as np
+from project_constants import BATCH_SIZE
 
 
 # TODO: create thing that randomly samples a 50176 sample temporal crop of the audio data
@@ -13,7 +14,7 @@ class RandomIterator(object):
     Generates random subsets of data
     """
 
-    def __init__(self, data, batch_size=1):
+    def __init__(self, data, batch_size=BATCH_SIZE):
         """
 
         Args:
