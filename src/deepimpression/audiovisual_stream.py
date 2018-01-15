@@ -55,8 +55,9 @@ class ResNet18(chainer.Chain):
         cfch = chainer.functions.tanh(fch)
         cfch_1 = cfch + 1
         cfch_1_half = cfch_1 / 2
-        d = cfch_1_half.data[0]
-        ret = chainer.cuda.to_cpu(d)
-        return ret
+        return cfch_1_half
+        # d = cfch_1_half.data[0]
+        # ret = chainer.cuda.to_cpu(d)
+        # return ret
 
 ### MODEL ###
