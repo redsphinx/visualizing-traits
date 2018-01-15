@@ -1,6 +1,7 @@
 from util import load_model, predict_trait, find_video, track_prediction, get_accuracy
 import pickle as pkl
 import os
+import project_paths2 as pp
 
 
 def main():
@@ -8,7 +9,7 @@ def main():
 
     # get ground truth from the pkl file
     # ----------------------------------------------------------------------------
-    pkl_path = 'chalearn_fi_17_compressed/annotation_test.pkl'
+    pkl_path = pp.TEST_LABELS
     # ----------------------------------------------------------------------------
 
     f = open(pkl_path, 'r')

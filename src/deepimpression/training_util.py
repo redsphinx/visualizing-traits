@@ -73,7 +73,6 @@ def get_random_audio_clip(video_path):
     sample_length = 50176
     audio_length = np.shape(audio)[-1]
     if audio_length < sample_length:
-        # TODO: pad with zeros
         missing = sample_length - audio_length
         audio = audio[:, :, :, 0:audio_length]
         aud = np.reshape(audio, audio_length)
@@ -104,8 +103,9 @@ def get_names():
     with open(pp.TRAIN_LABELS, 'r') as my_file:
         annotation_train = pkl.load(my_file)
 
-    # ['extraversion', 'neuroticism', 'agreeableness', 'conscientiousness', 'interview', 'openness']
     annotation_train_keys = annotation_train.keys()
+    # print(annotation_train_keys)
+    # ['extraversion', 'neuroticism', 'agreeableness', 'conscientiousness', 'interview', 'openness']
     number_of_classes = len(annotation_train_keys)
 
     list_names = []
