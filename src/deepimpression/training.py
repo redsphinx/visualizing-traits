@@ -128,10 +128,11 @@ def main():
                 # try:
                 prediction = model([audios, frames])
                 # print(prediction)
-                prediction = np.asarray(prediction, dtype='float32')
+                # prediction = np.asarray(prediction, dtype='float32')
                 # prediction = model([train[0], train[1]])
                 # loss = F.softmax_cross_entropy(prediction, labels)
                 loss = F.mean_absolute_error(prediction, labels)
+                print(loss)
 
                 loss.backward()
                 optimizer.update()
@@ -141,6 +142,7 @@ def main():
         # calculate average loss per epoch
         # train_loss[epoch] /= train_iter.data._length
         train_loss[epoch] /= pc.BATCH_SIZE * num_steps
+        print(train_loss)
 
         # validation
         # with chainer.using_config('train', False):
