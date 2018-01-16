@@ -10,6 +10,7 @@ import subprocess
 import training_util
 import project_paths2 as pp
 import project_constants as pc
+import os
 """
 training procedure in Gucluturk et al. 2016 
 https://arxiv.org/pdf/1609.05119.pdf
@@ -132,7 +133,7 @@ def main():
                 # prediction = model([train[0], train[1]])
                 # loss = F.softmax_cross_entropy(prediction, labels)
                 loss = F.mean_absolute_error(prediction, labels)
-                print(loss)
+                # print(loss)
 
                 loss.backward()
                 optimizer.update()
@@ -144,6 +145,15 @@ def main():
         train_loss[epoch] /= pc.BATCH_SIZE * num_steps
         print(train_loss)
 
+        log_file = pp.LOG
+
+        if not os.path.exists(log_file):
+            os.mkdir(log_file)
+
+        with open(log_file, 'a') as my_file:
+            line = 'epoch: %d loss: %f\n' % (epoch, train_loss[epoch])
+            my_file.write(line)
+
         # validation
         # with chainer.using_config('train', False):
         #     for data in test_iter:
@@ -152,10 +162,10 @@ def main():
         # test_loss[epoch] /= test_iter.data._length
 
     # plt.plot(np.vstack([train_loss, test_loss]).T)
-    plt.plot(np.vstack([train_loss]).T)
+    # plt.plot(np.vstack([train_loss]).T)
     # plt.legend(['train loss', 'validation loss'])
-    plt.legend(['train loss'])
-    plt.show()
+    # plt.legend(['train loss'])
+    # plt.show()
 
 
 main()
