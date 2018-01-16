@@ -24,6 +24,8 @@ class ResNet18(chainer.Chain):
         #         chainer.functions.sum(self.vis(True, chainer.Variable(chainer.cuda.to_gpu(x[1][i: i + 256]), True)), 0),
         #         0)
 
+        #
+
         # avg over channels instead of spatial dim
         if ON_GPU:
             h = [self.aud(chainer.cuda.to_gpu(x[0], device='0')), chainer.functions.expand_dims(
@@ -32,13 +34,14 @@ class ResNet18(chainer.Chain):
             a = self.aud(x[0])
             v = self.vis(x[1])
             h = [a, v]
+            # take avg of 256 frames
             # v = self.vis(x[1][:256])
             # s = chainer.functions.sum(v, 0)
             # e = chainer.functions.expand_dims(s, 0)
             # h = [a, e]
 
         # x1_shape = x[1].shape
-        #
+        # #
         # for i in xrange(256, x1_shape[0], 256):
         #     if ON_GPU:
         #         h[1] += chainer.functions.expand_dims(
@@ -49,13 +52,15 @@ class ResNet18(chainer.Chain):
         #         e = chainer.functions.expand_dims(s, 0)
         #         h[1] += e
 
-        h[1] /= x[1].shape[0]
+        # h[1] /= x[1].shape[0]
         ch = chainer.functions.concat(h)
         fch = self.fc(ch)
         cfch = chainer.functions.tanh(fch)
+        # scale between 0-1
         cfch_1 = cfch + 1
         cfch_1_half = cfch_1 / 2
         return cfch_1_half
+        # get rid of first dimension
         # d = cfch_1_half.data[0]
         # ret = chainer.cuda.to_cpu(d)
         # return ret
