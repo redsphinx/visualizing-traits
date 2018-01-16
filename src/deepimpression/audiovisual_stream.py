@@ -28,8 +28,12 @@ class ResNet18(chainer.Chain):
 
         # avg over channels instead of spatial dim
         if ON_GPU:
-            h = [self.aud(chainer.cuda.to_gpu(x[0], device='0')), chainer.functions.expand_dims(
-                chainer.functions.sum(self.vis(chainer.cuda.to_gpu(x[1][:256], device='0')), 0), 0)]
+            a = self.aud(chainer.cuda.to_gpu(x[0], device='0'))
+            v = self.vis(chainer.cuda.to_gpu(x[1], device='0'))
+            h = [a, v]
+
+            # h = [self.aud(chainer.cuda.to_gpu(x[0], device='0')), chainer.functions.expand_dims(
+            #     chainer.functions.sum(self.vis(chainer.cuda.to_gpu(x[1][:256], device='0')), 0), 0)]
         else:
             a = self.aud(x[0])
             v = self.vis(x[1])
