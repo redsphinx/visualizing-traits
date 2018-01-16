@@ -6,7 +6,9 @@ if VAR_LOCAL:
     BASE_SAVE_LOCATION = '/home/gabi/PycharmProjects/visualizing-traits/data/training'
     TEMPLATE = '/home/gabi/PycharmProjects/visualizing-traits/src/align_face/cropped_landmark_template.txt'
 else:
-    PREDICTOR = '/home/gabras/visualizing-traits/data/predictor/shape_predictor_68_face_landmarks.dat'
+    # PREDICTOR = '/home/gabras/visualizing-traits/data/predictor/shape_predictor_68_face_landmarks.dat'
+    PREDICTOR = '/vol/ccnlab-scratch1/gabras/predictor-landmarks/shape_predictor_68_face_landmarks.dat'
     DATA_PATH = '/vol/ccnlab-scratch1/gabras/chalearn_train/'
     BASE_SAVE_LOCATION = '/vol/ccnlab-scratch1/gabras/chalearn_train_aligned'
-    TEMPLATE = '/home/gabras/visualizing-traits/src/align_face/cropped_landmark_template.txt'
+    TEMPLATE = '/vol/ccnlab-scratch1/gabras/predictor-landmarks/cropped_landmark_template.txt'
+    # TEMPLATE = '/home/gabras/visualizing-traits/src/align_face/cropped_landmark_template.txt'
