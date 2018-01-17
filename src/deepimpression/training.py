@@ -132,8 +132,10 @@ def main():
                 # prediction = np.asarray(prediction, dtype='float32')
                 # prediction = model([train[0], train[1]])
                 # loss = F.softmax_cross_entropy(prediction, labels)
+
+
                 loss = F.mean_absolute_error(prediction, labels)
-                # print(loss)
+                print(loss)
 
                 loss.backward()
                 optimizer.update()
