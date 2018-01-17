@@ -3,6 +3,8 @@ import chainer
 import visual_stream
 from project_paths2 import ON_GPU
 import numpy as np
+from project_constants import DEVICE
+
 
 ### MODEL ###
 class ResNet18(chainer.Chain):
