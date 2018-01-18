@@ -4,9 +4,12 @@ import librosa
 import numpy as np
 import skvideo.io
 import os
-import psutil
+# import psutil
 from project_paths2 import ON_GPU
 import project_paths2 as pp
+from PIL import Image
+import subprocess
+import time
 
 
 def load_audio(data):
@@ -116,7 +119,54 @@ def get_accuracy(output_path):
     result_total = np.mean(result_total)
     print('average accuracy per video:', result_total)
 
-# get_accuracy('data/performance_chalearn.txt')
+
+def mp4_to_jpgs(video_path, save_path):
+    # video_path = '//home/gabi/PycharmProjects/visualizing-traits/data/training/training80_03/PuVy3akfzNI.000.mp4'
+    # save_path = '/home/gabi/PycharmProjects/visualizing-traits/data/mp4_to_jpgs_4'
+    if not os.path.exists(save_path):
+        os.mkdir(save_path)
+    video_capture = skvideo.io.vread(video_path)
+    for i in range(video_capture.shape[0]):
+        raw = video_capture[i]
+        img = Image.fromarray(raw, mode='RGB')
+        name = '%03d.jpg' % i
+        name = os.path.join(save_path, name)
+        img.save(name)
 
 
+def mp4_to_wav(video_path, save_path):
+    name_audio = os.path.join(save_path, 'audio.wav')
+    command = "ffmpeg -loglevel panic -i %s -ab 160k -ac 2 -ar 44100 -vn -y %s" % (video_path, name_audio)
+    subprocess.call(command, shell=True)
 
+
+# for all the videos, save as jpgs and wav
+def folders_mp4_to_jpgs():
+    # check if important folders exist, else make them
+    if not os.path.exists(pp.TRAIN_DATA):
+        print('train data does not exist:\n%s' % pp.TRAIN_DATA)
+        return
+    if not os.path.exists(pp.CHALEARN_JPGS):
+        os.mkdir(pp.CHALEARN_JPGS)
+
+    for i in os.listdir(pp.TRAIN_DATA):
+        l1 = os.path.join(pp.TRAIN_DATA, i)
+        if os.path.isdir(l1):
+            nl1 = os.path.join(pp.CHALEARN_JPGS, i)
+            if not os.path.exists(nl1):
+                os.mkdir(nl1)
+
+            # videos
+            t = time.time()
+            for j in os.listdir(l1):
+                video_path = os.path.join(l1, j)
+                j_name = j.split('.mp4')[0]
+                new_video_folder = os.path.join(nl1, j_name)
+                # save jpgs
+                mp4_to_jpgs(video_path, new_video_folder)
+                # save wav
+                mp4_to_wav(video_path, new_video_folder)
+            print('time: %f seconds' % (time.time() - t))
+
+
+# folders_mp4_to_jpgs()

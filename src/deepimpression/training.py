@@ -1,16 +1,19 @@
 import chainer
 import audiovisual_stream
-from preprocessing import RandomIterator
+# from preprocessing import RandomIterator
 import numpy as np
 import tqdm
 import chainer.functions as F
-import matplotlib.pyplot as plt
+# import matplotlib.pyplot as plt
 from random import randint
-import subprocess
+# import subprocess
 import training_util
 import project_paths2 as pp
 import project_constants as pc
 import os
+from scipy import ndimage
+# from scipy.io.wavfile import read
+import time
 """
 training procedure in Gucluturk et al. 2016 
 https://arxiv.org/pdf/1609.05119.pdf
@@ -26,22 +29,54 @@ are spatially pooled.
 trait for the video clip.
 """
 
-# TODO: get metadata on the dataset
+
+# def make_training_set(get_audio=True):
+#     t = time.time()
+#     shape_frames = (pc.BATCH_SIZE, 3, pc.SIDE, pc.SIDE)
+#     sample_length = 50176
+#     shape_audio = (pc.BATCH_SIZE, 1, 1, sample_length)
+#
+#     batch_frames = np.zeros(shape=shape_frames, dtype='float32')
+#     batch_audio = None
+#
+#     if get_audio:
+#         batch_audio = np.zeros(shape=shape_audio, dtype='float32')
+#
+#     video_names, labels = training_util.get_names()
+#
+#     labels = np.asarray(labels, dtype='float32')
+#     if pc.BATCH_SIZE == 1:
+#         labels = np.reshape(labels, 6)
+#     else:
+#         labels = np.reshape(labels, (pc.BATCH_SIZE, 6))
+#
+#     for i in range(pc.BATCH_SIZE):
+#         name = video_names[i]
+#         if get_audio:
+#             frame, batch_audio[i] = training_util.extract_frame_and_audio(name, get_audio=get_audio)
+#             # reshape frame to channels first
+#             frame = np.reshape(frame, (3, 192, 192))
+#             batch_frames[i] = frame
+#         else:
+#             # batch_audio will stay None
+#             frame, batch_audio = training_util.extract_frame_and_audio(name, get_audio=get_audio)
+#             # reshape frame to channels first
+#             frame = np.reshape(frame, (3, 192, 192))
+#             batch_frames[i] = frame
+#
+#     # print('shape frames: %s, shape audio: %s, shape labels: %s' % (str(np.shape(batch_frames)),
+#     #                                                                str(np.shape(batch_audio)), str(np.shape(labels))))
+#     print(time.time() - t, 'seconds')
+#     return batch_frames, batch_audio, labels
 
 
-def make_training_set(get_audio=True):
-    # TODO: fix the shape
-
+def make_training_set(get_audio=False):
+    t1 = time.time()
     shape_frames = (pc.BATCH_SIZE, 3, pc.SIDE, pc.SIDE)
     sample_length = 50176
     shape_audio = (pc.BATCH_SIZE, 1, 1, sample_length)
-    # shape_audio = (pc.BATCH_SIZE, sample_length)
-
     batch_frames = np.zeros(shape=shape_frames, dtype='float32')
-    batch_audio = None
-
-    if get_audio:
-        batch_audio = np.zeros(shape=shape_audio, dtype='float32')
+    batch_audio = np.zeros(shape=shape_audio, dtype='float32')
 
     video_names, labels = training_util.get_names()
 
@@ -50,46 +85,39 @@ def make_training_set(get_audio=True):
         labels = np.reshape(labels, 6)
     else:
         labels = np.reshape(labels, (pc.BATCH_SIZE, 6))
+    print('setup ', time.time() - t1, 'seconds')
 
+    t2 = time.time()
+    tv = 0
+    ta = 0
     for i in range(pc.BATCH_SIZE):
+        t3 = time.time()
         name = video_names[i]
+
+        # get a random frame
+        num_frames = len(os.listdir(name))
+        rn = randint(0, num_frames - 1)
+        random_frame = os.path.join(name, '%03d.jpg' % rn)
+        arr_frame = ndimage.imread(random_frame)
+        arr_frame = np.reshape(arr_frame, (3, 192, 192))
+        batch_frames[i] = arr_frame
+        tv += time.time() - t3
+
+        t4 = time.time()
         if get_audio:
-            frame, batch_audio[i] = training_util.extract_frame_and_audio(name, get_audio=get_audio)
-            # reshape frame to channels first
-            frame = np.reshape(frame, (3, 192, 192))
-            batch_frames[i] = frame
-        else:
-            # batch_audio will stay None
-            frame, batch_audio = training_util.extract_frame_and_audio(name, get_audio=get_audio)
-            # reshape frame to channels first
-            frame = np.reshape(frame, (3, 192, 192))
-            batch_frames[i] = frame
+            audio_path = os.path.join(name, 'audio.wav')
+            aud = training_util.get_random_audio_clip(audio_path)
+            batch_audio[i] = aud
+        # else:
+        #     batch_audio = None
+        ta += time.time() - t4
 
-    # print('shape frames: %s, shape audio: %s, shape labels: %s' % (str(np.shape(batch_frames)),
-    #                                                                str(np.shape(batch_audio)), str(np.shape(labels))))
-
+    print('for loop ', time.time() - t2, 'seconds. of which ', ta, 'for audio and ', tv, ' for video')
+    print('entire: ', time.time() - t1)
     return batch_frames, batch_audio, labels
 
 
 def main():
-    # data specifications: array(shape=(1, batch, height, width, channels))
-    # example:
-    # def get_data(folder):
-    #     list_items = sorted(os.listdir(folder))
-    #     data = np.zeros((20, 128, 48, 3), int)
-    #     for ind in range(len(list_items)):
-    #         item = list_items[ind]
-    #         item_path = os.path.join(folder, item)
-    #
-    #         tmp = ndimage.imread(item_path)
-    #
-    #         data[ind] = np.array(tmp, 'float32')
-    #
-    #     data = np.reshape(data, (1, 20, 128, 48, 3))
-    #     return data
-
-    # train = chainer.datasets.TupleDataset(train_data, train_labels)
-    # test = chainer.datasets.TupleDataset(test_data, test_labels)
     # TODO: add selection for only visual stream
     if pp.ON_GPU:
         model = audiovisual_stream.ResNet18().to_gpu(device='0')
@@ -113,26 +141,8 @@ def main():
             for s in tqdm.tqdm(range(num_steps)):
 
                 frames, audios, labels = make_training_set()
-                # check length
-                # video_capture = np.reshape(video_capture, (frames, video_shape[-1], video_shape[1], video_shape[2]), 'float32')
-
-                # train = chainer.datasets.TupleDataset(audios, frames, labels)
-                # train = RandomIterator(train)
-
-            # for data in train_iter:
-                # train step
                 model.cleargrads()  # zero the gradient buffer
-                # loss = F.softmax_cross_entropy(model(data[0]), data[1])
-                # frames, audios, labels = make_training_set(side=192)
-                # loss = F.softmax_cross_entropy(model(train[0]), train[1])
-                # loss = F.softmax_cross_entropy(model([train[0], train[1]]), train[2])
-                # try:
                 prediction = model([audios, frames])
-                # print(prediction)
-                # prediction = np.asarray(prediction, dtype='float32')
-                # prediction = model([train[0], train[1]])
-                # loss = F.softmax_cross_entropy(prediction, labels)
-
 
                 loss = F.mean_absolute_error(prediction, labels)
                 print(loss)
@@ -142,8 +152,12 @@ def main():
 
                 train_loss[epoch] += loss.data
 
+                # delete things we don't need
+                del prediction
+                del loss
+                del frames, audios, labels
+
         # calculate average loss per epoch
-        # train_loss[epoch] /= train_iter.data._length
         train_loss[epoch] /= pc.BATCH_SIZE * num_steps
         print(train_loss)
 
