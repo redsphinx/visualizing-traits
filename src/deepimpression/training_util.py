@@ -3,13 +3,14 @@ import subprocess
 from random import randint
 import random
 import skvideo.io
-import time
-from PIL import Image
+# import time
+# from PIL import Image
 import librosa
 import pickle as pkl
 import os
 import project_constants as pc
 import project_paths2 as pp
+# import scipy.io.wavfile as swf
 
 
 def get_random_frame_times(fps, seed, at_time, seconds):
@@ -70,6 +71,7 @@ def get_random_frame(video_path, seed=None, at_time=None, seconds=None):
 
 def get_random_audio_clip(video_path):
     audio = librosa.load(video_path, 16000)[0][None, None, None, :]
+    # sr, audio = swf.read(video_path)
     sample_length = 50176
     audio_length = np.shape(audio)[-1]
     if audio_length < sample_length:
@@ -112,9 +114,9 @@ def get_names():
     array_labels = np.zeros((pc.BATCH_SIZE, number_of_classes))
 
     for b in range(pc.BATCH_SIZE):
-        # TODO: put all videos in same folder
         folder_number = randint(1, pc.NUMBER_TRAINING_FOLDERS)
-        name_without_video = os.path.join(pp.TRAIN_DATA, 'training80_%02d' % folder_number)
+        # name_without_video = os.path.join(pp.TRAIN_DATA, 'training80_%02d' % folder_number)
+        name_without_video = os.path.join(pp.CHALEARN_JPGS, 'training80_%02d' % folder_number)
         all_videos_here = os.listdir(name_without_video)
         random_number = randint(0, len(all_videos_here)-1)
         name_video = all_videos_here[random_number]
@@ -123,6 +125,9 @@ def get_names():
 
         for i in range(number_of_classes):
             k = annotation_train_keys[i]
-            array_labels[b][i] = annotation_train[k][name_video]
+            array_labels[b][i] = annotation_train[k][name_video+'.mp4']
+            # array_labels[b][i] = annotation_train[k][name_video]
 
     return list_names, array_labels
+
+# get_names()
