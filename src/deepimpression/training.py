@@ -81,17 +81,17 @@ def make_training_set(get_audio=False):
     video_names, labels = training_util.get_names()
 
     labels = np.asarray(labels, dtype='float32')
-    if pc.BATCH_SIZE == 1:
-        labels = np.reshape(labels, 6)
-    else:
-        labels = np.reshape(labels, (pc.BATCH_SIZE, 6))
-    print('setup ', time.time() - t1, 'seconds')
+    # if pc.BATCH_SIZE == 1:
+    #     labels = np.reshape(labels, 6)
+    # else:
+    #     labels = np.reshape(labels, (pc.BATCH_SIZE, 6))
+    # print('setup ', time.time() - t1, 'seconds')
 
-    t2 = time.time()
-    tv = 0
-    ta = 0
+    # t2 = time.time()
+    # tv = 0
+    # ta = 0
     for i in range(pc.BATCH_SIZE):
-        t3 = time.time()
+        # t3 = time.time()
         name = video_names[i]
 
         # get a random frame
@@ -101,19 +101,19 @@ def make_training_set(get_audio=False):
         arr_frame = ndimage.imread(random_frame)
         arr_frame = np.reshape(arr_frame, (3, 192, 192))
         batch_frames[i] = arr_frame
-        tv += time.time() - t3
+        # tv += time.time() - t3
 
-        t4 = time.time()
+        # t4 = time.time()
         if get_audio:
             audio_path = os.path.join(name, 'audio.wav')
             aud = training_util.get_random_audio_clip(audio_path)
             batch_audio[i] = aud
         # else:
         #     batch_audio = None
-        ta += time.time() - t4
+        # ta += time.time() - t4
 
-    print('for loop ', time.time() - t2, 'seconds. of which ', ta, 'for audio and ', tv, ' for video')
-    print('entire: ', time.time() - t1)
+    # print('for loop ', time.time() - t2, 'seconds. of which ', ta, 'for audio and ', tv, ' for video')
+    # print('entire: ', time.time() - t1)
     return batch_frames, batch_audio, labels
 
 
@@ -145,7 +145,7 @@ def main():
                 prediction = model([audios, frames])
 
                 loss = F.mean_absolute_error(prediction, labels)
-                print(loss)
+                print(loss, loss.data)
 
                 loss.backward()
                 optimizer.update()
@@ -158,13 +158,15 @@ def main():
                 del frames, audios, labels
 
         # calculate average loss per epoch
-        train_loss[epoch] /= pc.BATCH_SIZE * num_steps
-        print(train_loss)
+        # train_loss[epoch] /= pc.BATCH_SIZE * num_steps
+        train_loss[epoch] /= num_steps
+        print(train_loss[epoch])
 
         log_file = pp.LOG
 
         if not os.path.exists(log_file):
-            os.mkdir(log_file)
+            f = open(log_file, 'w')
+            f.close()
 
         with open(log_file, 'a') as my_file:
             line = 'epoch: %d loss: %f\n' % (epoch, train_loss[epoch])

@@ -16,5 +16,5 @@ else:
     TEST_DATA = '/vol/ccnlab-scratch1/gabras/chalearn_compressed'
     TEST_LABELS = '/vol/ccnlab-scratch1/gabras/chalearn_compressed/annotation_test.pkl'
     PRE_TRAINED = ''
-    LOG = '/vol/ccnlab-scratch1/gabras/log.txt'
+    # LOG = '/vol/ccnlab-scratch1/gabras/log.txt'
     CHALEARN_JPGS = '/scratch2/gabi/chalearn_aligned_jpgs'  # only available from hinton
