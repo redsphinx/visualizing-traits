@@ -169,4 +169,17 @@ def folders_mp4_to_jpgs():
             print('time: %f seconds' % (time.time() - t))
 
 
-# folders_mp4_to_jpgs()
+def remove_wav():
+    for i in os.listdir(pp.TRAIN_DATA):
+        l1 = os.path.join(pp.TRAIN_DATA, i)
+        if os.path.isdir(l1):
+            nl1 = os.path.join(pp.CHALEARN_JPGS, i)
+
+            for j in os.listdir(l1):
+                video_path = os.path.join(l1, j)
+                j_name = j.split('.mp4')[0]
+                file_path = os.path.join(nl1, j_name, 'audio.wav')
+                command = "mv %s /tmp" % file_path
+                subprocess.call(command, shell=True)
+
+
