@@ -65,6 +65,10 @@ class ResNet18(chainer.Chain):
         # scale between 0-1
         cfch_1 = cfch + 1
         cfch_1_half = cfch_1 / 2
+
+        # to cupy
+        
+
         return cfch_1_half
         # get rid of first dimension
         # d = cfch_1_half.data[0]

@@ -1,13 +1,5 @@
 # author:    redsphinx
 
-# import sys
-# missing = ['/home/gabi/.PyCharm2017.3/system/cythonExtensions',
-#  '/home/gabi/Downloads/pycharm-2017.2.3/helpers/pydev',
-#  '/usr/local/lib/python2.7/dist-packages/IPython/extensions']
-# for i in missing:
-#     sys.path.append(i)
-# print(sys.path)
-
 import numpy as np
 import skvideo.io
 import os
@@ -58,6 +50,7 @@ def align_face(image, desired_face_width, radius=None, mode='similarity'):
 
     # detect faces in the gray scale image
     face_rectangles = detector(gray, 2)
+    print('len: ', len(face_rectangles))
 
     if len(face_rectangles) == 0:
         return None, 0
@@ -104,16 +97,15 @@ def align_faces_in_video(data_path, frames=None, audio=True, side=196, mode='sim
 
     # use these for testing
     # base_save_location = '/home/gabi/PycharmProjects/visualizing-traits/data/testing'
+    base_save_location = '/home/gabi/PycharmProjects/visualizing-traits/data/luc'
+    save_location = base_save_location
 
     # relevant when testing is over
-    which_test = data_path.strip().split('/')[-3]
-    # print('which_test = %s' % which_test)
-    which_video_folder = data_path.strip().split('/')[-2]
-    # print('which_video_folder = %s' % which_video_folder)
-    save_location = os.path.join(base_save_location, which_test, which_video_folder)
-
-    # uncomment for testing
-    # save_location = base_save_location
+    # which_test = data_path.strip().split('/')[-3]
+    # # print('which_test = %s' % which_test)
+    # which_video_folder = data_path.strip().split('/')[-2]
+    # # print('which_video_folder = %s' % which_video_folder)
+    # save_location = os.path.join(base_save_location, which_test, which_video_folder)
 
     if os.path.exists(data_path):
         video_capture = skvideo.io.vread(data_path)
@@ -141,6 +133,7 @@ def align_faces_in_video(data_path, frames=None, audio=True, side=196, mode='sim
         the_radius = 0
 
         for i in range(frames):
+            print i
             if i % 20 == 0:
                 print('%s: %s of %s' % (name_video, i, frames))
             frame = video_capture[i]
@@ -156,7 +149,9 @@ def align_faces_in_video(data_path, frames=None, audio=True, side=196, mode='sim
             new_video_array[i] = new_frame
 
         print('END %s' % name_video)
-        vid_name = os.path.join(save_location, '%s.mp4' % name_video)
+        # vid_name = os.path.join(save_location, '%s.mp4' % name_video)
+        # comment for testing
+        vid_name = os.path.join(save_location, '%s_aligned.mp4' % name_video)
         imageio.mimwrite(vid_name, new_video_array, fps=fps)
         if audio:
             # add audio to the video
@@ -178,8 +173,8 @@ def align_faces_in_video(data_path, frames=None, audio=True, side=196, mode='sim
         print('Error: data_path does not exist')
 
 
-dp = '/media/gabi/DATADRIVE1/datasets/chalearn_fi_17_train/train-1/training80_01/1DCnIad1Y0w.002.mp4'
-align_faces_in_video(dp, frames=30)
+# dp = '/media/gabi/DATADRIVE1/datasets/chalearn_fi_17_train/train-1/training80_01/1DCnIad1Y0w.002.mp4'
+# align_faces_in_video(dp, frames=30)
 
-
-# util.parallel_align('train-1', [1, 2], align_faces_in_video, number_processes=1)  # archimedes
+p2 = "/home/gabi/PycharmProjects/visualizing-traits/data/face_2.jpg"
+align_face(p2, 196)

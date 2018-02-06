@@ -138,7 +138,8 @@ def main():
 
             num_steps = 6000 / pc.BATCH_SIZE
 
-            for s in tqdm.tqdm(range(num_steps)):
+            # for s in tqdm.tqdm(range(num_steps)):
+            for s in range(int(num_steps)):
 
                 frames, audios, labels = make_training_set()
                 model.cleargrads()  # zero the gradient buffer
@@ -172,13 +173,16 @@ def main():
             line = 'epoch: %d loss: %f\n' % (epoch, train_loss[epoch])
             my_file.write(line)
 
+        # TODO: at the end of epoch do validation
         # validation
         # with chainer.using_config('train', False):
         #     for data in test_iter:
         #         test_loss[epoch] += F.softmax_cross_entropy(model(data[0]), data[1]).data
         #
         # test_loss[epoch] /= test_iter.data._length
+        # TODO: save model inbetween
 
+    # TODO: run model on test data
     # plt.plot(np.vstack([train_loss, test_loss]).T)
     # plt.plot(np.vstack([train_loss]).T)
     # plt.legend(['train loss', 'validation loss'])
