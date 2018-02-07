@@ -44,20 +44,20 @@ class FaceAligner:
         # imshow(result)
 
         # overlay template landmarks on result -- successful
-        canvas = result
-        for p in template_landmarks:
-            x, y = p
-            result[y, x] = [0, 255, 0]  # OG
-            result[y-1, x] = [0, 255, 0]
-            result[y-1, x+1] = [0, 255, 0]
-            result[y, x+1] = [0, 255, 0]
-            result[y+1, x+1] = [0, 255, 0]
-            result[y+1, x] = [0, 255, 0]
-            result[y+1, x-1] = [0, 255, 0]
-            result[y, x-1] = [0, 255, 0]
-            result[y-1, x-1] = [0, 255, 0]
-
-        imshow(canvas)
+        # canvas = result
+        # for p in template_landmarks:
+        #     x, y = p
+        #     result[y, x] = [0, 255, 0]  # OG
+        #     result[y-1, x] = [0, 255, 0]
+        #     result[y-1, x+1] = [0, 255, 0]
+        #     result[y, x+1] = [0, 255, 0]
+        #     result[y+1, x+1] = [0, 255, 0]
+        #     result[y+1, x] = [0, 255, 0]
+        #     result[y+1, x-1] = [0, 255, 0]
+        #     result[y, x-1] = [0, 255, 0]
+        #     result[y-1, x-1] = [0, 255, 0]
+        #
+        # imshow(canvas)
         # #
         # # save image as jpg -- successful
         # result = Image.fromarray(result, mode='RGB')

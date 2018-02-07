@@ -4,6 +4,7 @@ import numpy as np
 import cv2
 from PIL import Image
 from src.align_face import project_paths as pp
+# import src.align_face.project_paths as pp
 
 
 # define a dictionary that maps the indexes of the facial
@@ -146,7 +147,7 @@ def resize(image, width=None, height=None, inter=cv2.INTER_AREA):
 
 def get_template_landmark():
     file_path = pp.TEMPLATE
-    template = list(np.genfromtxt(file_path, dtype=None))
+    template = list(np.genfromtxt(file_path, dtype=str))
     num_landmarks = len(template)
     template_arr = np.zeros((num_landmarks, 2), dtype='int')
     for i in range(num_landmarks):

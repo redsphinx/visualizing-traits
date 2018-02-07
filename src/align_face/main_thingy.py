@@ -50,7 +50,7 @@ def align_face(image, desired_face_width, radius=None, mode='similarity'):
 
     # detect faces in the gray scale image
     face_rectangles = detector(gray, 2)
-    print('len: ', len(face_rectangles))
+    # print('len: ', len(face_rectangles))
 
     if len(face_rectangles) == 0:
         return None, 0
@@ -91,21 +91,20 @@ def align_faces_in_video(data_path, frames=None, audio=True, side=196, mode='sim
     :return:
     """
     # uncomment when testing is over
-    # base_save_location = '/home/gabi/Documents/temp_datasets/chalearn_fi_faces_aligned_center'
     base_save_location = pp.BASE_SAVE_LOCATION
-    print('base_save_location = %s' % base_save_location)
+    # print('base_save_location = %s' % base_save_location)
 
     # use these for testing
     # base_save_location = '/home/gabi/PycharmProjects/visualizing-traits/data/testing'
-    base_save_location = '/home/gabi/PycharmProjects/visualizing-traits/data/luc'
-    save_location = base_save_location
+    # base_save_location = '/home/gabi/PycharmProjects/visualizing-traits/data/luc'
+    # save_location = base_save_location
 
     # relevant when testing is over
-    # which_test = data_path.strip().split('/')[-3]
-    # # print('which_test = %s' % which_test)
-    # which_video_folder = data_path.strip().split('/')[-2]
-    # # print('which_video_folder = %s' % which_video_folder)
-    # save_location = os.path.join(base_save_location, which_test, which_video_folder)
+    which_test = data_path.strip().split('/')[-3]
+    # print('which_test = %s' % which_test)
+    which_video_folder = data_path.strip().split('/')[-2]
+    # print('which_video_folder = %s' % which_video_folder)
+    save_location = os.path.join(base_save_location, which_test, which_video_folder)
 
     if os.path.exists(data_path):
         video_capture = skvideo.io.vread(data_path)
@@ -133,7 +132,7 @@ def align_faces_in_video(data_path, frames=None, audio=True, side=196, mode='sim
         the_radius = 0
 
         for i in range(frames):
-            print i
+            # print i
             if i % 20 == 0:
                 print('%s: %s of %s' % (name_video, i, frames))
             frame = video_capture[i]
@@ -176,5 +175,7 @@ def align_faces_in_video(data_path, frames=None, audio=True, side=196, mode='sim
 # dp = '/media/gabi/DATADRIVE1/datasets/chalearn_fi_17_train/train-1/training80_01/1DCnIad1Y0w.002.mp4'
 # align_faces_in_video(dp, frames=30)
 
-p2 = "/home/gabi/PycharmProjects/visualizing-traits/data/face_2.jpg"
-align_face(p2, 196)
+# p2 = "/home/gabi/PycharmProjects/visualizing-traits/data/face_2.jpg"
+# align_face(p2, 196)
+
+util.parallel_align('test-1', [0, 100], align_faces_in_video, number_processes=10)

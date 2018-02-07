@@ -59,6 +59,7 @@ def parallel_align(which_folder, range_, func, number_processes=10):
     list_path_all_videos = get_path_videos(which_folder)
     list_path_all_videos.sort()
     list_path_all_videos = list_path_all_videos[range_[0]:range_[1]]
+    # make folders in save location
     make_folder_dirs(which_folder)
     pool.apply_async(func)
     pool.map(func, list_path_all_videos)
