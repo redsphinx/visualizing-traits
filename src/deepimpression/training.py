@@ -14,6 +14,8 @@ import os
 from scipy import ndimage
 # from scipy.io.wavfile import read
 import time
+from chainer import serializers
+from util import save_model
 """
 training procedure in Gucluturk et al. 2016 
 https://arxiv.org/pdf/1609.05119.pdf
@@ -180,7 +182,8 @@ def main():
         #         test_loss[epoch] += F.softmax_cross_entropy(model(data[0]), data[1]).data
         #
         # test_loss[epoch] /= test_iter.data._length
-        # TODO: save model inbetween
+        save_model(model, epoch)
+
 
     # TODO: run model on test data
     # plt.plot(np.vstack([train_loss, test_loss]).T)
