@@ -9,6 +9,7 @@ if VAR_LOCAL:
     PRE_TRAINED = '/home/gabi/PycharmProjects/visualizing-traits/model/model'
     LOG = '/home/gabi/PycharmProjects/visualizing-traits/data/log.txt'
     CHALEARN_JPGS = '/home/gabi/PycharmProjects/visualizing-traits/data/chalearn_aligned_jpgs'
+    MODEL_SAVES = '/home/gabi/PycharmProjects/visualizing-traits/data/models'
 else:
     TRAIN_DATA = '/vol/ccnlab-scratch1/gabras/chalearn_train_aligned_all'
     # TRAIN_LABELS = '/vol/ccnlab-scratch1/gabras/chalearn_train/annotation_training.pkl'
@@ -18,3 +19,4 @@ else:
     PRE_TRAINED = ''
     # LOG = '/vol/ccnlab-scratch1/gabras/log.txt'
     CHALEARN_JPGS = '/scratch2/gabi/chalearn_aligned_jpgs'  # only available from hinton
+    MODEL_SAVES = '/vol/ccnlab-scratch1/gabras/models'

@@ -183,3 +183,7 @@ def remove_wav():
                 subprocess.call(command, shell=True)
 
 
+def save_model(model, epoch):
+    model_name = os.path.join(pp.MODEL_SAVES, 'deepimpression_e_%d' % epoch)
+    chainer.serializers.save_npz(model_name, model)
+    print('model saved')
