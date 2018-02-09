@@ -10,9 +10,11 @@ import project_paths2 as pp
 from PIL import Image
 import subprocess
 import time
+import project_constants as pc
 
 
 def load_audio(data):
+    # audio = librosa.load(data, 16000)[0][None, None, None, :]
     audio = librosa.load(data, 16000)[0][None, None, None, :]
     return audio
 
@@ -35,7 +37,7 @@ def load_video(data):
     print('loading data')
     video_capture = skvideo.io.vread(data)
 
-    frames = 50
+    frames = pc.NUM_VIDEO_FRAMES
     video_capture = video_capture[:frames]
 
     video_shape = np.shape(video_capture)
@@ -44,6 +46,7 @@ def load_video(data):
     video_capture = np.reshape(video_capture, (frames, video_shape[-1], video_shape[1], video_shape[2]), 'float32')
     # video_capture = np.reshape(video_capture, (frames, video_shape[1], video_shape[2], video_shape[-1]), 'float32')
     # return video_capture
+    # video_capture = np.expand_dims(video_capture, 0)
     video = np.array(video_capture, 'float32')
     return video
 
@@ -58,11 +61,12 @@ def predict_trait(data, model):
         print("can't")
     print('now really predicting. this will take a while.')
     with chainer.using_config('train', False):
-        return model(x)
+        thing = model(x)
+        return thing
         # return model(x)
 
 
-def find_video(video_id):
+def find_video_test(video_id):
     print('finding video: ', video_id)
     # ----------------------------------------------------------------------------
     # base_path_1 = 'chalearn_fi_17_compressed/test-1'
@@ -85,9 +89,32 @@ def find_video(video_id):
     return video
 
 
-def track_prediction(video_id, prediction, target):
+def find_video_val(video_id):
+    print('finding video: ', video_id)
+    # ----------------------------------------------------------------------------
+    # base_path_1 = 'chalearn_fi_17_compressed/test-1'
+    # val_path = os.path.join(pp.VALIDATION_DATA, 'val-1')
+    val_path = pp.VALIDATION_DATA
+    # ----------------------------------------------------------------------------
+    video = None
+
+    not_found = True
+    while not_found:
+        item = val_path
+        all_dirs = os.listdir(item)
+        for d in all_dirs:
+            all_vids = os.listdir(os.path.join(item, d))
+            for vid in all_vids:
+                if vid == video_id:
+                    video = os.path.join(item, d, vid)
+                    not_found = False
+    return video
+
+
+def track_prediction(video_id, prediction, target, write_file):
     print('tracking prediction')
-    output_path = 'performance_chalearn.txt'
+    # output_path = 'performance_chalearn.txt'
+    output_path = write_file
     if not os.path.exists(output_path):
         # create file
         output_file = open(output_path, 'w')
@@ -97,8 +124,8 @@ def track_prediction(video_id, prediction, target):
         my_file.write('%s,\n%s,\n%s,\n%s\n' % (video_id, str(prediction), str(target), str(target - prediction)))
 
 
-def get_accuracy(output_path):
-    result_per_trait = np.zeros((2000, 5), dtype=float)
+def get_accuracy(output_path, num_keys):
+    result_per_trait = np.zeros((2000, num_keys), dtype=float)
     result_total = np.zeros(2000, dtype=float)
 
     with open(output_path, 'r') as my_file:
@@ -140,19 +167,39 @@ def mp4_to_wav(video_path, save_path):
     subprocess.call(command, shell=True)
 
 
-# for all the videos, save as jpgs and wav
-def folders_mp4_to_jpgs():
-    # check if important folders exist, else make them
-    if not os.path.exists(pp.TRAIN_DATA):
-        print('train data does not exist:\n%s' % pp.TRAIN_DATA)
-        return
-    if not os.path.exists(pp.CHALEARN_JPGS):
-        os.mkdir(pp.CHALEARN_JPGS)
+def remove_wav(to_be_processed, save_dir):
+    # to_be_processed = pp.TRAIN_DATA
+    # save_dir = pp.CHALEARN_JPGS
 
-    for i in os.listdir(pp.TRAIN_DATA):
-        l1 = os.path.join(pp.TRAIN_DATA, i)
+    for i in os.listdir(to_be_processed):
+        l1 = os.path.join(to_be_processed, i)
         if os.path.isdir(l1):
-            nl1 = os.path.join(pp.CHALEARN_JPGS, i)
+            nl1 = os.path.join(save_dir, i)
+
+            for j in os.listdir(l1):
+                video_path = os.path.join(l1, j)
+                j_name = j.split('.mp4')[0]
+                file_path = os.path.join(nl1, j_name, 'audio.wav')
+                command = "mv %s /tmp" % file_path
+                subprocess.call(command, shell=True)
+
+
+# for all the videos, save as jpgs and wav
+def folders_mp4_to_jpgs(keep_wav=True):
+    # check if important folders exist, else make them
+    to_be_processed = pp.VALIDATION_DATA
+    save_dir = pp.CHALEARN_VALIDATION_JPGS
+
+    if not os.path.exists(to_be_processed):
+        print('train data does not exist:\n%s' % to_be_processed)
+        return
+    if not os.path.exists(save_dir):
+        os.mkdir(save_dir)
+
+    for i in os.listdir(to_be_processed):
+        l1 = os.path.join(to_be_processed, i)
+        if os.path.isdir(l1):
+            nl1 = os.path.join(save_dir, i)
             if not os.path.exists(nl1):
                 os.mkdir(nl1)
 
@@ -165,22 +212,9 @@ def folders_mp4_to_jpgs():
                 # save jpgs
                 mp4_to_jpgs(video_path, new_video_folder)
                 # save wav
-                mp4_to_wav(video_path, new_video_folder)
+                if keep_wav:
+                    mp4_to_wav(video_path, new_video_folder)
             print('time: %f seconds' % (time.time() - t))
-
-
-def remove_wav():
-    for i in os.listdir(pp.TRAIN_DATA):
-        l1 = os.path.join(pp.TRAIN_DATA, i)
-        if os.path.isdir(l1):
-            nl1 = os.path.join(pp.CHALEARN_JPGS, i)
-
-            for j in os.listdir(l1):
-                video_path = os.path.join(l1, j)
-                j_name = j.split('.mp4')[0]
-                file_path = os.path.join(nl1, j_name, 'audio.wav')
-                command = "mv %s /tmp" % file_path
-                subprocess.call(command, shell=True)
 
 
 def save_model(model, epoch):

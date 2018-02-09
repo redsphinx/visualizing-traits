@@ -179,3 +179,4 @@ def align_faces_in_video(data_path, frames=None, audio=True, side=196, mode='sim
 # align_face(p2, 196)
 
 # util.parallel_align('test-1', [0, 100], align_faces_in_video, number_processes=10)
+util.parallel_align('test-1', [400, 700], align_faces_in_video, number_processes=10)

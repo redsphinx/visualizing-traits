@@ -14,86 +14,25 @@ import os
 from scipy import ndimage
 # from scipy.io.wavfile import read
 import time
-from chainer import serializers
-from util import save_model
-"""
-training procedure in Gucluturk et al. 2016 
-https://arxiv.org/pdf/1609.05119.pdf
-
-- The audio data and the visual data of the video clip are extracted. 
-- A random 50176 sample temporal crop of the audio data is fed into the auditory stream. The activities of the 
-penultimate layer of the auditory stream are temporally pooled.
-- A random 224 pixels x 224 pixels spatial crop of a random frame of the visual data is randomly flipped in the 
-left/right direction and fed into the visual stream. The activities of the penultimate layer of the visual stream 
-are spatially pooled.
-- Pooled activities of the auditory stream and the visual stream are concatenated and fed into the fully-connected layer
-- The fully-connected layer outputs five continuous prediction values between the range [0, 1] corresponding to each 
-trait for the video clip.
-"""
-
-
-# def make_training_set(get_audio=True):
-#     t = time.time()
-#     shape_frames = (pc.BATCH_SIZE, 3, pc.SIDE, pc.SIDE)
-#     sample_length = 50176
-#     shape_audio = (pc.BATCH_SIZE, 1, 1, sample_length)
-#
-#     batch_frames = np.zeros(shape=shape_frames, dtype='float32')
-#     batch_audio = None
-#
-#     if get_audio:
-#         batch_audio = np.zeros(shape=shape_audio, dtype='float32')
-#
-#     video_names, labels = training_util.get_names()
-#
-#     labels = np.asarray(labels, dtype='float32')
-#     if pc.BATCH_SIZE == 1:
-#         labels = np.reshape(labels, 6)
-#     else:
-#         labels = np.reshape(labels, (pc.BATCH_SIZE, 6))
-#
-#     for i in range(pc.BATCH_SIZE):
-#         name = video_names[i]
-#         if get_audio:
-#             frame, batch_audio[i] = training_util.extract_frame_and_audio(name, get_audio=get_audio)
-#             # reshape frame to channels first
-#             frame = np.reshape(frame, (3, 192, 192))
-#             batch_frames[i] = frame
-#         else:
-#             # batch_audio will stay None
-#             frame, batch_audio = training_util.extract_frame_and_audio(name, get_audio=get_audio)
-#             # reshape frame to channels first
-#             frame = np.reshape(frame, (3, 192, 192))
-#             batch_frames[i] = frame
-#
-#     # print('shape frames: %s, shape audio: %s, shape labels: %s' % (str(np.shape(batch_frames)),
-#     #                                                                str(np.shape(batch_audio)), str(np.shape(labels))))
-#     print(time.time() - t, 'seconds')
-#     return batch_frames, batch_audio, labels
+from util import save_model, predict_trait, find_video_val, track_prediction, get_accuracy
+import pickle as pkl
+import random
 
 
 def make_training_set(get_audio=False):
-    t1 = time.time()
     shape_frames = (pc.BATCH_SIZE, 3, pc.SIDE, pc.SIDE)
     sample_length = 50176
     shape_audio = (pc.BATCH_SIZE, 1, 1, sample_length)
     batch_frames = np.zeros(shape=shape_frames, dtype='float32')
     batch_audio = np.zeros(shape=shape_audio, dtype='float32')
 
-    video_names, labels = training_util.get_names()
+    video_names, labels = training_util.get_names(labels=pp.TRAIN_LABELS,
+                                                  data=pp.CHALEARN_JPGS,
+                                                  batch_size=pc.BATCH_SIZE,
+                                                  number_folders=pc.NUMBER_TRAINING_FOLDERS)
 
     labels = np.asarray(labels, dtype='float32')
-    # if pc.BATCH_SIZE == 1:
-    #     labels = np.reshape(labels, 6)
-    # else:
-    #     labels = np.reshape(labels, (pc.BATCH_SIZE, 6))
-    # print('setup ', time.time() - t1, 'seconds')
-
-    # t2 = time.time()
-    # tv = 0
-    # ta = 0
     for i in range(pc.BATCH_SIZE):
-        # t3 = time.time()
         name = video_names[i]
 
         # get a random frame
@@ -103,20 +42,71 @@ def make_training_set(get_audio=False):
         arr_frame = ndimage.imread(random_frame)
         arr_frame = np.reshape(arr_frame, (3, 192, 192))
         batch_frames[i] = arr_frame
-        # tv += time.time() - t3
 
-        # t4 = time.time()
         if get_audio:
             audio_path = os.path.join(name, 'audio.wav')
             aud = training_util.get_random_audio_clip(audio_path)
             batch_audio[i] = aud
-        # else:
-        #     batch_audio = None
-        # ta += time.time() - t4
-
-    # print('for loop ', time.time() - t2, 'seconds. of which ', ta, 'for audio and ', tv, ' for video')
-    # print('entire: ', time.time() - t1)
     return batch_frames, batch_audio, labels
+
+
+def validation(model, epoch):
+    with chainer.using_config('train', False):
+        # get ground truth from the pkl file
+        # ----------------------------------------------------------------------------
+        pkl_path = pp.VALIDATION_LABELS
+        # ----------------------------------------------------------------------------
+
+        f = open(pkl_path, 'r')
+        annotation_val = pkl.load(f)
+        # ['extraversion', 'neuroticism', 'agreeableness', 'conscientiousness', 'interview', 'openness']
+        annotation_val_keys = annotation_val.keys()
+        all_video_names = annotation_val[annotation_val_keys[0]].keys()
+
+        # log = os.path.join(pp.VALIDATION_LOG, 'epoch_%d.txt' % epoch)
+
+        # make a list of 200 random numbers between 0 and 1999
+        random_list = [random.randrange(0, 1999, 1) for _ in range(pc.VAL_BATCH_SIZE)]
+
+        y_tmp = np.zeros((pc.VAL_BATCH_SIZE, len(annotation_val_keys)))
+        target_tmp = np.zeros((pc.VAL_BATCH_SIZE, len(annotation_val_keys)))
+
+        for ind in random_list:
+            print('ind: ', ind)
+            video_id = all_video_names[ind]
+            target_labels = [annotation_val['extraversion'][video_id],
+                             annotation_val['agreeableness'][video_id],
+                             annotation_val['conscientiousness'][video_id],
+                             annotation_val['neuroticism'][video_id],
+                             annotation_val['interview'][video_id],
+                             annotation_val['openness'][video_id]]
+            video = find_video_val(video_id)
+            y = predict_trait(video, model)
+
+            y_tmp[ind] = y
+            target_tmp[ind] = target_labels
+            # print(video_id)
+            # print('ValueExtraversion, ValueAgreeableness, ValueConscientiousness, ValueNeurotisicm, ValueInterview,'
+            #       ' ValueOpenness')
+            # print(y)
+            # print(target_labels)
+
+            # track_prediction(video_id, y, target_labels, write_file=log)
+
+        # calculate validation loss
+        loss = F.mean_absolute_error(y_tmp, target_tmp)
+        print(loss)
+
+        log_file = pp.VALIDATION_LOG
+
+        # make log file
+        if not os.path.exists(log_file):
+            log_file = open(log_file, 'w')
+            log_file.close()
+
+        # write to log file
+        with open(log_file, 'a') as my_file:
+            my_file.write('%s,epoch=%d' % (str(loss), epoch))
 
 
 def main():
@@ -175,14 +165,12 @@ def main():
             line = 'epoch: %d loss: %f\n' % (epoch, train_loss[epoch])
             my_file.write(line)
 
-        # TODO: at the end of epoch do validation
-        # validation
-        # with chainer.using_config('train', False):
-        #     for data in test_iter:
-        #         test_loss[epoch] += F.softmax_cross_entropy(model(data[0]), data[1]).data
-        #
-        # test_loss[epoch] /= test_iter.data._length
-        save_model(model, epoch)
+        # validation on 200 random videos
+        validation(model, epoch)
+
+        save_every = 50
+        if epoch % save_every == 0:
+            save_model(model, epoch)
 
 
     # TODO: run model on test data
