@@ -100,10 +100,10 @@ def extract_frame_and_audio(video_path, get_audio=True):
     return np.array(frame, 'float32'), np.array(audio, 'float32')
 
 
-# try to solve problem of loss staying same
-def get_names():
+# get list of names from labels
+def get_names(labels, data, batch_size, number_folders):
     # return random path to video and the label of that video in order
-    with open(pp.TRAIN_LABELS, 'r') as my_file:
+    with open(labels, 'r') as my_file:
         annotation_train = pkl.load(my_file)
 
     annotation_train_keys = annotation_train.keys()
@@ -113,17 +113,16 @@ def get_names():
     number_of_classes = len(annotation_train_keys)
 
     list_names = []
-    array_labels = np.zeros((pc.BATCH_SIZE, number_of_classes))
+    array_labels = np.zeros((batch_size, number_of_classes))
 
-    for b in range(pc.BATCH_SIZE):
+    for b in range(batch_size):
         random.seed(pc.SEED)
-        folder_number = randint(1, pc.NUMBER_TRAINING_FOLDERS)
+        folder_number = randint(1, number_folders)
         # name_without_video = os.path.join(pp.TRAIN_DATA, 'training80_%02d' % folder_number)
-        name_without_video = os.path.join(pp.CHALEARN_JPGS, 'training80_%02d' % folder_number)
+        name_without_video = os.path.join(data, 'training80_%02d' % folder_number)
         all_videos_here = os.listdir(name_without_video)
         random.seed(pc.SEED)
         random_number = randint(0, len(all_videos_here)-1)
-        # print(random_number)
         name_video = all_videos_here[random_number]
         # print(name_video)
         path_video = os.path.join(name_without_video, name_video)
@@ -134,14 +133,7 @@ def get_names():
             array_labels[b][i] = annotation_train[k][name_video+'.mp4']
             # array_labels[b][i] = annotation_train[k][name_video]
 
-    # print(array_labels)
-    # array_labels = array_labels.transpose()
-    # array_labels = array_labels.flatten()
-    # array_labels = np.delete(array_labels, range(4*32, 5*32))
-    # array_labels = np.reshape(array_labels, (5, 32))
-    # array_labels = array_labels.transpose()
-    # print(array_labels)
-
     return list_names, array_labels
+
 
 # get_names()
