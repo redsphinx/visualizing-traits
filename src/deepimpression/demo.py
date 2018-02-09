@@ -6,6 +6,7 @@ import project_paths2 as pp
 
 def main():
     model = load_model()
+    model.validation = True
 
     # get ground truth from the pkl file
     # ----------------------------------------------------------------------------
@@ -28,6 +29,7 @@ def main():
                          annotation_test['neuroticism'][video_id],
                          annotation_test['openness'][video_id]]
         video = find_video_test(video_id)
+
         y = predict_trait(video, model)
         print(video_id)
         print('ValueExtraversion, ValueAgreeableness, ValueConscientiousness, ValueNeurotisicm, ValueOpenness')
