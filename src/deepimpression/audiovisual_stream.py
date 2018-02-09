@@ -15,7 +15,7 @@ class ResNet18(chainer.Chain):
             fc=chainer.links.Linear(512, 5, initialW=chainer.initializers.HeNormal())
         )
 
-    # for training
+    # for training 
     def __call__(self, x):
         # doesn't work
         # h = [self.aud(True, chainer.Variable(chainer.cuda.to_gpu(x[0]), True)), chainer.functions.expand_dims(
