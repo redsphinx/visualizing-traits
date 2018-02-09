@@ -1,6 +1,7 @@
 ON_GPU = False
 VAR_LOCAL = True
 
+
 if VAR_LOCAL:
     TRAIN_DATA = '/home/gabi/PycharmProjects/visualizing-traits/data/training'
     TRAIN_LABELS = '/home/gabi/PycharmProjects/visualizing-traits/data/training/annotation_training.pkl'
@@ -11,6 +12,7 @@ if VAR_LOCAL:
     CHALEARN_JPGS = '/home/gabi/PycharmProjects/visualizing-traits/data/chalearn_aligned_jpgs'
     MODEL_SAVES = '/home/gabi/PycharmProjects/visualizing-traits/data/models'
     TEST_LOG = 'shitty_test_log.txt'
+    TRAIN_LOG = 'shitty_train_log.txt'
 
 
 else:
@@ -34,3 +36,5 @@ else:
     VALIDATION_LOG = '/vol/ccnlab-scratch1/gabras/logs/validation_log.txt'
 
     TEST_LOG = '/vol/ccnlab-scratch1/gabras/logs/test_log.txt'
+
+    TRAIN_LOG = '/vol/ccnlab-scratch1/gabras/logs/train_log.txt'

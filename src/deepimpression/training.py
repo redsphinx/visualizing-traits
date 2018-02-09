@@ -17,6 +17,7 @@ import time
 from util import save_model, predict_trait, find_video_val, track_prediction, get_accuracy
 import pickle as pkl
 import random
+from project_constants import DEVICE
 
 
 def make_training_set(get_audio=False):
@@ -68,8 +69,10 @@ def validation(model, epoch):
         # make a list of 200 random numbers between 0 and 1999
         random_list = [random.randrange(0, 1999, 1) for _ in range(pc.VAL_BATCH_SIZE)]
 
-        y_tmp = np.zeros((pc.VAL_BATCH_SIZE, len(annotation_val_keys)))
-        target_tmp = np.zeros((pc.VAL_BATCH_SIZE, len(annotation_val_keys)))
+        y_tmp = np.zeros((pc.VAL_BATCH_SIZE, len(annotation_val_keys)), dtype=np.float32)
+        target_tmp = np.zeros((pc.VAL_BATCH_SIZE, len(annotation_val_keys)), dtype=np.float32)
+
+        cnt = 0
 
         for ind in random_list:
             print('ind: ', ind)
@@ -83,8 +86,9 @@ def validation(model, epoch):
             video = find_video_val(video_id)
             y = predict_trait(video, model)
 
-            y_tmp[ind] = y
-            target_tmp[ind] = target_labels
+            y_tmp[cnt] = y
+            target_tmp[cnt] = target_labels
+            cnt += 1
             # print(video_id)
             # print('ValueExtraversion, ValueAgreeableness, ValueConscientiousness, ValueNeurotisicm, ValueInterview,'
             #       ' ValueOpenness')
@@ -94,6 +98,8 @@ def validation(model, epoch):
             # track_prediction(video_id, y, target_labels, write_file=log)
 
         # calculate validation loss
+        y_tmp.astype(np.float32)
+        target_tmp.astype(np.float32)
         loss = F.mean_absolute_error(y_tmp, target_tmp)
         print(loss)
 
@@ -112,7 +118,7 @@ def validation(model, epoch):
 def main():
     # TODO: add selection for only visual stream
     if pp.ON_GPU:
-        model = audiovisual_stream.ResNet18().to_gpu(device='0')
+        model = audiovisual_stream.ResNet18().to_gpu(device=DEVICE)
     else:
         model = audiovisual_stream.ResNet18()
 
@@ -132,6 +138,8 @@ def main():
 
             # for s in tqdm.tqdm(range(num_steps)):
             for s in range(int(num_steps)):
+                # set validation to false
+                model.validation = False
 
                 frames, audios, labels = make_training_set()
                 model.cleargrads()  # zero the gradient buffer
@@ -155,7 +163,7 @@ def main():
         train_loss[epoch] /= num_steps
         print(train_loss[epoch])
 
-        log_file = pp.LOG
+        log_file = pp.TRAIN_LOG
 
         if not os.path.exists(log_file):
             f = open(log_file, 'w')
@@ -166,6 +174,8 @@ def main():
             my_file.write(line)
 
         # validation on 200 random videos
+        # set validation to True
+        model.validation = True
         validation(model, epoch)
 
         save_every = 50
