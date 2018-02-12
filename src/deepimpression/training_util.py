@@ -56,7 +56,11 @@ def get_random_frame(video_path, seed=None, at_time=None, seconds=None):
     command = "ffmpeg -loglevel panic -ss %s -t %s -i %s -r %s.0 -f image2pipe -pix_fmt rgb24 -vcodec rawvideo -" % (begin_time, end_time, video_path, fps)
     pipe = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE)
     img = pipe.stdout.read(h*w*3)
+    print('len img: ', len(img))
     img = np.fromstring(img, dtype='uint8')
+    print('len img: ', len(img))
+    img = np.asarray(img, dtype='float32')
+    print('len img: ', len(img))
 
     # some videos are shorter than 15 seconds, try to grab a random frame from first 5 seconds instead
     if np.size(img) == 0:
@@ -66,6 +70,7 @@ def get_random_frame(video_path, seed=None, at_time=None, seconds=None):
     img = img.reshape((h, w, 3))
     # im = Image.fromarray(img, mode='RGB')
     # im.show()
+    print('img shape: ', img.shape)
     return img
 
 
@@ -116,12 +121,12 @@ def get_names(labels, data, batch_size, number_folders):
     array_labels = np.zeros((batch_size, number_of_classes))
 
     for b in range(batch_size):
-        random.seed(pc.SEED)
+        # random.seed(pc.SEED)
         folder_number = randint(1, number_folders)
         # name_without_video = os.path.join(pp.TRAIN_DATA, 'training80_%02d' % folder_number)
         name_without_video = os.path.join(data, 'training80_%02d' % folder_number)
         all_videos_here = os.listdir(name_without_video)
-        random.seed(pc.SEED)
+        # random.seed(pc.SEED)
         random_number = randint(0, len(all_videos_here)-1)
         name_video = all_videos_here[random_number]
         # print(name_video)

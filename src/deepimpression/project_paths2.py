@@ -7,12 +7,17 @@ if VAR_LOCAL:
     TRAIN_LABELS = '/home/gabi/PycharmProjects/visualizing-traits/data/training/annotation_training.pkl'
     TEST_DATA = '/media/gabi/DATADRIVE1/datasets/chalearn_fi_17_compressed'
     TEST_LABELS = '/media/gabi/DATADRIVE1/datasets/chalearn_fi_17_compressed/annotation_test.pkl'
-    PRE_TRAINED = '/home/gabi/PycharmProjects/visualizing-traits/model/model'
+
+    # model location
+    # PRE_TRAINED = '/home/gabi/PycharmProjects/visualizing-traits/model/model'
+    PRE_TRAINED = '/home/gabi/PycharmProjects/visualizing-traits/data/models/deepimpression_e_850'
+
     LOG = '/home/gabi/PycharmProjects/visualizing-traits/data/log.txt'
     CHALEARN_JPGS = '/home/gabi/PycharmProjects/visualizing-traits/data/chalearn_aligned_jpgs'
     MODEL_SAVES = '/home/gabi/PycharmProjects/visualizing-traits/data/models'
     TEST_LOG = 'shitty_test_log.txt'
     TRAIN_LOG = 'shitty_train_log.txt'
+    VALIDATION_LOG = 'shitty_val_log.txt'
 
 
 else:

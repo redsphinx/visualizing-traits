@@ -97,14 +97,14 @@ def align_faces_in_video(data_path, frames=None, audio=True, side=196, mode='sim
     # use these for testing
     # base_save_location = '/home/gabi/PycharmProjects/visualizing-traits/data/testing'
     # base_save_location = '/home/gabi/PycharmProjects/visualizing-traits/data/luc'
-    # save_location = base_save_location
+    save_location = base_save_location
 
     # relevant when testing is over
-    which_test = data_path.strip().split('/')[-3]
-    # print('which_test = %s' % which_test)
-    which_video_folder = data_path.strip().split('/')[-2]
-    # print('which_video_folder = %s' % which_video_folder)
-    save_location = os.path.join(base_save_location, which_test, which_video_folder)
+    # which_test = data_path.strip().split('/')[-3]
+    # # print('which_test = %s' % which_test)
+    # which_video_folder = data_path.strip().split('/')[-2]
+    # # print('which_video_folder = %s' % which_video_folder)
+    # save_location = os.path.join(base_save_location, which_test, which_video_folder)
 
     if os.path.exists(data_path):
         video_capture = skvideo.io.vread(data_path)
@@ -179,4 +179,7 @@ def align_faces_in_video(data_path, frames=None, audio=True, side=196, mode='sim
 # align_face(p2, 196)
 
 # util.parallel_align('test-1', [0, 100], align_faces_in_video, number_processes=10)
-util.parallel_align('test-1', [400, 700], align_faces_in_video, number_processes=10)
+# util.parallel_align('test-1', [400, 700], align_faces_in_video, number_processes=10)
+
+vid = '/media/gabi/DATADRIVE1/datasets/chalearn_fi_17_compressed/test-1/test80_01/IGjI8aP14gg.000.mp4'
+align_faces_in_video(vid)
