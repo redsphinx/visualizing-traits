@@ -12,7 +12,7 @@ class ResNet18(chainer.Chain):
         super(ResNet18, self).__init__(
             aud=auditory_stream.ResNet18(),
             vis=visual_stream.ResNet18(),
-            fc=chainer.links.Linear(512, 5, initialW=chainer.initializers.HeNormal())
+            fc=chainer.links.Linear(512, 6, initialW=chainer.initializers.HeNormal())
         )
         self._validation = False
 
@@ -47,6 +47,19 @@ class ResNet18(chainer.Chain):
 
             return chainer.cuda.to_cpu(
                 ((chainer.functions.tanh(self.fc(chainer.functions.concat(h))) + 1) / 2).data[0])
+
+
+            # ch = chainer.functions.concat(h)
+            # fch = self.fc(ch)
+            # cfch = chainer.functions.tanh(fch)
+            # print('tanh: ', cfch)
+            # # scale between 0-1
+            # cfch_1 = cfch + 1
+            # cfch_1_half = cfch_1 / 2
+            # d = cfch_1_half.data[0]
+            # dd = chainer.cuda.to_cpu(d)
+            # print('dd: ', dd)
+            # return dd
         else:
             # for training
             if ON_GPU:

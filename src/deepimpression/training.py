@@ -179,7 +179,7 @@ def main():
         validation(model, epoch)
 
         save_every = 50
-        if epoch % save_every == 0:
+        if epoch + 1 % save_every == 0:
             save_model(model, epoch)
 
 
