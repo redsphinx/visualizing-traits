@@ -85,10 +85,13 @@ def main():
         _.close()
 
     # save loss
-    with open(pp.VALIDATION_LOG, 'a') as my_file:
-        # TODO: write shit
+    try:
+        with open(pp.VALIDATION_LOG, 'a') as my_file:
+            line = 'model: %s, loss model: %s\n' % (pp.PRE_TRAINED, str(loss))
+            # line = 'model: ', pp.PRE_TRAINED,' loss model: ', loss, '\n'
+            my_file.write(line)
+    except:
         pass
-
 
 
 main()

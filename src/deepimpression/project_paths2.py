@@ -5,12 +5,13 @@ VAR_LOCAL = True
 if VAR_LOCAL:
     TRAIN_DATA = '/home/gabi/PycharmProjects/visualizing-traits/data/training'
     TRAIN_LABELS = '/home/gabi/PycharmProjects/visualizing-traits/data/training/annotation_training.pkl'
-    TEST_DATA = '/media/gabi/DATADRIVE1/datasets/chalearn_fi_17_compressed'
+    # TEST_DATA = '/media/gabi/DATADRIVE1/datasets/chalearn_fi_17_compressed'
+    TEST_DATA = '/home/gabi/PycharmProjects/visualizing-traits/data/chalearn_test_aligned'
     TEST_LABELS = '/media/gabi/DATADRIVE1/datasets/chalearn_fi_17_compressed/annotation_test.pkl'
 
     # model location
     # PRE_TRAINED = '/home/gabi/PycharmProjects/visualizing-traits/model/model'
-    PRE_TRAINED = '/home/gabi/PycharmProjects/visualizing-traits/data/models/deepimpression_e_850'
+    PRE_TRAINED = '/home/gabi/PycharmProjects/visualizing-traits/data/models/deepimpression_e_599'
 
     LOG = '/home/gabi/PycharmProjects/visualizing-traits/data/log.txt'
     CHALEARN_JPGS = '/home/gabi/PycharmProjects/visualizing-traits/data/chalearn_aligned_jpgs'
