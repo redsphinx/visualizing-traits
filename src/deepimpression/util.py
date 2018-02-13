@@ -75,6 +75,7 @@ def find_video_test(video_id):
     base_path_2 = os.path.join(pp.TEST_DATA, 'test-2')
     # ----------------------------------------------------------------------------
     video = None
+    cnt = 0
 
     not_found = True
     while not_found:
@@ -83,6 +84,11 @@ def find_video_test(video_id):
             for d in all_dirs:
                 all_vids = os.listdir(os.path.join(item, d))
                 for vid in all_vids:
+                    cnt += 1
+                    print('cnt = %d' % cnt)
+                    if cnt == 2000:
+                        not_found = False
+                        print('not found video: ', video_id)
                     if vid == video_id:
                         video = os.path.join(item, d, vid)
                         not_found = False
@@ -90,7 +96,7 @@ def find_video_test(video_id):
 
 
 def find_video_val(video_id):
-    print('finding video: ', video_id)
+    # print('finding video: ', video_id)
     # ----------------------------------------------------------------------------
     # base_path_1 = 'chalearn_fi_17_compressed/test-1'
     # val_path = os.path.join(pp.VALIDATION_DATA, 'val-1')
@@ -221,3 +227,19 @@ def save_model(model, epoch):
     model_name = os.path.join(pp.MODEL_SAVES, 'deepimpression_e_%d' % epoch)
     chainer.serializers.save_npz(model_name, model)
     print('model saved')
+
+
+def rename_aligned():
+    path1 = '/home/gabi/PycharmProjects/visualizing-traits/data/chalearn_test_aligned/test-1/test80_06'
+    path2 = '/home/gabi/PycharmProjects/visualizing-traits/data/chalearn_test_aligned/test-1/test80_07'
+
+    for i in [path1, path2]:
+        videos = os.listdir(i)
+        for v in videos:
+            v_path = os.path.join(i, v)
+            _1 = v.strip().split('_aligned')[0] + '.mp4'
+            new_path = os.path.join(i, _1)
+            os.rename(v_path, new_path)
+
+
+rename_aligned()
