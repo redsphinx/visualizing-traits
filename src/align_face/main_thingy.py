@@ -113,7 +113,8 @@ def align_faces_in_video(data_path, frames=None, audio=True, side=196, mode='sim
         fps = int(fps.split('/')[0][:2])
         print('fps: %s' % fps)
 
-        name_video = data_path.split('/')[-1].split('.mp4')[0]
+        # name_video = data_path.split('/')[-1].split('.mp4')[0]
+        name_video = data_path.split('/')[-1].split('.MTS')[0]
         name_audio = None
 
         video_capture = np.array(video_capture, dtype=np.uint8)
@@ -172,6 +173,31 @@ def align_faces_in_video(data_path, frames=None, audio=True, side=196, mode='sim
         print('Error: data_path does not exist')
 
 
+def main():
+    list_files_ = os.listdir(pp.DATA_PATH)
+    list_files = []
+    # seen_list = ['#35.MTS', '#56.MTS', '#77.MTS']
+    not_seen_number = [1, 11, 12, 16, 24, 29, 41, 43, 53, 60, 70, 87, 88, 90, 94, 101]
+    # print(len(not_seen_number))
+    not_seen_list = [('#%d.mp4' % i) for i in not_seen_number]
+
+    for f in list_files_:
+        if f[0] is '#':
+            # if f not in seen_list:
+            if f in not_seen_list:
+                file_size = os.path.getsize(os.path.join(pp.DATA_PATH, f)) / 1000000
+                # if file_size < 100:
+                    # print(f)
+                list_files.append(f)
+
+    del list_files_
+
+    for f in list_files:
+        print('file: ', f)
+        file_name = os.path.join(pp.DATA_PATH, f)
+        align_faces_in_video(file_name)
+
+
 # dp = '/media/gabi/DATADRIVE1/datasets/chalearn_fi_17_train/train-1/training80_01/1DCnIad1Y0w.002.mp4'
 # align_faces_in_video(dp, frames=30)
 
@@ -181,5 +207,6 @@ def align_faces_in_video(data_path, frames=None, audio=True, side=196, mode='sim
 # util.parallel_align('test-1', [0, 100], align_faces_in_video, number_processes=10)
 # util.parallel_align('test-1', [400, 700], align_faces_in_video, number_processes=10)
 
-vid = '/media/gabi/DATADRIVE1/datasets/chalearn_fi_17_compressed/test-1/test80_01/IGjI8aP14gg.000.mp4'
-align_faces_in_video(vid)
+# vid = '/media/gabi/DATADRIVE1/datasets/chalearn_fi_17_compressed/test-1/test80_01/IGjI8aP14gg.000.mp4'
+# align_faces_in_video(vid)
+main()

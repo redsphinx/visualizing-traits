@@ -9,9 +9,11 @@ if VAR_LOCAL:
     TEST_DATA = '/home/gabi/PycharmProjects/visualizing-traits/data/chalearn_test_aligned'
     TEST_LABELS = '/media/gabi/DATADRIVE1/datasets/chalearn_fi_17_compressed/annotation_test.pkl'
 
+    VALIDATION_LABELS = '/media/gabi/DATADRIVE1/datasets/chalearn_validation/annotation_validation.pkl'
+
     # model location
     # PRE_TRAINED = '/home/gabi/PycharmProjects/visualizing-traits/model/model'
-    PRE_TRAINED = '/home/gabi/PycharmProjects/visualizing-traits/data/models/deepimpression_e_599'
+    PRE_TRAINED = '/home/gabi/PycharmProjects/visualizing-traits/data/luc/deepimpression_e_899'
 
     LOG = '/home/gabi/PycharmProjects/visualizing-traits/data/log.txt'
     CHALEARN_JPGS = '/home/gabi/PycharmProjects/visualizing-traits/data/chalearn_aligned_jpgs'
@@ -19,6 +21,11 @@ if VAR_LOCAL:
     TEST_LOG = 'shitty_test_log.txt'
     TRAIN_LOG = 'shitty_train_log.txt'
     VALIDATION_LOG = 'shitty_val_log.txt'
+
+    LUC_LABELS = '/home/gabi/Downloads/ground_truth.csv'
+    LUC_VIDEOS = '/media/gabi/DATADRIVE1/datasets/luc_pepper/participants_aligned'
+
+    LUC_LOG = '/home/gabi/PycharmProjects/visualizing-traits/data/luc/log.txt'
 
 
 else:
@@ -44,3 +51,5 @@ else:
     TEST_LOG = '/vol/ccnlab-scratch1/gabras/logs/test_log.txt'
 
     TRAIN_LOG = '/vol/ccnlab-scratch1/gabras/logs/train_log.txt'
+
+    TRAIN_PRETRAINED = '/vol/ccnlab-scratch1/gabras/models/deepimpression_e_399'

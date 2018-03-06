@@ -144,3 +144,5 @@ def find_largest_face(face_rectangles):
                 which_rectangle = i
         # print('rectangle %d is largest with a side of %d' % (which_rectangle, largest))
         return face_rectangles[which_rectangle]
+
+

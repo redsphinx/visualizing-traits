@@ -14,7 +14,7 @@ import os
 from scipy import ndimage
 # from scipy.io.wavfile import read
 import time
-from util import save_model, predict_trait, find_video_val, track_prediction, get_accuracy
+from util import save_model, predict_trait, find_video_val, track_prediction, get_accuracy, load_model
 import pickle as pkl
 import random
 from project_constants import DEVICE
@@ -115,12 +115,16 @@ def validation(model, epoch):
             my_file.write('%s,epoch=%d' % (str(loss), epoch))
 
 
-def main():
+def main(pretrained=False):
     # TODO: add selection for only visual stream
-    if pp.ON_GPU:
-        model = audiovisual_stream.ResNet18().to_gpu(device=DEVICE)
+
+    if pretrained:
+        model = load_model(this_model=pp.TRAIN_PRETRAINED)
     else:
-        model = audiovisual_stream.ResNet18()
+        if pp.ON_GPU:
+            model = audiovisual_stream.ResNet18().to_gpu(device=DEVICE)
+        else:
+            model = audiovisual_stream.ResNet18()
 
     optimizer = chainer.optimizers.Adam(alpha=0.0002, beta1=0.5, beta2=0.999, eps=10e-8)
     optimizer.setup(model)

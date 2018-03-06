@@ -19,7 +19,7 @@ def load_audio(data):
     return audio
 
 
-def load_model(load_trained=True):
+def load_model(load_trained=True, this_model=None):
     print('loading model')
     if ON_GPU:
         model = audiovisual_stream.ResNet18().to_gpu(device='0')
@@ -28,7 +28,10 @@ def load_model(load_trained=True):
 
     # model = audiovisual_stream.ResNet18()
     if load_trained:
-        chainer.serializers.load_npz(pp.PRE_TRAINED, model)
+        if this_model is None:
+            chainer.serializers.load_npz(pp.PRE_TRAINED, model)
+        else:
+            chainer.serializers.load_npz(this_model, model)
 
     return model
 
@@ -242,4 +245,4 @@ def rename_aligned():
             os.rename(v_path, new_path)
 
 
-rename_aligned()
+# rename_aligned()
