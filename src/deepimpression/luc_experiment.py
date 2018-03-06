@@ -52,13 +52,13 @@ def main():
         frame = np.reshape(frame, (3, frame_shape[0], frame_shape[1]))
         frame = np.expand_dims(frame, 0)
         # prediction
-        # with chainer.using_config('train', False):
-        #     prediction = model([audios, frame])
+        with chainer.using_config('train', False):
+            prediction = model([audios, frame])
 
         # prediction = chainer.cuda.to_cpu(prediction.data)
 
-        # y_tmp[ind] = prediction.data
-        y_tmp[ind] = 0.5
+        y_tmp[ind] = prediction.data
+        # y_tmp[ind] = 0.5
         target_tmp[ind] = labels[video_name - 1]
 
     # calculate validation loss
@@ -82,5 +82,5 @@ def main():
         pass
 
 
-for i in range(5):
+for i in range(100):
     main()

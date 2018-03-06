@@ -23,7 +23,8 @@ if VAR_LOCAL:
     VALIDATION_LOG = 'shitty_val_log.txt'
 
     LUC_LABELS = '/home/gabi/Downloads/ground_truth.csv'
-    LUC_VIDEOS = '/media/gabi/DATADRIVE1/datasets/luc_pepper/participants_aligned'
+    # LUC_VIDEOS = '/media/gabi/DATADRIVE1/datasets/luc_pepper/participants_aligned'
+    LUC_VIDEOS = '/media/gabi/DATADRIVE1/datasets/luc_pepper/tmp'
 
     LUC_LOG = '/home/gabi/PycharmProjects/visualizing-traits/data/luc/log.txt'
 
