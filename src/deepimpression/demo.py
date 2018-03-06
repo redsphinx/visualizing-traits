@@ -6,7 +6,9 @@ import project_paths2 as pp
 import project_constants as pc
 import numpy as np
 import chainer
-
+# from scipy.stats import linregress
+from sklearn import linear_model
+import statsmodels.api as sm
 
 def main():
     model = load_model()
@@ -94,4 +96,42 @@ def main():
         pass
 
 
-main()
+# main()
+
+def predict_interview():
+    pkl_path = pp.TRAIN_LABELS
+    num = 6000
+    f = open(pkl_path, 'r')
+    annotation_test = pkl.load(f)
+
+    interview = np.zeros(num)
+    # order: extraversion, agreeableness, conscientiousness, neuroticism, openness
+    b5_traits = np.zeros((num, 5))
+
+    video_names = annotation_test['interview'].keys()
+
+    for i in range(num):
+        name = video_names[i]
+        interview[i] = annotation_test['interview'][name]
+        b5_traits[i][0] = annotation_test['extraversion'][name]
+        b5_traits[i][1] = annotation_test['agreeableness'][name]
+        b5_traits[i][2] = annotation_test['conscientiousness'][name]
+        b5_traits[i][3] = annotation_test['neuroticism'][name]
+        b5_traits[i][4] = annotation_test['openness'][name]
+
+    clf = linear_model.LinearRegression()
+    # clf.fit([[0, 0], [1, 1], [2, 2]], [0, 1, 2])
+    clf.fit(b5_traits, interview)
+    print('extraversion, agreeableness, conscientiousness, neuroticism, openness:')
+    print(clf.coef_)
+    print(clf.score(b5_traits, interview))
+
+    b5_traits = sm.add_constant(b5_traits)
+    model = sm.OLS(interview, b5_traits).fit()
+    predictions = model.predict(b5_traits)
+    print(model.summary())
+
+    # slope, intercept, r_value, p_value, std_err = linregress(b5_traits, interview)
+    # print(slope, intercept, r_value, p_value, std_err)
+
+predict_interview()

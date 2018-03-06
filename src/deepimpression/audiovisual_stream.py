@@ -12,7 +12,7 @@ class ResNet18(chainer.Chain):
         super(ResNet18, self).__init__(
             aud=auditory_stream.ResNet18(),
             vis=visual_stream.ResNet18(),
-            fc=chainer.links.Linear(512, 6, initialW=chainer.initializers.HeNormal())
+            fc=chainer.links.Linear(512, 5, initialW=chainer.initializers.HeNormal())
         )
         self._validation = False
 
