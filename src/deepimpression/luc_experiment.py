@@ -43,9 +43,9 @@ def main():
         print('ind: ', ind)
         video_id = all_video_names[ind]
         video_name = int(video_id.strip().split('_')[0].split('#')[-1])
-        print('video name: ', video_name)
+        # print('video name: ', video_name)
         path_video = os.path.join(pp.LUC_VIDEOS, video_id)
-        print('path video: ', path_video)
+        # print('path video: ', path_video)
         frame = get_random_frame(path_video)
         frame_shape = np.shape(frame)
         # reshape
@@ -55,8 +55,6 @@ def main():
         with chainer.using_config('train', False):
             prediction = model([audios, frame])
 
-        # prediction = chainer.cuda.to_cpu(prediction.data)
-
         y_tmp[ind] = prediction.data
         # y_tmp[ind] = 0.5
         target_tmp[ind] = labels[video_name - 1]
@@ -65,7 +63,7 @@ def main():
     y_tmp.astype(np.float32)
     target_tmp.astype(np.float32)
     loss = chainer.functions.mean_absolute_error(y_tmp, target_tmp)
-    print('model: ', pp.PRE_TRAINED, ' loss model: ', loss)
+    print('loss model: ', loss)
 
     # check if log file exists
     if not os.path.exists(pp.LUC_LOG):
@@ -82,5 +80,5 @@ def main():
         pass
 
 
-for i in range(100):
+for i in range(90):
     main()

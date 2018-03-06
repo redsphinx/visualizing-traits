@@ -56,11 +56,11 @@ def get_random_frame(video_path, seed=None, at_time=None, seconds=None):
     command = "ffmpeg -loglevel panic -ss %s -t %s -i %s -r %s.0 -f image2pipe -pix_fmt rgb24 -vcodec rawvideo -" % (begin_time, end_time, video_path, fps)
     pipe = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE)
     img = pipe.stdout.read(h*w*3)
-    print('len img: ', len(img))
+    # print('len img: ', len(img))
     img = np.fromstring(img, dtype='uint8')
-    print('len img: ', len(img))
+    # print('len img: ', len(img))
     img = np.asarray(img, dtype='float32')
-    print('len img: ', len(img))
+    # print('len img: ', len(img))
 
     # some videos are shorter than 15 seconds, try to grab a random frame from first 5 seconds instead
     if np.size(img) == 0:
@@ -70,7 +70,7 @@ def get_random_frame(video_path, seed=None, at_time=None, seconds=None):
     img = img.reshape((h, w, 3))
     # im = Image.fromarray(img, mode='RGB')
     # im.show()
-    print('img shape: ', img.shape)
+    # print('img shape: ', img.shape)
     return img
 
 
