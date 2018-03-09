@@ -10,6 +10,8 @@ import chainer
 from sklearn import linear_model
 import statsmodels.api as sm
 import csv
+from scipy.misc import imresize
+from PIL import Image
 
 
 def main():
@@ -39,46 +41,59 @@ def main():
     shape_audio = (1, 1, 1, sample_length)
     audios = np.zeros(shape=shape_audio, dtype='float32')
 
-    for ind in range(len_frames):
-        print('ind: ', ind)
-        video_id = all_video_names[ind]
-        video_name = int(video_id.strip().split('_')[0].split('#')[-1])
-        # print('video name: ', video_name)
-        path_video = os.path.join(pp.LUC_VIDEOS, video_id)
-        # print('path video: ', path_video)
-        frame = get_random_frame(path_video)
-        frame_shape = np.shape(frame)
-        # reshape
-        frame = np.reshape(frame, (3, frame_shape[0], frame_shape[1]))
-        frame = np.expand_dims(frame, 0)
-        # prediction
-        with chainer.using_config('train', False):
-            prediction = model([audios, frame])
+    # repeat 10 times
+    for i in range(10):
 
-        y_tmp[ind] = prediction.data
-        # y_tmp[ind] = 0.5
-        target_tmp[ind] = labels[video_name - 1]
+        for ind in range(len_frames):
+            print('ind: ', ind)
+            video_id = all_video_names[ind]
+            video_name = int(video_id.strip().split('_')[0].split('#')[-1])
+            # print('video name: ', video_name)
+            path_video = os.path.join(pp.LUC_VIDEOS, video_id)
+            # print('path video: ', path_video)
+            frame = get_random_frame(path_video)
+            # uint8 is for displaying the image
+            # frame = np.array(frame, dtype=np.uint8)
+            # img = Image.fromarray(frame, mode='RGB')
+            # img.show()
+            # resize from 208 to 192
+            # sz = 192
+            # frame = imresize(arr=frame, size=(sz, sz), mode='RGB')
+            # frame = np.asarray(frame, dtype='float32')
+            # img = Image.fromarray(frame, mode='RGB')
+            # img.show()
+            # --
+            frame_shape = np.shape(frame)
+            # reshape
+            frame = np.reshape(frame, (3, frame_shape[0], frame_shape[1]))
+            frame = np.expand_dims(frame, 0)
+            # prediction
+            with chainer.using_config('train', False):
+                prediction = model([audios, frame])
 
-    # calculate validation loss
-    y_tmp.astype(np.float32)
-    target_tmp.astype(np.float32)
-    loss = chainer.functions.mean_absolute_error(y_tmp, target_tmp)
-    print('loss model: ', loss)
+            y_tmp[ind] = prediction.data
+            # y_tmp[ind] = 0.5
+            target_tmp[ind] = labels[video_name - 1]
 
-    # check if log file exists
-    if not os.path.exists(pp.LUC_LOG):
-        _ = open(pp.LUC_LOG, 'w')
-        _.close()
+        # calculate validation loss
+        y_tmp.astype(np.float32)
+        target_tmp.astype(np.float32)
+        loss = chainer.functions.mean_absolute_error(y_tmp, target_tmp)
+        print('loss model: ', loss)
 
-    # save loss
-    try:
-        with open(pp.LUC_LOG, 'a') as my_file:
-            line = 'model: %s, loss model: %s\n' % (pp.PRE_TRAINED, str(loss))
-            # line = 'model: ', pp.PRE_TRAINED,' loss model: ', loss, '\n'
-            my_file.write(line)
-    except:
-        pass
+        # check if log file exists
+        if not os.path.exists(pp.LUC_LOG):
+            _ = open(pp.LUC_LOG, 'w')
+            _.close()
+
+        # save loss
+        try:
+            with open(pp.LUC_LOG, 'a') as my_file:
+                line = 'model: %s, loss model: %s\n' % (pp.PRE_TRAINED, str(loss))
+                # line = 'model: ', pp.PRE_TRAINED,' loss model: ', loss, '\n'
+                my_file.write(line)
+        except:
+            pass
 
 
-for i in range(90):
-    main()
+main()
