@@ -9,6 +9,10 @@ import chainer
 # from scipy.stats import linregress
 from sklearn import linear_model
 import statsmodels.api as sm
+from scipy.stats import normaltest
+import matplotlib.mlab as mlab
+import matplotlib.pyplot as plt
+import csv
 
 def main():
     model = load_model()
@@ -134,4 +138,83 @@ def predict_interview():
     # slope, intercept, r_value, p_value, std_err = linregress(b5_traits, interview)
     # print(slope, intercept, r_value, p_value, std_err)
 
-predict_interview()
+# predict_interview()
+
+def test_normality(pkl_path):
+    # get the perceived ground truth on videos
+    # val_path = '/home/gabi/Downloads/annotation_validation.pkl'
+
+    # val
+    # f = open(pkl_path, 'r')
+    # annotation = pkl.load(f)
+    # annotation_keys = annotation.keys()
+    # video_names = annotation[annotation_keys[0]].keys()
+    traits = ['extraversion', 'agreeableness', 'conscientiousness', 'neuroticism', 'openness']
+    #
+    # num = 2000
+    # traits_labels = np.zeros((5, num))
+    #
+    # for i in range(num):
+    #     video_id = video_names[i]
+    #     traits_labels[0:5, i] = [annotation['extraversion'][video_id],
+    #                              annotation['agreeableness'][video_id],
+    #                              annotation['conscientiousness'][video_id],
+    #                              annotation['neuroticism'][video_id],
+    #                              annotation['openness'][video_id]]
+
+    # test for normality for each trait separately
+    # for i in range(5):
+    #     k2, p_val = normaltest(traits_labels[i])
+    #     print('%s\nk2: %f   p_val: %f' % (traits[i], k2, p_val))
+
+    # luc
+    traits_labels = np.zeros((111, 5))
+    r = 0
+
+    with open(pkl_path, 'r') as my_file:
+        reader = csv.reader(my_file)
+        for row in reader:
+            if row[0][0] == '0' or row[0][0] == '1':
+                for i in range(5):
+                    traits_labels[r][i] = float(row[i])
+                r += 1
+    del r
+
+    # transpose traits_labels
+    traits_labels = np.transpose(traits_labels)
+
+    # test for normality over whole dataset
+    k2, p_val = normaltest(traits_labels, axis=1)
+    print('k2', k2)
+    print('p-val', p_val)
+
+    # calculate mean and std for each trait
+    mean = np.mean(traits_labels, axis=1)
+    std = np.std(traits_labels, axis=1)
+
+    trait = 4
+
+    # plot the datasets
+    mu, sigma = mean[trait], std[trait]
+
+    # the histogram of the data
+    n, bins, patches = plt.hist(traits_labels[trait], bins=10, normed=True)
+
+    # add a 'best fit' line
+    y = mlab.normpdf(bins, mu, sigma)
+    l = plt.plot(bins, y, 'r--', linewidth=2)
+    #
+    plt.xlabel('%s' % traits[trait])
+    # plt.ylabel('Probability')
+    # plt.title(r'$\mathrm{Histogram\ of\ IQ:}\ \mu=100,\ \sigma=15$')
+    # plt.axis([40, 160, 0, 0.03])
+    # plt.grid(True)
+
+    plt.show()
+    print('asdf')
+
+
+
+# p = '/home/gabi/Downloads/annotation_validation.pkl'
+# p = '/home/gabi/Downloads/luc_ground_truth.csv'
+# test_normality(p)

@@ -13,7 +13,9 @@ if VAR_LOCAL:
 
     # model location
     # PRE_TRAINED = '/home/gabi/PycharmProjects/visualizing-traits/model/model'
-    PRE_TRAINED = '/home/gabi/PycharmProjects/visualizing-traits/data/luc/deepimpression_e_899'
+    # PRE_TRAINED = '/home/gabi/PycharmProjects/visualizing-traits/data/luc/deepimpression_e_899'
+    PRE_TRAINED = '/home/gabi/Downloads/deepimpression_e_899'
+    # PRE_TRAINED = '/media/gabi/DATADRIVE1/datasets/chalearn_face_models/transpose/deepimpression_e_899'
 
     LOG = '/home/gabi/PycharmProjects/visualizing-traits/data/log.txt'
     CHALEARN_JPGS = '/home/gabi/PycharmProjects/visualizing-traits/data/chalearn_aligned_jpgs'
@@ -22,11 +24,17 @@ if VAR_LOCAL:
     TRAIN_LOG = 'shitty_train_log.txt'
     VALIDATION_LOG = 'shitty_val_log.txt'
 
-    LUC_LABELS = '/home/gabi/Downloads/ground_truth.csv'
+    LUC_LABELS = '/media/gabi/DATADRIVE1/datasets/luc_pepper/ground_truth.csv'
     LUC_VIDEOS = '/media/gabi/DATADRIVE1/datasets/luc_pepper/participants_aligned'
 
     LUC_LOG = '/home/gabi/PycharmProjects/visualizing-traits/data/luc/log.txt'
 
+    LUC_TRAIT_LOG = '/home/gabi/PycharmProjects/visualizing-traits/data/luc/rand_ord_trait_899_2.csv'
+    LUC_PRED_ID = '/home/gabi/PycharmProjects/visualizing-traits/data/luc/rand_ord_pred_id_899_2.csv'
+
+    LUC_TRANSPOSE_TRAIT_LOG = '/home/gabi/PycharmProjects/visualizing-traits/data/luc/transpose_trait_log_3.csv'
+    LUC_TRANSPOSE_PRED_ID = '/home/gabi/PycharmProjects/visualizing-traits/data/luc/transpose_pred_id_3.csv'
+    LUC_RAND_ID = '/home/gabi/PycharmProjects/visualizing-traits/data/luc/rand_id.csv'
 
 else:
     TRAIN_DATA = '/vol/ccnlab-scratch1/gabras/chalearn_train_aligned_all'

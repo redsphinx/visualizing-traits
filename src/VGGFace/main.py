@@ -43,7 +43,7 @@ def trying_chainer_caffefunction():
     print(labels[i])
 
 
-def trying_chainer_caffefunction_2():
+def save_caffe_as_chainer():
     something = VGG16Layers(pretrained_model=False)
     caffeVGG_as_chainerVGG = 'chainerVGGFace'
     something.convert_caffemodel_to_npz(VGGFACE_CAFFE_MODEL, caffeVGG_as_chainerVGG)
@@ -135,4 +135,5 @@ def fix_label_names_VGGFace():
             my_file.write('%s\n' % list_only_names[i])
 
 
-fix_label_names_VGGFace()
+# fix_label_names_VGGFace()
+

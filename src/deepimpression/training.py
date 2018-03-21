@@ -41,7 +41,10 @@ def make_training_set(get_audio=False):
         rn = randint(0, num_frames - 1)
         random_frame = os.path.join(name, '%03d.jpg' % rn)
         arr_frame = ndimage.imread(random_frame)
-        arr_frame = np.reshape(arr_frame, (3, 192, 192))
+        # reshape
+        # arr_frame = np.reshape(arr_frame, (3, 192, 192))
+        # transpose
+        arr_frame = np.transpose(arr_frame, (2, 0, 1))
         batch_frames[i] = arr_frame
 
         if get_audio:

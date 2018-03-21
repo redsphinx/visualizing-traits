@@ -6,7 +6,7 @@ import os
 from face_utils.facealigner import FaceAligner
 # import face_utils.helpers as h
 import util2 as util
-# import tqdm
+import tqdm
 import dlib
 import cv2
 import imageio
@@ -15,13 +15,13 @@ import subprocess
 import time
 from scipy import ndimage
 import project_paths as pp
-
+from PIL import Image
 
 def align_face(image, desired_face_width, radius=None, mode='similarity'):
     """
     Given an image, return processed image where face is aligned according to chosen mode.
     :param image:
-    :param desired_face_width: should be 198
+    :param desired_face_width: should be 198 -- 224 for celeba dataset
     :param radius:
     :param mode:
     :return: image of aligned face, radius of face if radius is not None
@@ -86,7 +86,7 @@ def align_faces_in_video(data_path, frames=None, audio=True, side=196, mode='sim
     :param data_path:
     :param frames:
     :param audio:
-    :param side: 198 originally
+    :param side: 198 originally, then 196
     :param mode:
     :return:
     """
@@ -173,6 +173,31 @@ def align_faces_in_video(data_path, frames=None, audio=True, side=196, mode='sim
         print('Error: data_path does not exist')
 
 
+def align_celeba_faces_in_folder():
+    list_names = os.listdir(pp.DATA_PATH)
+    names_already_saved = os.listdir(pp.BASE_SAVE_LOCATION)
+    list_names = list(set(list_names) - set(names_already_saved))
+
+    partition_size = len(list_names) / 4
+
+    b = 3*partition_size
+    e = 4*partition_size
+
+    # for i in tqdm.tqdm(range(len(list_names))):
+    for i in tqdm.tqdm(range(b, e)):
+        # print('%d / %d' % (i, len(list_names)))
+        name = os.path.join(pp.DATA_PATH, list_names[i])
+        frame = ndimage.imread(name).astype(np.uint8)
+        new_frame, radius = align_face(frame, radius=0, desired_face_width=198, mode='similarity')
+        if new_frame is not None:
+            img = Image.fromarray(new_frame, mode='RGB')
+            img = img.resize((224, 224), Image.ANTIALIAS)
+            name = os.path.join(pp.BASE_SAVE_LOCATION, list_names[i])
+            img.save(name)
+        else:
+            print('%s, no face' % name)
+
+
 def main():
     list_files_ = os.listdir(pp.DATA_PATH)
     list_files = []
@@ -209,4 +234,5 @@ def main():
 
 # vid = '/media/gabi/DATADRIVE1/datasets/chalearn_fi_17_compressed/test-1/test80_01/IGjI8aP14gg.000.mp4'
 # align_faces_in_video(vid)
-main()
+# main()
+align_celeba_faces_in_folder()

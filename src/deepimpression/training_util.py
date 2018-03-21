@@ -48,9 +48,22 @@ def get_random_frame_times(fps, seed, at_time, seconds):
 
 def get_random_frame(video_path, seed=None, at_time=None, seconds=None):
     meta_data = skvideo.io.ffprobe(video_path)
-    h = int(meta_data['video']['@height'])
-    w = int(meta_data['video']['@width'])
-    fps = str(meta_data['video']['@avg_frame_rate'])
+    try:
+        h = int(meta_data['video']['@height'])
+    except KeyError:
+        print('KeyError on h')
+        h = int(meta_data['video']['@height'])
+    try:
+        w = int(meta_data['video']['@width'])
+    except KeyError:
+        print('KeyError on w')
+        w = int(meta_data['video']['@width'])
+    try:
+        fps = str(meta_data['video']['@avg_frame_rate'])
+    except KeyError:
+        print('KeyError on fps')
+        fps = str(meta_data['video']['@avg_frame_rate'])
+
     fps = int(fps.split('/')[0][:2])
     begin_time, end_time = get_random_frame_times(fps, seed, at_time, seconds)
     command = "ffmpeg -loglevel panic -ss %s -t %s -i %s -r %s.0 -f image2pipe -pix_fmt rgb24 -vcodec rawvideo -" % (begin_time, end_time, video_path, fps)
@@ -66,6 +79,7 @@ def get_random_frame(video_path, seed=None, at_time=None, seconds=None):
     if np.size(img) == 0:
         print('recursion')
         img = get_random_frame(video_path, seed, at_time, seconds=1)
+
 
     img = img.reshape((h, w, 3))
     # im = Image.fromarray(img, mode='RGB')

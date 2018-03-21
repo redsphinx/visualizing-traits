@@ -8,11 +8,13 @@ if VAR_LOCAL:
     # for test data
     # DATA_PATH = '/media/gabi/DATADRIVE1/datasets/chalearn_first_impressions_17'
     # DATA_PATH = '/media/gabi/DATADRIVE1/datasets/luc_pepper/Pepper'
-    DATA_PATH = '/home/gabi/kdenlive/luc'
+    # DATA_PATH = '/home/gabi/kdenlive/luc'
+    DATA_PATH = '/home/gabi/Documents/temp_datasets/img_align_celeba'
     # BASE_SAVE_LOCATION = '/media/gabi/DATADRIVE1/datasets/chalearn_test_aligned'
     # for the 1 video in test that needs to be aligned
     # BASE_SAVE_LOCATION = '/home/gabi/PycharmProjects/visualizing-traits/'
-    BASE_SAVE_LOCATION = '/media/gabi/DATADRIVE1/datasets/luc_pepper/participants_aligned'
+    # BASE_SAVE_LOCATION = '/media/gabi/DATADRIVE1/datasets/luc_pepper/participants_aligned'
+    BASE_SAVE_LOCATION = '/home/gabi/Documents/temp_datasets/caleba_align_crop_224'
     TEMPLATE = '/home/gabi/PycharmProjects/visualizing-traits/src/align_face/cropped_landmark_template.txt'
 else:
     # PREDICTOR = '/home/gabras/visualizing-traits/data/predictor/shape_predictor_68_face_landmarks.dat'
