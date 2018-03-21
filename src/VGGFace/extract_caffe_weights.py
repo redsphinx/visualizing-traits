@@ -3,24 +3,24 @@ import sys
 from scipy import ndimage
 import numpy as np
 import os
+import project_paths as pp
 
+# VGGFACE_CAFFE_MODEL = '/media/gabi/DATADRIVE1/datasets/VGGFace/VGG_FACE.caffemodel'
+# VGGFACE_CAFFE_PROTO = '/media/gabi/DATADRIVE1/datasets/VGGFace/VGG_FACE_deploy.prototxt'
+# CAFFE_PATH = '/home/gabi/Documents/caffe/python'
+# CELEB_FACES = '/home/gabi/Documents/temp_datasets/caleba_align_crop_224'
+# CELEB_FACES_FC6 = '/home/gabi/Documents/temp_datasets/celeba_fc6_features.txt'
 
-VGGFACE_CAFFE_MODEL = '/media/gabi/DATADRIVE1/datasets/VGGFace/VGG_FACE.caffemodel'
-VGGFACE_CAFFE_PROTO = '/media/gabi/DATADRIVE1/datasets/VGGFace/VGG_FACE_deploy.prototxt'
-CAFFE_PATH = '/home/gabi/Documents/caffe/python'
-CELEB_FACES = '/home/gabi/Documents/temp_datasets/caleba_align_crop_224'
-CELEB_FACES_FC6 = '/home/gabi/Documents/temp_datasets/celeba_fc6_features.txt'
-
-sys.path.append(CAFFE_PATH)
+sys.path.append(pp.CAFFE_PATH)
 import caffe
 
-caffe_model = caffe.Net(VGGFACE_CAFFE_PROTO, VGGFACE_CAFFE_MODEL, caffe.TEST)
+caffe_model = caffe.Net(pp.VGGFACE_CAFFE_PROTO, pp.VGGFACE_CAFFE_MODEL, caffe.TEST)
 
-list_faces = os.listdir(CELEB_FACES)
+list_faces = os.listdir(pp.CELEB_FACES)
 
 # for i in range(len(list_faces)):
 for i in range(10):
-    name = os.path.join(CELEB_FACES, list_faces[i])
+    name = os.path.join(pp.CELEB_FACES, list_faces[i])
     data = ndimage.imread(name).astype(np.float32)
     transformer = caffe.io.Transformer({'data': caffe_model.blobs['data'].data.shape})
     # RGB order
@@ -36,11 +36,11 @@ for i in range(10):
     # output_prob = output['fc6'][0]
 
     # write to features to file
-    if not os.path.exists(CELEB_FACES_FC6):
-        _ = open(CELEB_FACES_FC6, 'w')
+    if not os.path.exists(pp.CELEB_FACES_FC6):
+        _ = open(pp.CELEB_FACES_FC6, 'w')
         _.close()
 
-    with open(CELEB_FACES_FC6, 'a') as my_file:
+    with open(pp.CELEB_FACES_FC6, 'a') as my_file:
         for j in range(4096):
             if j != 4095:
                 if j == 0:
