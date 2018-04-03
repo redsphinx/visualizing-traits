@@ -11,6 +11,7 @@ from sklearn import linear_model
 import statsmodels.api as sm
 import csv
 <<<<<<< HEAD
+<<<<<<< HEAD
 from scipy.misc import imresize
 from scipy.stats import normaltest, ttest_ind
 import matplotlib.mlab as mlab
@@ -19,12 +20,17 @@ import matplotlib.pyplot as plt
 
 def get_luc_truth_labels():
 =======
+=======
+>>>>>>> cba6b702bc9ed7939779da4260b5ecf4897eb9ab
 
 
 def main():
     model = load_model()
     model.validation = False
 
+<<<<<<< HEAD
+>>>>>>> cba6b702bc9ed7939779da4260b5ecf4897eb9ab
+=======
 >>>>>>> cba6b702bc9ed7939779da4260b5ecf4897eb9ab
     labels = np.zeros((111, 5))
     r = 0
@@ -37,6 +43,7 @@ def main():
                     labels[r][i] = float(row[i])
                 r += 1
 
+<<<<<<< HEAD
 <<<<<<< HEAD
     return labels
 
@@ -65,6 +72,11 @@ def main():
     all_video_names = os.listdir(pp.LUC_VIDEOS)
 
 >>>>>>> cba6b702bc9ed7939779da4260b5ecf4897eb9ab
+=======
+    annotation_test_keys = ['extraversion', 'neuroticism', 'agreeableness', 'conscientiousness', 'openness']
+    all_video_names = os.listdir(pp.LUC_VIDEOS)
+
+>>>>>>> cba6b702bc9ed7939779da4260b5ecf4897eb9ab
     len_frames = len(all_video_names)
     y_tmp = np.zeros((len_frames, len(annotation_test_keys)), dtype=np.float32)
     target_tmp = np.zeros((len_frames, len(annotation_test_keys)), dtype=np.float32)
@@ -74,6 +86,7 @@ def main():
     shape_audio = (1, 1, 1, sample_length)
     audios = np.zeros(shape=shape_audio, dtype='float32')
 
+<<<<<<< HEAD
 <<<<<<< HEAD
     # get the random ordering
     p_order = '/home/gabi/Downloads/shuffle_order.txt'
@@ -284,6 +297,8 @@ super_main()
 # fn = '/home/gabi/PycharmProjects/visualizing-traits/data/luc/rand_ord_pred_id_3.csv'
 # get_avg_loss(fn)
 =======
+=======
+>>>>>>> cba6b702bc9ed7939779da4260b5ecf4897eb9ab
     for ind in range(len_frames):
         print('ind: ', ind)
         video_id = all_video_names[ind]
@@ -327,4 +342,7 @@ super_main()
 
 for i in range(90):
     main()
+<<<<<<< HEAD
+>>>>>>> cba6b702bc9ed7939779da4260b5ecf4897eb9ab
+=======
 >>>>>>> cba6b702bc9ed7939779da4260b5ecf4897eb9ab

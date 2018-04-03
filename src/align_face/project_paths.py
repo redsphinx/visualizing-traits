@@ -9,6 +9,7 @@ if VAR_LOCAL:
     # DATA_PATH = '/media/gabi/DATADRIVE1/datasets/chalearn_first_impressions_17'
     # DATA_PATH = '/media/gabi/DATADRIVE1/datasets/luc_pepper/Pepper'
 <<<<<<< HEAD
+<<<<<<< HEAD
     # DATA_PATH = '/home/gabi/kdenlive/luc'
     DATA_PATH = '/home/gabi/Documents/temp_datasets/img_align_celeba'
     # BASE_SAVE_LOCATION = '/media/gabi/DATADRIVE1/datasets/chalearn_test_aligned'
@@ -17,11 +18,16 @@ if VAR_LOCAL:
     # BASE_SAVE_LOCATION = '/media/gabi/DATADRIVE1/datasets/luc_pepper/participants_aligned'
     BASE_SAVE_LOCATION = '/home/gabi/Documents/temp_datasets/caleba_align_crop_224'
 =======
+=======
+>>>>>>> cba6b702bc9ed7939779da4260b5ecf4897eb9ab
     DATA_PATH = '/home/gabi/kdenlive/luc'
     # BASE_SAVE_LOCATION = '/media/gabi/DATADRIVE1/datasets/chalearn_test_aligned'
     # for the 1 video in test that needs to be aligned
     # BASE_SAVE_LOCATION = '/home/gabi/PycharmProjects/visualizing-traits/'
     BASE_SAVE_LOCATION = '/media/gabi/DATADRIVE1/datasets/luc_pepper/participants_aligned'
+<<<<<<< HEAD
+>>>>>>> cba6b702bc9ed7939779da4260b5ecf4897eb9ab
+=======
 >>>>>>> cba6b702bc9ed7939779da4260b5ecf4897eb9ab
     TEMPLATE = '/home/gabi/PycharmProjects/visualizing-traits/src/align_face/cropped_landmark_template.txt'
 else:

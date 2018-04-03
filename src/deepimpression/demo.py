@@ -10,10 +10,13 @@ import chainer
 from sklearn import linear_model
 import statsmodels.api as sm
 <<<<<<< HEAD
+<<<<<<< HEAD
 from scipy.stats import normaltest
 import matplotlib.mlab as mlab
 import matplotlib.pyplot as plt
 import csv
+=======
+>>>>>>> cba6b702bc9ed7939779da4260b5ecf4897eb9ab
 =======
 >>>>>>> cba6b702bc9ed7939779da4260b5ecf4897eb9ab
 
@@ -133,6 +136,7 @@ def predict_interview():
     print(clf.coef_)
     print(clf.score(b5_traits, interview))
 <<<<<<< HEAD
+<<<<<<< HEAD
 
     b5_traits = sm.add_constant(b5_traits)
     model = sm.OLS(interview, b5_traits).fit()
@@ -218,20 +222,29 @@ def test_normality(pkl_path):
     print('asdf')
 
 =======
+=======
+>>>>>>> cba6b702bc9ed7939779da4260b5ecf4897eb9ab
 
     b5_traits = sm.add_constant(b5_traits)
     model = sm.OLS(interview, b5_traits).fit()
     predictions = model.predict(b5_traits)
     print(model.summary())
+<<<<<<< HEAD
+>>>>>>> cba6b702bc9ed7939779da4260b5ecf4897eb9ab
+=======
 >>>>>>> cba6b702bc9ed7939779da4260b5ecf4897eb9ab
 
     # slope, intercept, r_value, p_value, std_err = linregress(b5_traits, interview)
     # print(slope, intercept, r_value, p_value, std_err)
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 # p = '/home/gabi/Downloads/annotation_validation.pkl'
 # p = '/home/gabi/Downloads/luc_ground_truth.csv'
 # test_normality(p)
+=======
+predict_interview()
+>>>>>>> cba6b702bc9ed7939779da4260b5ecf4897eb9ab
 =======
 predict_interview()
 >>>>>>> cba6b702bc9ed7939779da4260b5ecf4897eb9ab

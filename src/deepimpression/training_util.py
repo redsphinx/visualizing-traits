@@ -81,7 +81,10 @@ def get_random_frame(video_path, seed=None, at_time=None, seconds=None):
         img = get_random_frame(video_path, seed, at_time, seconds=1)
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 
+=======
+>>>>>>> cba6b702bc9ed7939779da4260b5ecf4897eb9ab
 =======
 >>>>>>> cba6b702bc9ed7939779da4260b5ecf4897eb9ab
     img = img.reshape((h, w, 3))
@@ -159,7 +162,11 @@ def get_names(labels, data, batch_size, number_folders):
 
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 # get_names()
+=======
+# get_names()
+>>>>>>> cba6b702bc9ed7939779da4260b5ecf4897eb9ab
 =======
 # get_names()
 >>>>>>> cba6b702bc9ed7939779da4260b5ecf4897eb9ab
