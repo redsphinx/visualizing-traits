@@ -6,15 +6,7 @@ import os
 from face_utils.facealigner import FaceAligner
 # import face_utils.helpers as h
 import util2 as util
-<<<<<<< HEAD
-<<<<<<< HEAD
 import tqdm
-=======
-# import tqdm
->>>>>>> cba6b702bc9ed7939779da4260b5ecf4897eb9ab
-=======
-# import tqdm
->>>>>>> cba6b702bc9ed7939779da4260b5ecf4897eb9ab
 import dlib
 import cv2
 import imageio
@@ -23,32 +15,13 @@ import subprocess
 import time
 from scipy import ndimage
 import project_paths as pp
-<<<<<<< HEAD
-<<<<<<< HEAD
 from PIL import Image
-=======
->>>>>>> cba6b702bc9ed7939779da4260b5ecf4897eb9ab
 
-=======
-
-<<<<<<< HEAD
-
->>>>>>> cba6b702bc9ed7939779da4260b5ecf4897eb9ab
-=======
->>>>>>> cba6b702bc9ed7939779da4260b5ecf4897eb9ab
 def align_face(image, desired_face_width, radius=None, mode='similarity'):
     """
     Given an image, return processed image where face is aligned according to chosen mode.
     :param image:
-<<<<<<< HEAD
-<<<<<<< HEAD
     :param desired_face_width: should be 198 -- 224 for celeba dataset
-=======
-    :param desired_face_width: should be 198
->>>>>>> cba6b702bc9ed7939779da4260b5ecf4897eb9ab
-=======
-    :param desired_face_width: should be 198
->>>>>>> cba6b702bc9ed7939779da4260b5ecf4897eb9ab
     :param radius:
     :param mode:
     :return: image of aligned face, radius of face if radius is not None
@@ -105,33 +78,15 @@ def align_face(image, desired_face_width, radius=None, mode='similarity'):
 # p = '/home/gabi/PycharmProjects/visualizing-traits/src/align_face/face_utils/arya_250w.jpg'
 # p = '/home/gabi/PycharmProjects/visualizing-traits/src/align_face/backup_face.jpg'
 # align_face(p, desired_face_width=196)
-<<<<<<< HEAD
-<<<<<<< HEAD
 
 
-=======
-
-
->>>>>>> cba6b702bc9ed7939779da4260b5ecf4897eb9ab
-=======
-
-
->>>>>>> cba6b702bc9ed7939779da4260b5ecf4897eb9ab
 def align_faces_in_video(data_path, frames=None, audio=True, side=196, mode='similarity'):
     """
     Align face in video.
     :param data_path:
     :param frames:
     :param audio:
-<<<<<<< HEAD
-<<<<<<< HEAD
     :param side: 198 originally, then 196
-=======
-    :param side: 198 originally
->>>>>>> cba6b702bc9ed7939779da4260b5ecf4897eb9ab
-=======
-    :param side: 198 originally
->>>>>>> cba6b702bc9ed7939779da4260b5ecf4897eb9ab
     :param mode:
     :return:
     """
@@ -217,8 +172,6 @@ def align_faces_in_video(data_path, frames=None, audio=True, side=196, mode='sim
     else:
         print('Error: data_path does not exist')
 
-<<<<<<< HEAD
-<<<<<<< HEAD
 
 def align_celeba_faces_in_folder():
     list_names = os.listdir(pp.DATA_PATH)
@@ -283,77 +236,3 @@ def main():
 # align_faces_in_video(vid)
 # main()
 align_celeba_faces_in_folder()
-=======
-
-def main():
-    list_files_ = os.listdir(pp.DATA_PATH)
-    list_files = []
-    # seen_list = ['#35.MTS', '#56.MTS', '#77.MTS']
-    not_seen_number = [1, 11, 12, 16, 24, 29, 41, 43, 53, 60, 70, 87, 88, 90, 94, 101]
-    # print(len(not_seen_number))
-    not_seen_list = [('#%d.mp4' % i) for i in not_seen_number]
-
-    for f in list_files_:
-        if f[0] is '#':
-            # if f not in seen_list:
-            if f in not_seen_list:
-                file_size = os.path.getsize(os.path.join(pp.DATA_PATH, f)) / 1000000
-                # if file_size < 100:
-                    # print(f)
-                list_files.append(f)
-
-    del list_files_
-
-    for f in list_files:
-        print('file: ', f)
-        file_name = os.path.join(pp.DATA_PATH, f)
-        align_faces_in_video(file_name)
-
-
-# dp = '/media/gabi/DATADRIVE1/datasets/chalearn_fi_17_train/train-1/training80_01/1DCnIad1Y0w.002.mp4'
-# align_faces_in_video(dp, frames=30)
-
-=======
-
-def main():
-    list_files_ = os.listdir(pp.DATA_PATH)
-    list_files = []
-    # seen_list = ['#35.MTS', '#56.MTS', '#77.MTS']
-    not_seen_number = [1, 11, 12, 16, 24, 29, 41, 43, 53, 60, 70, 87, 88, 90, 94, 101]
-    # print(len(not_seen_number))
-    not_seen_list = [('#%d.mp4' % i) for i in not_seen_number]
-
-    for f in list_files_:
-        if f[0] is '#':
-            # if f not in seen_list:
-            if f in not_seen_list:
-                file_size = os.path.getsize(os.path.join(pp.DATA_PATH, f)) / 1000000
-                # if file_size < 100:
-                    # print(f)
-                list_files.append(f)
-
-    del list_files_
-
-    for f in list_files:
-        print('file: ', f)
-        file_name = os.path.join(pp.DATA_PATH, f)
-        align_faces_in_video(file_name)
-
-
-# dp = '/media/gabi/DATADRIVE1/datasets/chalearn_fi_17_train/train-1/training80_01/1DCnIad1Y0w.002.mp4'
-# align_faces_in_video(dp, frames=30)
-
->>>>>>> cba6b702bc9ed7939779da4260b5ecf4897eb9ab
-# p2 = "/home/gabi/PycharmProjects/visualizing-traits/data/face_2.jpg"
-# align_face(p2, 196)
-
-# util.parallel_align('test-1', [0, 100], align_faces_in_video, number_processes=10)
-# util.parallel_align('test-1', [400, 700], align_faces_in_video, number_processes=10)
-
-# vid = '/media/gabi/DATADRIVE1/datasets/chalearn_fi_17_compressed/test-1/test80_01/IGjI8aP14gg.000.mp4'
-# align_faces_in_video(vid)
-main()
-<<<<<<< HEAD
->>>>>>> cba6b702bc9ed7939779da4260b5ecf4897eb9ab
-=======
->>>>>>> cba6b702bc9ed7939779da4260b5ecf4897eb9ab
