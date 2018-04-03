@@ -140,9 +140,7 @@ def main(pretrained=False):
         print('EPOCH: %d out of %d' % (epoch, pc.EPOCHS))
 
         with chainer.using_config('train', True):
-
             num_steps = 6000 / pc.BATCH_SIZE
-
             # for s in tqdm.tqdm(range(num_steps)):
             for s in range(int(num_steps)):
                 # set validation to false

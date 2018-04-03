@@ -6,4 +6,5 @@
 /src/VGGFace/chainerVGGFace
 *.jpg
 *.png
-
+*.h5
+*.pyc

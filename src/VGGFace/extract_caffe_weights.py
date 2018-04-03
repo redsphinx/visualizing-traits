@@ -15,11 +15,21 @@ sys.path.append(pp.CAFFE_PATH)
 import caffe
 
 caffe_model = caffe.Net(pp.VGGFACE_CAFFE_PROTO, pp.VGGFACE_CAFFE_MODEL, caffe.TEST)
-
 list_faces = os.listdir(pp.CELEB_FACES)
 
-# for i in range(len(list_faces)):
-for i in range(10):
+is_train = False
+
+num_test = 30000
+if is_train:
+    list_faces = list_faces[num_test:]
+    feature_path = pp.CELEB_FACES_FC6_TRAIN
+else:
+    list_faces = list_faces[0:num_test]
+    feature_path = pp.CELEB_FACES_FC6_TEST
+
+
+for i in range(len(list_faces)):
+# for i in range(10):
     name = os.path.join(pp.CELEB_FACES, list_faces[i])
     data = ndimage.imread(name).astype(np.float32)
     transformer = caffe.io.Transformer({'data': caffe_model.blobs['data'].data.shape})
@@ -36,11 +46,11 @@ for i in range(10):
     # output_prob = output['fc6'][0]
 
     # write to features to file
-    if not os.path.exists(pp.CELEB_FACES_FC6):
-        _ = open(pp.CELEB_FACES_FC6, 'w')
+    if not os.path.exists(feature_path):
+        _ = open(feature_path, 'w')
         _.close()
 
-    with open(pp.CELEB_FACES_FC6, 'a') as my_file:
+    with open(feature_path, 'a') as my_file:
         for j in range(4096):
             if j != 4095:
                 if j == 0:
