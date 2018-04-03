@@ -10,6 +10,7 @@ import chainer
 from sklearn import linear_model
 import statsmodels.api as sm
 import csv
+<<<<<<< HEAD
 from scipy.misc import imresize
 from scipy.stats import normaltest, ttest_ind
 import matplotlib.mlab as mlab
@@ -17,6 +18,14 @@ import matplotlib.pyplot as plt
 
 
 def get_luc_truth_labels():
+=======
+
+
+def main():
+    model = load_model()
+    model.validation = False
+
+>>>>>>> cba6b702bc9ed7939779da4260b5ecf4897eb9ab
     labels = np.zeros((111, 5))
     r = 0
 
@@ -28,6 +37,7 @@ def get_luc_truth_labels():
                     labels[r][i] = float(row[i])
                 r += 1
 
+<<<<<<< HEAD
     return labels
 
 
@@ -50,6 +60,11 @@ def main():
 
     rep = 1
 
+=======
+    annotation_test_keys = ['extraversion', 'neuroticism', 'agreeableness', 'conscientiousness', 'openness']
+    all_video_names = os.listdir(pp.LUC_VIDEOS)
+
+>>>>>>> cba6b702bc9ed7939779da4260b5ecf4897eb9ab
     len_frames = len(all_video_names)
     y_tmp = np.zeros((len_frames, len(annotation_test_keys)), dtype=np.float32)
     target_tmp = np.zeros((len_frames, len(annotation_test_keys)), dtype=np.float32)
@@ -59,6 +74,7 @@ def main():
     shape_audio = (1, 1, 1, sample_length)
     audios = np.zeros(shape=shape_audio, dtype='float32')
 
+<<<<<<< HEAD
     # get the random ordering
     p_order = '/home/gabi/Downloads/shuffle_order.txt'
     shuffle_order = np.genfromtxt(p_order, dtype=int, delimiter=',')
@@ -267,3 +283,48 @@ super_main()
 
 # fn = '/home/gabi/PycharmProjects/visualizing-traits/data/luc/rand_ord_pred_id_3.csv'
 # get_avg_loss(fn)
+=======
+    for ind in range(len_frames):
+        print('ind: ', ind)
+        video_id = all_video_names[ind]
+        video_name = int(video_id.strip().split('_')[0].split('#')[-1])
+        # print('video name: ', video_name)
+        path_video = os.path.join(pp.LUC_VIDEOS, video_id)
+        # print('path video: ', path_video)
+        frame = get_random_frame(path_video)
+        frame_shape = np.shape(frame)
+        # reshape
+        frame = np.reshape(frame, (3, frame_shape[0], frame_shape[1]))
+        frame = np.expand_dims(frame, 0)
+        # prediction
+        with chainer.using_config('train', False):
+            prediction = model([audios, frame])
+
+        y_tmp[ind] = prediction.data
+        # y_tmp[ind] = 0.5
+        target_tmp[ind] = labels[video_name - 1]
+
+    # calculate validation loss
+    y_tmp.astype(np.float32)
+    target_tmp.astype(np.float32)
+    loss = chainer.functions.mean_absolute_error(y_tmp, target_tmp)
+    print('loss model: ', loss)
+
+    # check if log file exists
+    if not os.path.exists(pp.LUC_LOG):
+        _ = open(pp.LUC_LOG, 'w')
+        _.close()
+
+    # save loss
+    try:
+        with open(pp.LUC_LOG, 'a') as my_file:
+            line = 'model: %s, loss model: %s\n' % (pp.PRE_TRAINED, str(loss))
+            # line = 'model: ', pp.PRE_TRAINED,' loss model: ', loss, '\n'
+            my_file.write(line)
+    except:
+        pass
+
+
+for i in range(90):
+    main()
+>>>>>>> cba6b702bc9ed7939779da4260b5ecf4897eb9ab

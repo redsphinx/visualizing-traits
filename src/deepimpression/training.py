@@ -41,10 +41,14 @@ def make_training_set(get_audio=False):
         rn = randint(0, num_frames - 1)
         random_frame = os.path.join(name, '%03d.jpg' % rn)
         arr_frame = ndimage.imread(random_frame)
+<<<<<<< HEAD
         # reshape
         # arr_frame = np.reshape(arr_frame, (3, 192, 192))
         # transpose
         arr_frame = np.transpose(arr_frame, (2, 0, 1))
+=======
+        arr_frame = np.reshape(arr_frame, (3, 192, 192))
+>>>>>>> cba6b702bc9ed7939779da4260b5ecf4897eb9ab
         batch_frames[i] = arr_frame
 
         if get_audio:
@@ -146,6 +150,16 @@ def main(pretrained=False):
                 # set validation to false
                 model.validation = False
 
+<<<<<<< HEAD
+=======
+            num_steps = 6000 / pc.BATCH_SIZE
+
+            # for s in tqdm.tqdm(range(num_steps)):
+            for s in range(int(num_steps)):
+                # set validation to false
+                model.validation = False
+
+>>>>>>> cba6b702bc9ed7939779da4260b5ecf4897eb9ab
                 frames, audios, labels = make_training_set()
                 model.cleargrads()  # zero the gradient buffer
                 prediction = model([audios, frames])
