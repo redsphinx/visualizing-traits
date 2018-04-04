@@ -1,6 +1,6 @@
 import numpy as np
 import project_paths as pp
-from generator import Generator, GeneratorPaper
+from generator import Generator, Discriminator
 import chainer
 import os
 from scipy import ndimage
@@ -12,27 +12,43 @@ import random
 import time
 import subprocess
 import h5py as h5
+import chainer.functions as F
 
 
 def training():
     print('setting up...')
-    # num_features = util.get_number_of_features(pp.CELEB_FACES_FC6_TRAIN)
-    num_features = util.get_number_of_features(pp.CELEB_FACES_FC6_TEST)
+
+    if pc.TRAIN:
+        num_features = util.get_number_of_features(pp.CELEB_FACES_FC6_TRAIN)
+        all_names = np.array(util.get_names_h5_file(pp.FC6_TRAIN_H5))
+        path_images = pp.CELEB_FACES_FC6_TRAIN
+    else:
+        num_features = util.get_number_of_features(pp.CELEB_FACES_FC6_TEST)
+        all_names = np.array(util.get_names_h5_file(pp.FC6_TEST_H5))
+        path_images = pp.CELEB_FACES_FC6_TEST
+
     total_steps = num_features / pc.BATCH_SIZE
-    # all_names = np.array(util.get_names_h5_file(pp.FC6_TRAIN_H5))
-    all_names = np.array(util.get_names_h5_file(pp.FC6_TEST_H5))
+
+    # ----------------------------------------------------------------
+    # GENERATOR
     generator = Generator()
-    train_loss = np.zeros(pc.EPOCHS)
-    # generator = GeneratorPaper()
-    optimizer = chainer.optimizers.Adam(alpha=0.0002, beta1=0.5, beta2=0.999, eps=10e-8)
-    optimizer.setup(generator)
+    generator_train_loss = np.zeros(pc.EPOCHS)
+    generator_optimizer = chainer.optimizers.Adam(alpha=0.0002, beta1=0.5, beta2=0.999, eps=10e-8)
+    generator_optimizer.setup(generator)
+    # ----------------------------------------------------------------
+    # DISCRIMINATOR
+    discriminator = Discriminator()
+    discriminator_train_loss = np.zeros(pc.EPOCHS)
+    discriminator_optimizer = chainer.optimizers.Adam(alpha=0.0002, beta1=0.5, beta2=0.999, eps=10e-8)
+    discriminator_optimizer.setup(discriminator)
+    # ----------------------------------------------------------------
+
     save_list = random.sample(xrange(num_features), 20)
     save_list_names = [''] * 20
     cnt = 0
 
     for i in save_list:
-        # save_list_names[cnt] = util.sed_line(pp.CELEB_FACES_FC6_TRAIN, i).strip().split(',')[0]
-        save_list_names[cnt] = util.sed_line(pp.CELEB_FACES_FC6_TEST, i).strip().split(',')[0]
+        save_list_names[cnt] = util.sed_line(path_images, i).strip().split(',')[0]
         cnt += 1
 
     print('training...')
@@ -46,10 +62,8 @@ def training():
 
         print('epoch %d' % epoch)
         for step in range(total_steps):
-            # names, features = util.get_features_in_batches(step, train=True)
             names = names_order[step * pc.BATCH_SIZE:(step + 1) * pc.BATCH_SIZE]
-            # features = util.get_features_h5_in_batches(names, train=True)
-            features = util.get_features_h5_in_batches(names, train=False)
+            features = util.get_features_h5_in_batches(names, train=pc.TRAIN)
             features = util.to_correct_input(features)
             labels = util.get_labels(names)
             labels = np.asarray(labels, dtype=np.float32)
@@ -57,36 +71,75 @@ def training():
             with chainer.using_config('train', True):
                 generator.cleargrads()
                 prediction = generator(features)
-                loss = chainer.functions.mean_absolute_error(prediction, labels)
-                # print('loss', loss.data)
-                print('%d/%d %d/%d loss: %f' % (epoch, pc.EPOCHS, step, total_steps, float(loss.data)))
-                loss.backward()
-                optimizer.update()
-                train_loss[epoch] += loss.data
+
+                discriminator.cleargrads()
+                data = prediction.data
+                fake_prob = discriminator(data)
+                
+                other_data = labels # I think these are labels
+                real_prob = discriminator(other_data)
+
+                h_adv = np.array([10 ** 2], dtype=np.float32)
+                h_fea = np.array([10 ** -2], dtype=np.float32)
+                h_sti = np.array([2 * 10 ** -6], dtype=np.float32)
+                h_dis = np.array([10 ** 2], dtype=np.float32)
+
+                min_one = np.array([-1.])
+                one = np.array([1.])
+
+                l_adv = F.matmul(min_one, F.log(fake_prob.data))
+                # l_fea = None # TODO
+                diff = F.sum(labels, F.matmul(min_one, prediction.data))
+                l_sti = F.batch_l2_norm_squared(diff)
+
+                generator_loss = F.sum([F.matmul(h_adv, l_adv),
+                                       # F.matmul(h_fea, l_fea), # TODO
+                                       F.matmul(h_sti, l_sti)])
+                # generator_loss = - h_adv * l_adv + h_fea * l_fea + h_sti * l_sti.data
+                # generator_loss = chainer.Variable(generator_loss)
+                generator_loss.backward()
+                generator_optimizer.update()
+                generator_train_loss[epoch] += generator_loss.data
+
+                discriminator_loss = F.matmul(min_one,
+                                              F.sum([F.log(real_prob.data),
+                                                     F.log(F.sum([one,
+                                                                  F.matmul(min_one, fake_prob.data)]))]))
+                # discriminator_loss = - (np.log(real_prob.data) + np.log(1 - fake_prob.data))
+                # discriminator_loss = chainer.Variable(discriminator_loss)
+                discriminator_loss.backward()
+                discriminator_optimizer.update()
+                discriminator_train_loss[epoch] += discriminator_loss.data
+
+                print('%d/%d %d/%d  generator: %f   discriminator: %f' % (
+                epoch, pc.EPOCHS, step, total_steps, generator_loss.data, discriminator_loss.data))
 
             with chainer.using_config('train', False):
                 for i in range(len(names)):
                     if names[i] in save_list_names:
                         f = np.expand_dims(features[i], 0)
                         prediction = generator(f)
-                        util.save_image(prediction, names[i], epoch)
+                        util.save_image(prediction, names[i], epoch, pp.TEST_RECONSTRUCTION_FOLDER)
                         print("image '%s' saved" % names[i])
 
         if (epoch+1) % pc.SAVE_EVERY_N_STEPS == 0:
             util.save_model(generator, epoch)
 
-        train_loss[epoch] /= total_steps
-        print(train_loss[epoch])
+        generator_train_loss[epoch] /= total_steps
+        print(generator_train_loss[epoch])
+        
+        discriminator_train_loss[epoch] /= total_steps
+        print(discriminator_train_loss[epoch])
 
-        log_file = pp.TRAIN_LOG
-
-        if not os.path.exists(log_file):
-            f = open(log_file, 'w')
-            f.close()
-
-        with open(log_file, 'a') as my_file:
-            line = 'epoch: %d loss: %f\n' % (epoch, train_loss[epoch])
-            my_file.write(line)
+        # log_file = pp.TRAIN_LOG
+        #
+        # if not os.path.exists(log_file):
+        #     f = open(log_file, 'w')
+        #     f.close()
+        #
+        # with open(log_file, 'a') as my_file:
+        #     line = 'epoch: %d loss: %f\n' % (epoch, train_loss[epoch])
+        #     my_file.write(line)
 
 
 # def plot_results():

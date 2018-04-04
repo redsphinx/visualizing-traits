@@ -76,7 +76,7 @@ def get_features_in_batches(step, train=True):
     return names, features
 
 
-def get_features_h5_in_batches(keys, train=True):
+def get_features_h5_in_batches(keys, train):
     features = np.zeros((pc.BATCH_SIZE, 4096))
     if train:
         h5_path = pp.FC6_TRAIN_H5
@@ -145,7 +145,7 @@ def get_labels(names):
     return labels
 
 
-def save_image(arr, name, epoch):
+def save_image(arr, name, epoch, location):
     arr = arr.data[0]
     # shape_arr = np.shape(arr)
     r1 = np.reshape(arr, (32, 32, 3))
@@ -155,7 +155,7 @@ def save_image(arr, name, epoch):
     r1 = r1.resize((128, 128), Image.ANTIALIAS)
     nam = name.split('.')[0]
     # new_name = os.path.join(pp.RECONSTRUCTION_FOLDER, '%s_%d.jpg' % (nam, epoch))
-    new_name = os.path.join(pp.TEST_RECONSTRUCTION_FOLDER, '%s_%d.jpg' % (nam, epoch))
+    new_name = os.path.join(location, '%s_%d.jpg' % (nam, epoch))
     # r1.show()
     r1.save(new_name)
 
