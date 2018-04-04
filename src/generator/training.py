@@ -89,32 +89,26 @@ def training():
                 min_one = np.array([-1.] * pc.BATCH_SIZE)
                 one = np.array([1.] * pc.BATCH_SIZE)
 
-                l_adv = F.log(fake_prob.data)
-                # log = np.reshape(log.data, 32)
-
-                # l_adv = F.matmul(min_one, log)
-                # l_fea = None # TODO
-                # diff = F.sum(labels, F.matmul(min_one, prediction.data))
-                diff = F.sum(np.array([labels, -1 * prediction.data]), axis=0)
-                # diff = F.sum(np.array([labels, -1 * prediction]), axis=0)
-                l_sti = F.batch_l2_norm_squared(diff)
-                h1 = np.reshape(np.array([h_adv] * 32), (1, 32))
-                h2 = np.array(list(h_sti) * 32)
-                generator_loss = F.sum(np.array([F.matmul(-1 * h1, l_adv).data,
-                                       # F.matmul(h_fea, l_fea), # TODO
-                                       F.matmul(h2, l_sti).data], dtype=np.float32))
-                # generator_loss = - h_adv * l_adv + h_fea * l_fea + h_sti * l_sti.data
-                # generator_loss = chainer.Variable(generator_loss)
+                # l_adv = F.log(fake_prob.data)
+                # # l_fea = None # TODO
+                # diff = F.sum(np.array([labels, -1 * prediction.data]), axis=0)
+                # l_sti = F.batch_l2_norm_squared(diff)
+                # h1 = np.reshape(np.array([h_adv] * 32), (1, 32))
+                # h2 = np.array(list(h_sti) * 32)
+                # generator_loss = F.sum(np.array([F.matmul(-1 * h1, l_adv).data,
+                #                        # F.matmul(h_fea, l_fea), # TODO
+                #                        F.matmul(h2, l_sti).data], dtype=np.float32))
+                generator_loss = F.mean_squared_error(prediction, labels)
                 generator_loss.backward()
                 generator_optimizer.update()
                 generator_train_loss[epoch] += generator_loss.data
 
-                discriminator_loss = F.matmul(min_one,
-                                              F.sum([F.log(real_prob.data),
-                                                     F.log(F.sum([one,
-                                                                  F.matmul(min_one, fake_prob.data)]))]))
-                # discriminator_loss = - (np.log(real_prob.data) + np.log(1 - fake_prob.data))
-                # discriminator_loss = chainer.Variable(discriminator_loss)
+                t1 = -1 * fake_prob.data
+                t2 = F.sum(np.array([np.reshape(one, (32, 1)),t1], dtype=np.float32), axis=0)
+                t3 = F.log(t2)
+                t4 = F.log(real_prob.data)
+                t5 = F.sum(np.array([t4.data, t3.data], dtype=np.float32))
+                discriminator_loss = -1 * t5
                 discriminator_loss.backward()
                 discriminator_optimizer.update()
                 discriminator_train_loss[epoch] += discriminator_loss.data
