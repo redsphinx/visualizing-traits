@@ -89,16 +89,16 @@ def training():
                 min_one = np.array([-1.] * pc.BATCH_SIZE)
                 one = np.array([1.] * pc.BATCH_SIZE)
 
-                # l_adv = F.log(fake_prob.data)
-                # # l_fea = None # TODO
-                # diff = F.sum(np.array([labels, -1 * prediction.data]), axis=0)
-                # l_sti = F.batch_l2_norm_squared(diff)
-                # h1 = np.reshape(np.array([h_adv] * 32), (1, 32))
-                # h2 = np.array(list(h_sti) * 32)
-                # generator_loss = F.sum(np.array([F.matmul(-1 * h1, l_adv).data,
-                #                        # F.matmul(h_fea, l_fea), # TODO
-                #                        F.matmul(h2, l_sti).data], dtype=np.float32))
-                generator_loss = F.mean_squared_error(prediction, labels)
+                l_adv = F.log(fake_prob.data)
+                # l_fea = None # TODO
+                diff = F.sum(np.array([labels, -1 * prediction.data]), axis=0)
+                l_sti = F.batch_l2_norm_squared(diff)
+                h1 = np.reshape(np.array([h_adv] * 32), (1, 32))
+                h2 = np.array(list(h_sti) * 32)
+                generator_loss = F.sum(np.array([F.matmul(-1 * h1, l_adv).data,
+                                       # F.matmul(h_fea, l_fea), # TODO
+                                       F.matmul(h2, l_sti).data], dtype=np.float32))
+                # generator_loss = F.mean_squared_error(prediction, labels)
                 generator_loss.backward()
                 generator_optimizer.update()
                 generator_train_loss[epoch] += generator_loss.data
