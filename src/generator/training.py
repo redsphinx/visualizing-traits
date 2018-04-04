@@ -95,6 +95,12 @@ def training():
                 l_sti = F.batch_l2_norm_squared(diff)
                 h1 = np.reshape(np.array([h_adv] * 32), (1, 32))
                 h2 = np.array(list(h_sti) * 32)
+                # ----------------------------------------------------------------
+                # in the paper:
+                # L_gen = -h_adv*(log(discriminator(generator(features)))) + \
+                #         h_fea*(l2_norm(ksi(labels) - ksi(generator(features)))) + \
+                #         h_sti*(l2_norm(labels - generator(features)))
+                # ----------------------------------------------------------------
                 generator_loss = F.sum(np.array([F.matmul(-1 * h1, l_adv).data,
                                        # F.matmul(h_fea, l_fea), # TODO
                                        F.matmul(h2, l_sti).data], dtype=np.float32))
@@ -102,13 +108,17 @@ def training():
                 generator_loss.backward()
                 generator_optimizer.update()
                 generator_train_loss[epoch] += generator_loss.data
-
+                # ----------------------------------------------------------------
+                # paper:
+                # L_dis = -(log(discriminator(labels)) + log(1 - discriminator(generator(features))))
+                # ----------------------------------------------------------------
                 t1 = -1 * fake_prob.data
                 t2 = F.sum(np.array([np.reshape(one, (32, 1)),t1], dtype=np.float32), axis=0)
                 t3 = F.log(t2)
                 t4 = F.log(real_prob.data)
                 t5 = F.sum(np.array([t4.data, t3.data], dtype=np.float32))
                 discriminator_loss = -1 * t5
+
                 discriminator_loss.backward()
                 discriminator_optimizer.update()
                 discriminator_train_loss[epoch] += discriminator_loss.data
