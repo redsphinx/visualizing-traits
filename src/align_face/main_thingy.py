@@ -17,6 +17,7 @@ from scipy import ndimage
 import project_paths as pp
 from PIL import Image
 
+
 def align_face(image, desired_face_width, radius=None, mode='similarity'):
     """
     Given an image, return processed image where face is aligned according to chosen mode.

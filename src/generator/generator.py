@@ -20,11 +20,6 @@ class Generator(chainer.Chain):
         bn = chainer.links.BatchNormalization(multiplier * base)
         return bn
 
-    @staticmethod
-    def make_relu(inp):
-        activations = chainer.functions.relu(inp)
-        return activations
-
     def __init__(self):
         super(Generator, self).__init__()
         with self.init_scope():
@@ -52,6 +47,60 @@ class Generator(chainer.Chain):
         return h
 
 
+class Discriminator(chainer.Chain):
+    @staticmethod
+    def make_conv(out, in_channels, s=(1, 1)):
+        conv = chainer.links.Convolution2D(in_channels=in_channels,
+                                           out_channels=out,
+                                           ksize=(4, 4),
+                                           stride=s,
+                                           pad=(1, 1),
+                                           initialW=chainer.initializers.GlorotNormal())
+        return conv
+
+    @staticmethod
+    def make_batchnorm(multiplier):
+        base = 3
+        bn = chainer.links.BatchNormalization(multiplier * base)
+        return bn
+
+    def __init__(self):
+        super(Discriminator, self).__init__()
+        with self.init_scope():
+            self.conv_1 = self.make_conv(out=8, in_channels=3, s=(2,2))
+            self.conv_2 = self.make_conv(out=16, in_channels=8, s=(2,2))
+            self.conv_3 = self.make_conv(out=32, in_channels=16, s=(2,2))
+            self.conv_4 = self.make_conv(out=64, in_channels=32, s=(2,2))
+            self.conv_5 = self.make_conv(out=128, in_channels=64, s=(2,2))
+            self.bn_1 = self.make_batchnorm(8)
+            self.bn_2 = self.make_batchnorm(16)
+            self.bn_3 = self.make_batchnorm(32)
+            self.bn_4 = self.make_batchnorm(64)
+            self.bn_5 = self.make_batchnorm(128)
+            self.fc = chainer.links.Linear(in_size=128, initialW=chainer.initializers.GlorotNormal(), out_size=1)
+
+    def __call__(self, x):
+        slope = 0.2
+        h = self.conv_1(x)
+        h = self.bn_1(h)
+        h = chainer.functions.leaky_relu(h, slope=slope)
+        h = self.conv_2(h)
+        h = self.bn_2(h)
+        h = chainer.functions.leaky_relu(h, slope=slope)
+        h = self.conv_3(h)
+        h = self.bn_3(h)
+        h = chainer.functions.leaky_relu(h, slope=slope)
+        h = self.conv_4(h)
+        h = self.bn_4(h)
+        h = chainer.functions.leaky_relu(h, slope=slope)
+        h = self.conv_5(h)
+        h = self.bn_5(h)
+        h = chainer.functions.leaky_relu(h, slope=slope)
+        h = self.fc(h)
+        h = chainer.functions.sigmoid(h)
+        return h
+
+
 class GeneratorPaper(chainer.Chain):
     @staticmethod
     def make_deconv(out_channels, in_channels, s=(2, 2), p=(1, 1)):
@@ -67,16 +116,6 @@ class GeneratorPaper(chainer.Chain):
     def make_batchnorm(out_channels):
         bn = chainer.links.BatchNormalization(out_channels)
         return bn
-
-    @staticmethod
-    def make_relu(inp):
-        activations = chainer.functions.relu(inp)
-        return activations
-
-    @staticmethod
-    def make_tanh(inp):
-        activations = chainer.functions.tanh(inp)
-        return activations
 
     def __init__(self):
         super(GeneratorPaper, self).__init__()
@@ -109,4 +148,3 @@ class GeneratorPaper(chainer.Chain):
         return h
 
 
-class Discriminator(chainer.Chain):
