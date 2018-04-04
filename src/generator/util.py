@@ -154,7 +154,8 @@ def save_image(arr, name, epoch):
     r1 = Image.fromarray(r1, mode='RGB')
     r1 = r1.resize((128, 128), Image.ANTIALIAS)
     nam = name.split('.')[0]
-    new_name = os.path.join(pp.RECONSTRUCTION_FOLDER, '%s_%d.jpg' % (nam, epoch))
+    # new_name = os.path.join(pp.RECONSTRUCTION_FOLDER, '%s_%d.jpg' % (nam, epoch))
+    new_name = os.path.join(pp.TEST_RECONSTRUCTION_FOLDER, '%s_%d.jpg' % (nam, epoch))
     # r1.show()
     r1.save(new_name)
 

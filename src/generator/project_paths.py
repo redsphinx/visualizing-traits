@@ -11,5 +11,6 @@ if VAR_LOCAL:
     FC6_TEST_H5 = '/home/gabi/PycharmProjects/visualizing-traits/src/generator/test.h5'
     FC6_TRAIN_H5 = '/home/gabi/PycharmProjects/visualizing-traits/src/generator/train.h5'
     TRAIN_LOG = 'train_log.txt'
+    TEST_RECONSTRUCTION_FOLDER = '/home/gabi/Documents/temp_datasets/test_celeba_reconstruction'
 else:
     pass

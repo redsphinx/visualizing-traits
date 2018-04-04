@@ -14,14 +14,6 @@ class Generator(chainer.Chain):
                                                initialW=chainer.initializers.GlorotNormal())
         return deconv
 
-    # def make_deconv(out_channels, in_channels, s=(2, 2), p=(1, 1)):
-    #     deconv = chainer.links.Deconvolution2D(in_channels=in_channels,
-    #                                            out_channels=out_channels,
-    #                                            ksize=(4, 4),
-    #                                            stride=s,
-    #                                            pad=p,
-    #                                            initialW=chainer.initializers.GlorotNormal())
-
     @staticmethod
     def make_batchnorm(multiplier):
         base = 3
@@ -36,10 +28,10 @@ class Generator(chainer.Chain):
     def __init__(self):
         super(Generator, self).__init__()
         with self.init_scope():
-            self.deconv_1 = self.make_deconv(in_channels=1, multiplier=1, s=1)
+            self.deconv_1 = self.make_deconv(in_channels=1, multiplier=1)
             # self.deconv_1 = self.make_deconv(in_channels=1, multiplier=1, s=(2,2))
             self.bn_1 = self.make_batchnorm(1)
-            self.deconv_2 = self.make_deconv(in_channels=3, multiplier=1, s=1)
+            self.deconv_2 = self.make_deconv(in_channels=3, multiplier=1)
             # self.deconv_2 = self.make_deconv(in_channels=3, multiplier=1, s=(2,2))
             self.bn_2 = self.make_batchnorm(1)
             self.deconv_3 = self.make_deconv(in_channels=3, multiplier=1)
@@ -56,21 +48,7 @@ class Generator(chainer.Chain):
         h = chainer.functions.relu(h)
         h = self.deconv_2(h)
         h = self.bn_2(h)
-        # h = chainer.functions.relu(h)
-        # h = chainer.functions.tanh(h) * 127.5 + 127.5
-        # h = self.deconv_3(h)
-        # h = self.bn_3(h)
-        # h = chainer.functions.relu(h)
-        # h = self.deconv_4(h)
-        # h = self.bn_4(h)
-        # h = chainer.functions.relu(h)
-        # h = self.deconv_5(h)
-        # h = self.bn_5(h)
-        # h = chainer.functions.relu(h)
         h = self.fc(h)
-        # print('hdata:', type(h.data), np.shape(h.data))
-        # for removing artifacts
-
         return h
 
 
@@ -129,3 +107,6 @@ class GeneratorPaper(chainer.Chain):
         h = self.deconv_5(h)
         h = chainer.functions.tanh(h)
         return h
+
+
+class Discriminator(chainer.Chain):

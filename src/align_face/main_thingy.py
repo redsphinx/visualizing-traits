@@ -198,6 +198,15 @@ def align_celeba_faces_in_folder():
             print('%s, no face' % name)
 
 
+def align_anouk_data():
+    list_names = os.listdir(pp.DATA_PATH)
+    names_already_saved = os.listdir(pp.BASE_SAVE_LOCATION)
+    list_names = list(set(list_names) - set(names_already_saved))
+    for f in list_names:
+        name = os.path.join(pp.DATA_PATH, f)
+        align_faces_in_video(name)
+
+
 def main():
     list_files_ = os.listdir(pp.DATA_PATH)
     list_files = []
@@ -235,4 +244,5 @@ def main():
 # vid = '/media/gabi/DATADRIVE1/datasets/chalearn_fi_17_compressed/test-1/test80_01/IGjI8aP14gg.000.mp4'
 # align_faces_in_video(vid)
 # main()
-align_celeba_faces_in_folder()
+# align_celeba_faces_in_folder()
+align_anouk_data()
