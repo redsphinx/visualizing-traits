@@ -89,11 +89,16 @@ def training():
                 min_one = np.array([-1.] * pc.BATCH_SIZE)
                 one = np.array([1.] * pc.BATCH_SIZE)
 
+                # log(discriminator(generator(features))
                 l_adv = F.log(fake_prob.data)
                 # l_fea = None # TODO
+                # labels - generator(features)
                 diff = F.sum(np.array([labels, -1 * prediction.data]), axis=0)
+                # l2_norm(labels - generator(features))
                 l_sti = F.batch_l2_norm_squared(diff)
+                # h_adv
                 h1 = np.reshape(np.array([h_adv] * 32), (1, 32))
+                # h_sti
                 h2 = np.array(list(h_sti) * 32)
                 # ----------------------------------------------------------------
                 # in the paper:
@@ -101,6 +106,7 @@ def training():
                 #         h_fea*(l2_norm(ksi(labels) - ksi(generator(features)))) + \
                 #         h_sti*(l2_norm(labels - generator(features)))
                 # ----------------------------------------------------------------
+                # -1 * h_adv * l_adv + h_sti * l_sti
                 generator_loss = F.sum(np.array([F.matmul(-1 * h1, l_adv).data,
                                        # F.matmul(h_fea, l_fea), # TODO
                                        F.matmul(h2, l_sti).data], dtype=np.float32))
@@ -112,11 +118,15 @@ def training():
                 # paper:
                 # L_dis = -(log(discriminator(labels)) + log(1 - discriminator(generator(features))))
                 # ----------------------------------------------------------------
+                # log(1 - discriminator(generator(features)))
                 t1 = -1 * fake_prob.data
                 t2 = F.sum(np.array([np.reshape(one, (32, 1)),t1], dtype=np.float32), axis=0)
                 t3 = F.log(t2)
+                # log(discriminator(labels))
                 t4 = F.log(real_prob.data)
+                # log(discriminator(labels)) + log(1 - discriminator(generator(features)))
                 t5 = F.sum(np.array([t4.data, t3.data], dtype=np.float32))
+                # -(log(discriminator(labels)) + log(1 - discriminator(generator(features))))
                 discriminator_loss = -1 * t5
 
                 discriminator_loss.backward()
