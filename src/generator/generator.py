@@ -59,9 +59,9 @@ class Discriminator(chainer.Chain):
         return conv
 
     @staticmethod
-    def make_batchnorm(multiplier):
-        base = 3
-        bn = chainer.links.BatchNormalization(multiplier * base)
+    def make_batchnorm(in_channel):
+        # base = 3
+        bn = chainer.links.BatchNormalization(in_channel)
         return bn
 
     def __init__(self):

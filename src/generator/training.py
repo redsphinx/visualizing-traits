@@ -73,10 +73,12 @@ def training():
                 prediction = generator(features)
 
                 discriminator.cleargrads()
-                data = prediction.data
+                data = np.reshape(prediction.data, (32, 32, 32, 3))
+                data = np.transpose(data, (0, 3, 1, 2))
                 fake_prob = discriminator(data)
                 
-                other_data = labels # I think these are labels
+                other_data = np.reshape(labels, (32, 32, 32, 3)) # I think these are labels
+                other_data = np.transpose(other_data, (0, 3, 1, 2))
                 real_prob = discriminator(other_data)
 
                 h_adv = np.array([10 ** 2], dtype=np.float32)
@@ -84,17 +86,23 @@ def training():
                 h_sti = np.array([2 * 10 ** -6], dtype=np.float32)
                 h_dis = np.array([10 ** 2], dtype=np.float32)
 
-                min_one = np.array([-1.])
-                one = np.array([1.])
+                min_one = np.array([-1.] * pc.BATCH_SIZE)
+                one = np.array([1.] * pc.BATCH_SIZE)
 
-                l_adv = F.matmul(min_one, F.log(fake_prob.data))
+                l_adv = F.log(fake_prob.data)
+                # log = np.reshape(log.data, 32)
+
+                # l_adv = F.matmul(min_one, log)
                 # l_fea = None # TODO
-                diff = F.sum(labels, F.matmul(min_one, prediction.data))
+                # diff = F.sum(labels, F.matmul(min_one, prediction.data))
+                diff = F.sum(np.array([labels, -1 * prediction.data]), axis=0)
+                # diff = F.sum(np.array([labels, -1 * prediction]), axis=0)
                 l_sti = F.batch_l2_norm_squared(diff)
-
-                generator_loss = F.sum([F.matmul(h_adv, l_adv),
+                h1 = np.reshape(np.array([h_adv] * 32), (1, 32))
+                h2 = np.array(list(h_sti) * 32)
+                generator_loss = F.sum(np.array([F.matmul(-1 * h1, l_adv).data,
                                        # F.matmul(h_fea, l_fea), # TODO
-                                       F.matmul(h_sti, l_sti)])
+                                       F.matmul(h2, l_sti).data], dtype=np.float32))
                 # generator_loss = - h_adv * l_adv + h_fea * l_fea + h_sti * l_sti.data
                 # generator_loss = chainer.Variable(generator_loss)
                 generator_loss.backward()
