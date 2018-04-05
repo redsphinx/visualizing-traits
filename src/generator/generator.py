@@ -97,7 +97,7 @@ class Discriminator(chainer.Chain):
         h = self.bn_5(h)
         h = chainer.functions.leaky_relu(h, slope=slope)
         h = self.fc(h)
-        h = chainer.functions.sigmoid(h)
+        # h = chainer.functions.sigmoid(h)
         return h
 
 

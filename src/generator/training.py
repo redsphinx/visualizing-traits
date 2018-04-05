@@ -107,6 +107,10 @@ def training():
                 #         h_sti*(l2_norm(labels - generator(features)))
                 # ----------------------------------------------------------------
                 # -1 * h_adv * l_adv + h_sti * l_sti
+                # notes
+                L_gen = F.sigmoid_cross_entropy(discriminator(generator(features)), generator.xp.ones(pc.BATCH_SIZE)) + \
+                        F.mean_squared_error(labels, generator(features))
+
                 generator_loss = F.sum(np.array([F.matmul(-1 * h1, l_adv).data,
                                        # F.matmul(h_fea, l_fea), # TODO
                                        F.matmul(h2, l_sti).data], dtype=np.float32))
@@ -118,6 +122,9 @@ def training():
                 # paper:
                 # L_dis = -(log(discriminator(labels)) + log(1 - discriminator(generator(features))))
                 # ----------------------------------------------------------------
+                # umut note: (3) = sigm x entr
+                L_dis = F.sigmoid_cross_entropy(discriminator(x), generator.xp.ones(pc.BATCH_SIZE)) + \
+                        F.sigmoid_cross_entropy(discriminator(generator(features)), generator.xp.zeros(pc.BATCH_SIZE))
                 # log(1 - discriminator(generator(features)))
                 t1 = -1 * fake_prob.data
                 t2 = F.sum(np.array([np.reshape(one, (32, 1)),t1], dtype=np.float32), axis=0)
