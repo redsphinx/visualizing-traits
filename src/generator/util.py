@@ -164,3 +164,23 @@ def save_model(model, epoch):
     model_name = os.path.join(pp.MODEL_SAVES, 'generator_e_%d' % epoch)
     chainer.serializers.save_npz(model_name, model)
     print('model saved')
+
+
+def make_ones(generator):
+    ones = []
+    for i in range(pc.BATCH_SIZE):
+        tmp = generator.xp.array([1])
+        ones.append(tmp)
+    ones = generator.xp.asarray(ones, dtype=np.int32)
+    ones = chainer.Variable(ones)
+    return ones
+
+def make_zeros(generator):
+    ones = []
+    for i in range(pc.BATCH_SIZE):
+        tmp = generator.xp.array([0])
+        ones.append(tmp)
+    ones = generator.xp.asarray(ones, dtype=np.int32)
+    ones = chainer.Variable(ones)
+    return ones
+
