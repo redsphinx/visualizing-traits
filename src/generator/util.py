@@ -10,6 +10,7 @@ from shlex import split
 import pandas as pd
 import h5py as h5
 import tqdm
+from matplotlib.pyplot import plot as pyplot
 
 
 def csv_pandas(path, num):
@@ -183,4 +184,29 @@ def make_zeros(generator):
     ones = generator.xp.asarray(ones, dtype=np.int32)
     ones = chainer.Variable(ones)
     return ones
+
+
+def update_information(information, step, generator_loss, l1, l2):
+    information = np.transpose(information, (1, 0))
+    information[step][0] = generator_loss
+    information[step][1] = l1
+    information[step][2] = l2
+    information = np.transpose(information, (1, 0))
+    return information
+
+
+def plot_everything(information, fig, lines, axis, prev_max, step):
+    num = len(lines)
+    for i in range(num):
+        line = lines[i]
+        # line[0].__setattr__('_y', information[i])
+        line.set_ydata(information[i])
+    information_max = np.max(information)
+    if information_max < prev_max:
+        information_max = prev_max
+    axis.set_ylim((0, int(information_max)+1))
+    axis.set_xlim((0, int(step)))
+    fig.canvas.draw()
+    return information_max
+
 

@@ -1,6 +1,6 @@
 import numpy as np
 import project_paths as pp
-from generator import Generator, Discriminator
+from generator import Generator, Discriminator, GeneratorPaper, DiscriminatorPaper
 import chainer
 import os
 from scipy import ndimage
@@ -13,7 +13,7 @@ import time
 import subprocess
 import h5py as h5
 import chainer.functions as F
-
+import matplotlib.pyplot as pyplot
 
 def training():
     print('setting up...')
@@ -32,12 +32,14 @@ def training():
     # ----------------------------------------------------------------
     # GENERATOR
     generator = Generator()
+    # generator = GeneratorPaper()
     generator_train_loss = np.zeros(pc.EPOCHS)
     generator_optimizer = chainer.optimizers.Adam(alpha=0.0002, beta1=0.9, beta2=0.999, eps=10**-8)
     generator_optimizer.setup(generator)
     # ----------------------------------------------------------------
     # DISCRIMINATOR
     discriminator = Discriminator()
+    # discriminator = DiscriminatorPaper()
     discriminator_train_loss = np.zeros(pc.EPOCHS)
     discriminator_optimizer = chainer.optimizers.Adam(alpha=0.0002, beta1=0.9, beta2=0.999, eps=10**-8)
     discriminator_optimizer.setup(discriminator)
@@ -65,6 +67,27 @@ def training():
 
         names_order = all_names[order]
 
+        # visualizing loss
+        # r = range(total_steps)
+        # information1 = np.zeros((3, total_steps))
+        # information2 = np.zeros((3, total_steps))
+        # pyplot.ion()
+        # fig1 = pyplot.figure()
+        # fig2 = pyplot.figure()
+        # ax1 = fig1.add_subplot(111)
+        # line_0, = ax1.plot(r, information1[0], 'r')
+        # line_1, = ax1.plot(r, information1[1], 'g')
+        # line_2, = ax1.plot(r, information1[2], 'b')
+        # ax2 = fig2.add_subplot(111)
+        # line_3, = ax2.plot(r, information2[0], 'r')
+        # line_4, = ax2.plot(r, information2[1], 'g')
+        # line_5, = ax2.plot(r, information2[2], 'b')
+
+        # lines1 = [line_0, line_1, line_2]
+        # lines2 = [line_3, line_4, line_5]
+        prev_max_ax1 = 0
+        prev_max_ax2 = 0
+
         print('epoch %d' % epoch)
         for step in range(total_steps):
             names = names_order[step * pc.BATCH_SIZE:(step + 1) * pc.BATCH_SIZE]
@@ -78,21 +101,28 @@ def training():
                 prediction = generator(chainer.Variable(features))
 
                 discriminator.cleargrads()
-                data = np.reshape(prediction.data, (32, 32, 32, 3))
+                data = np.reshape(generator(chainer.Variable(features)).data, (pc.BATCH_SIZE, 32, 32, 3))
                 data = np.transpose(data, (0, 3, 1, 2))
                 fake_prob = discriminator(chainer.Variable(data))
-                
-                other_data = np.reshape(labels, (32, 32, 32, 3))
+
+                other_data = np.reshape(labels, (pc.BATCH_SIZE, 32, 32, 3))
                 other_data = np.transpose(other_data, (0, 3, 1, 2))
                 real_prob = discriminator(chainer.Variable(other_data))
 
                 # ----------------------------------------------------------------
                 # CALCULATE LOSS
                 ones1 = util.make_ones(generator)
-                lambda_adv = 1#- 10 ** 2
-                lambda_sti = 1#2 * 10 ** -6
-                generator_loss = lambda_adv * F.sigmoid_cross_entropy(fake_prob, ones1) + \
-                        lambda_sti * F.mean_squared_error(labels, prediction)
+                lambda_adv = 10 ** 2
+                lambda_sti = 2 * (10 ** -6)
+                l1 = lambda_adv * F.sigmoid_cross_entropy(fake_prob, ones1.data)
+                l2 = lambda_sti * F.mean_squared_error(labels, prediction)
+                generator_loss = l1 + l2
+
+                # l1 = lambda_adv * F.sigmoid_cross_entropy(discriminator(chainer.Variable(data)), ones1)
+                # l2 = lambda_sti * F.mean_squared_error(labels, generator(chainer.Variable(features)))
+                # generator_loss = l1 + l2
+                # generator_loss = lambda_adv * F.sigmoid_cross_entropy(discriminator(chainer.Variable(data)), ones1) + \
+                #         lambda_sti * F.mean_squared_error(labels, generator(chainer.Variable(features)))
                 # L_gen = F.sigmoid_cross_entropy(fake_prob, ones) + \
                 #         F.mean_squared_error(labels, prediction)
                 # L_gen = F.sigmoid_cross_entropy(discriminator(generator(features)), generator.xp.ones(pc.BATCH_SIZE)) + \
@@ -101,9 +131,17 @@ def training():
                 # umut note: (3) = sigm x entr
                 zeros = util.make_zeros(generator)
                 ones2 = util.make_ones(generator)
-                lambda_dis = 1#-10 ** 2
-                discriminator_loss = lambda_dis * (F.sigmoid_cross_entropy(real_prob, ones2) +
-                                                   F.sigmoid_cross_entropy(fake_prob, zeros))
+                lambda_dis = 10 ** 2
+                # l3 = F.log(F.absolute(real_prob))
+                # l4 = F.log(F.absolute(fake_prob))
+                discriminator_loss = lambda_dis * (F.sigmoid_cross_entropy(real_prob, ones1.data) +
+                                                   F.sigmoid_cross_entropy(fake_prob, zeros.data))
+
+                # l3 = F.sigmoid_cross_entropy(discriminator(chainer.Variable(other_data)), ones2)
+                # l4 = F.sigmoid_cross_entropy(discriminator(chainer.Variable(data)), zeros)
+                # discriminator_loss = lambda_dis * (l3 + l4)
+                # discriminator_loss = lambda_dis * (F.sigmoid_cross_entropy(discriminator(chainer.Variable(other_data)), ones2) +
+                #                                    F.sigmoid_cross_entropy(discriminator(chainer.Variable(data)), zeros))
                 # L_dis = F.sigmoid_cross_entropy(real_prob, ones) + \
                 #         F.sigmoid_cross_entropy(fake_prob, zeros)
                 # L_dis = F.sigmoid_cross_entropy(discriminator(labels), generator.xp.ones(pc.BATCH_SIZE)) + \
@@ -116,8 +154,19 @@ def training():
                 discriminator_optimizer.update()
                 discriminator_train_loss[epoch] += discriminator_loss.data
 
-                print('%d/%d %d/%d  generator: %f   discriminator: %f' % (
-                epoch, pc.EPOCHS, step, total_steps, generator_loss.data, discriminator_loss.data))
+                # print('%d/%d %d/%d  generator: %f   l1: %f  l2: %f   discriminator: %f  l3: %f  l4: %f' % (
+                # epoch, pc.EPOCHS, step, total_steps, generator_loss.data, l1.data, l2.data, discriminator_loss.data,
+                # l3.data, l4.data))
+                print('%d/%d %d/%d  generator: %f   l1: %f  l2: %f   discriminator: %f' % (
+                    epoch, pc.EPOCHS, step, total_steps, generator_loss.data, l1.data, l2.data, discriminator_loss.data))
+
+
+                # information = util.update_information(information1, step, generator_loss.data, l1.data, l2.data)
+                # information = util.update_information(information2, step, discriminator_loss.data, l3.data, l4.data)
+
+                # visualizing loss
+                # prev_max_ax1 = util.plot_everything(information1, fig1, lines1, ax1, prev_max_ax1, step)
+                # prev_max_ax2 = util.plot_everything(information2, fig2, lines2, ax2, prev_max_ax2, step)
 
             with chainer.using_config('train', False):
                 for i in range(len(names)):
@@ -127,8 +176,8 @@ def training():
                         util.save_image(prediction, names[i], epoch, pp.RECONSTRUCTION_FOLDER)
                         print("image '%s' saved" % names[i])
 
-        if (epoch+1) % pc.SAVE_EVERY_N_STEPS == 0:
-            util.save_model(generator, epoch)
+        # if (epoch+1) % pc.SAVE_EVERY_N_STEPS == 0:
+        #     util.save_model(generator, epoch)
 
         generator_train_loss[epoch] /= total_steps
         print(generator_train_loss[epoch])
