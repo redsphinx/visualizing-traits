@@ -58,6 +58,9 @@ def training():
         save_list_names[cnt] = util.sed_line(path_images, i).strip().split(',')[0]
         cnt += 1
 
+    ones1 = util.make_ones(generator)
+    zeros = util.make_zeros(generator)
+
     print('training...')
     for epoch in range(pc.EPOCHS):
 
@@ -88,6 +91,9 @@ def training():
         prev_max_ax1 = 0
         prev_max_ax2 = 0
 
+        train_gen = True
+        train_dis = True
+
         print('epoch %d' % epoch)
         for step in range(total_steps):
             names = names_order[step * pc.BATCH_SIZE:(step + 1) * pc.BATCH_SIZE]
@@ -96,10 +102,11 @@ def training():
             labels = util.get_labels(names)
             labels = np.asarray(labels, dtype=np.float32)
 
-            with chainer.using_config('train', True):
+            with chainer.using_config('train', train_gen):
                 generator.cleargrads()
                 prediction = generator(chainer.Variable(features))
 
+            with chainer.using_config('train', train_dis):
                 discriminator.cleargrads()
                 data = np.reshape(generator(chainer.Variable(features)).data, (pc.BATCH_SIZE, 32, 32, 3))
                 data = np.transpose(data, (0, 3, 1, 2))
@@ -111,57 +118,45 @@ def training():
 
                 # ----------------------------------------------------------------
                 # CALCULATE LOSS
-                ones1 = util.make_ones(generator)
                 lambda_adv = 10 ** 2
                 lambda_sti = 2 * (10 ** -6)
-                l1 = lambda_adv * F.sigmoid_cross_entropy(fake_prob, ones1.data)
-                l2 = lambda_sti * F.mean_squared_error(labels, prediction)
-                generator_loss = l1 + l2
-
-                # l1 = lambda_adv * F.sigmoid_cross_entropy(discriminator(chainer.Variable(data)), ones1)
-                # l2 = lambda_sti * F.mean_squared_error(labels, generator(chainer.Variable(features)))
-                # generator_loss = l1 + l2
-                # generator_loss = lambda_adv * F.sigmoid_cross_entropy(discriminator(chainer.Variable(data)), ones1) + \
-                #         lambda_sti * F.mean_squared_error(labels, generator(chainer.Variable(features)))
-                # L_gen = F.sigmoid_cross_entropy(fake_prob, ones) + \
-                #         F.mean_squared_error(labels, prediction)
-                # L_gen = F.sigmoid_cross_entropy(discriminator(generator(features)), generator.xp.ones(pc.BATCH_SIZE)) + \
-                #         F.mean_squared_error(labels, generator(features))
-
-                # umut note: (3) = sigm x entr
-                zeros = util.make_zeros(generator)
-                ones2 = util.make_ones(generator)
-                lambda_dis = 10 ** 2
-                # l3 = F.log(F.absolute(real_prob))
-                # l4 = F.log(F.absolute(fake_prob))
-                discriminator_loss = lambda_dis * (F.sigmoid_cross_entropy(real_prob, ones1.data) +
-                                                   F.sigmoid_cross_entropy(fake_prob, zeros.data))
-
-                # l3 = F.sigmoid_cross_entropy(discriminator(chainer.Variable(other_data)), ones2)
-                # l4 = F.sigmoid_cross_entropy(discriminator(chainer.Variable(data)), zeros)
-                # discriminator_loss = lambda_dis * (l3 + l4)
-                # discriminator_loss = lambda_dis * (F.sigmoid_cross_entropy(discriminator(chainer.Variable(other_data)), ones2) +
-                #                                    F.sigmoid_cross_entropy(discriminator(chainer.Variable(data)), zeros))
-                # L_dis = F.sigmoid_cross_entropy(real_prob, ones) + \
-                #         F.sigmoid_cross_entropy(fake_prob, zeros)
-                # L_dis = F.sigmoid_cross_entropy(discriminator(labels), generator.xp.ones(pc.BATCH_SIZE)) + \
-                #         F.sigmoid_cross_entropy(discriminator(generator(features)), generator.xp.zeros(pc.BATCH_SIZE))
-
+                l_adv = lambda_adv * F.sigmoid_cross_entropy(fake_prob, ones1.data)
+                l_sti = lambda_sti * F.mean_squared_error(labels, prediction)
+                generator_loss = l_adv + l_sti
                 generator_loss.backward()
                 generator_optimizer.update()
                 generator_train_loss[epoch] += generator_loss.data
+
+                lambda_dis = 10 ** 2
+                discriminator_loss = lambda_dis * (F.sigmoid_cross_entropy(real_prob, ones1.data) +
+                                                   F.sigmoid_cross_entropy(fake_prob, zeros.data))
                 discriminator_loss.backward()
                 discriminator_optimizer.update()
                 discriminator_train_loss[epoch] += discriminator_loss.data
 
-                # print('%d/%d %d/%d  generator: %f   l1: %f  l2: %f   discriminator: %f  l3: %f  l4: %f' % (
-                # epoch, pc.EPOCHS, step, total_steps, generator_loss.data, l1.data, l2.data, discriminator_loss.data,
+                # ----------------------------------------------------------------
+                # when to suspend / resume training
+                dis_adv_ratio = discriminator_loss.data / l_adv.data
+
+                if dis_adv_ratio < 0.1:
+                    train_dis = False
+                if dis_adv_ratio > 0.5:
+                    train_dis = True
+
+                if dis_adv_ratio > 10:
+                    train_gen = False
+                if dis_adv_ratio < 2:
+                    train_gen = True
+
+
+                # print('%d/%d %d/%d  generator: %f   l_adv: %f  l_sti: %f   discriminator: %f  l3: %f  l4: %f' % (
+                # epoch, pc.EPOCHS, step, total_steps, generator_loss.data, l_adv.data, l_sti.data, discriminator_loss.data,
                 # l3.data, l4.data))
-                print('%d/%d %d/%d  generator: %f   l1: %f  l2: %f   discriminator: %f' % (
-                    epoch, pc.EPOCHS, step, total_steps, generator_loss.data, l1.data, l2.data, discriminator_loss.data))
+                print('%d/%d %d/%d  generator: %f   l_adv: %f  l_sti: %f   discriminator: %f    dis/adv: %f' % (
+                    epoch, pc.EPOCHS, step, total_steps, generator_loss.data, l_adv.data, l_sti.data,
+                    discriminator_loss.data, dis_adv_ratio))
 
-
-                # information = util.update_information(information1, step, generator_loss.data, l1.data, l2.data)
+                # information = util.update_information(information1, step, generator_loss.data, l_adv.data, l_sti.data)
                 # information = util.update_information(information2, step, discriminator_loss.data, l3.data, l4.data)
 
                 # visualizing loss
