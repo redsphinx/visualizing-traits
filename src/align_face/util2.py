@@ -146,3 +146,5 @@ def find_largest_face(face_rectangles):
         return face_rectangles[which_rectangle]
 
 
+def tight_template():
+    current_template = pp.TEMPLATE

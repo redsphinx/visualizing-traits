@@ -147,6 +147,9 @@ def align_faces_in_video(data_path, frames=None, audio=True, side=196, mode='sim
                 new_frame = new_video_array[i - 1]
 
             new_frame = np.array(new_frame, dtype='uint8')
+            # visualize it
+            # result = Image.fromarray(new_frame, mode='RGB')
+            # result.show()
             new_video_array[i] = new_frame
 
         print('END %s' % name_video)
@@ -245,5 +248,8 @@ def main():
 # vid = '/media/gabi/DATADRIVE1/datasets/chalearn_fi_17_compressed/test-1/test80_01/IGjI8aP14gg.000.mp4'
 # align_faces_in_video(vid)
 # main()
-# align_celeba_faces_in_folder()
-align_anouk_data()
+align_celeba_faces_in_folder()
+# align_anouk_data()
+#
+# util.parallel_align('train-1', [0, 2], align_faces_in_video, number_processes=1)
+

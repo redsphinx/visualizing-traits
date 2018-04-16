@@ -111,18 +111,18 @@ for i1 in range(len(intervals)):
     # mean_landmark = np.mean(random_frame_landmarks_from_all_videos[at:e], axis=0).astype(int)
     # mean_landmark = np.reshape(mean_landmark, (68, 2))
 
-    # # draw the landmarks
+    # draw the landmarks
     # canvas = np.ones((height, width, 3)).astype(np.uint8)
     # canvas *= 255
     # for p in mean_landmark:
-        # x, y = p
-        # canvas[y, x] = [0, 0, 0]
-
+    #     x, y = p
+    #     canvas[y, x] = [0, 0, 0]
+    #
     # img = Image.fromarray(canvas, mode='RGB')
     # template_folder = '/home/gabi/PycharmProjects/visualizing-traits/src/align_face/template_folder'
     # template_name = 'TEMPLATE_%d_%d.jpg' % (0, e)
     # if not os.path.exists(template_folder):
-        # os.mkdir(template_folder)
+    #     os.mkdir(template_folder)
     # img.save(os.path.join(template_folder, template_name))
     # print('\nIMAGE SAVED\n')
     # img.show()
