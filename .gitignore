@@ -10,4 +10,4 @@
 *.pyc
 *.mp4
 *.zip
-/simple_deepimpression/model
+simple_deepimpression/model
