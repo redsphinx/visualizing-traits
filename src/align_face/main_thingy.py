@@ -182,13 +182,13 @@ def align_celeba_faces_in_folder():
     names_already_saved = os.listdir(pp.BASE_SAVE_LOCATION)
     list_names = list(set(list_names) - set(names_already_saved))
 
-    # partition_size = len(list_names) / 4
-    #
-    # b = 3*partition_size
-    # e = 4*partition_size
+    partition_size = len(list_names) / 8
 
-    for i in tqdm.tqdm(range(len(list_names))):
-    # for i in tqdm.tqdm(range(b, e)):
+    b = 7 * partition_size
+    e = 8 * partition_size
+
+    # for i in tqdm.tqdm(range(len(list_names))):
+    for i in tqdm.tqdm(range(b, e)):
         # print('%d / %d' % (i, len(list_names)))
         name = os.path.join(pp.DATA_PATH, list_names[i])
         frame = ndimage.imread(name).astype(np.uint8)
