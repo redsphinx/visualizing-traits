@@ -9,3 +9,5 @@
 *.h5
 *.pyc
 *.mp4
+*.zip
+/simple_deepimpression/model
