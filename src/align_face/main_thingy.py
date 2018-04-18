@@ -181,15 +181,17 @@ def align_celeba_faces_in_folder():
     list_names = os.listdir(pp.DATA_PATH)
     names_already_saved = os.listdir(pp.BASE_SAVE_LOCATION)
     list_names = list(set(list_names) - set(names_already_saved))
+    print('len list_names: ', len(list_names))
 
-    partition_size = len(list_names) / 8
+    partition_size = len(list_names) / 5
 
-    b = 7 * partition_size
-    e = 8 * partition_size
+    b = 4 * partition_size
+    e = 5 * partition_size
 
     # for i in tqdm.tqdm(range(len(list_names))):
-    for i in tqdm.tqdm(range(b, e)):
-        # print('%d / %d' % (i, len(list_names)))
+    # for i in range(len(list_names)):
+    for i in range(b, e):
+        print('%d / %d' % (i, b+partition_size))
         name = os.path.join(pp.DATA_PATH, list_names[i])
         frame = ndimage.imread(name).astype(np.uint8)
         new_frame, radius = align_face(frame, radius=0, desired_face_width=198, mode='similarity')
@@ -248,7 +250,7 @@ def main():
 # vid = '/media/gabi/DATADRIVE1/datasets/chalearn_fi_17_compressed/test-1/test80_01/IGjI8aP14gg.000.mp4'
 # align_faces_in_video(vid)
 # main()
-align_celeba_faces_in_folder()
+# align_celeba_faces_in_folder()
 # align_anouk_data()
 #
 # util.parallel_align('train-1', [0, 2], align_faces_in_video, number_processes=1)

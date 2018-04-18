@@ -196,8 +196,8 @@ def remove_wav(to_be_processed, save_dir):
 # for all the videos, save as jpgs and wav
 def folders_mp4_to_jpgs(keep_wav=True):
     # check if important folders exist, else make them
-    to_be_processed = pp.VALIDATION_DATA
-    save_dir = pp.CHALEARN_VALIDATION_JPGS
+    to_be_processed = pp.TRAIN_DATA
+    save_dir = pp.CHALEARN_JPGS
 
     if not os.path.exists(to_be_processed):
         print('train data does not exist:\n%s' % to_be_processed)
@@ -219,6 +219,7 @@ def folders_mp4_to_jpgs(keep_wav=True):
                 j_name = j.split('.mp4')[0]
                 new_video_folder = os.path.join(nl1, j_name)
                 # save jpgs
+                # video_path = video_path + '.mp4'
                 mp4_to_jpgs(video_path, new_video_folder)
                 # save wav
                 if keep_wav:
@@ -246,3 +247,4 @@ def rename_aligned():
 
 
 # rename_aligned()
+folders_mp4_to_jpgs()

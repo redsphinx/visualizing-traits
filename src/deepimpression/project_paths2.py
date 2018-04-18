@@ -3,7 +3,8 @@ VAR_LOCAL = True
 
 
 if VAR_LOCAL:
-    TRAIN_DATA = '/home/gabi/PycharmProjects/visualizing-traits/data/training'
+    # TRAIN_DATA = '/home/gabi/PycharmProjects/visualizing-traits/data/training'
+    TRAIN_DATA = '/home/gabi/Documents/tight_crop_everything/chalearn_train_aligned_tight_crop/train-6'
     TRAIN_LABELS = '/home/gabi/PycharmProjects/visualizing-traits/data/training/annotation_training.pkl'
     # TEST_DATA = '/media/gabi/DATADRIVE1/datasets/chalearn_fi_17_compressed'
     TEST_DATA = '/home/gabi/PycharmProjects/visualizing-traits/data/chalearn_test_aligned'
@@ -18,7 +19,8 @@ if VAR_LOCAL:
     # PRE_TRAINED = '/media/gabi/DATADRIVE1/datasets/chalearn_face_models/transpose/deepimpression_e_899'
 
     LOG = '/home/gabi/PycharmProjects/visualizing-traits/data/log.txt'
-    CHALEARN_JPGS = '/home/gabi/PycharmProjects/visualizing-traits/data/chalearn_aligned_jpgs'
+    # CHALEARN_JPGS = '/home/gabi/PycharmProjects/visualizing-traits/data/chalearn_aligned_jpgs'
+    CHALEARN_JPGS = '/media/gabi/DATADRIVE1/datasets/chalearn_tight_jpgs/train-6'
     MODEL_SAVES = '/home/gabi/PycharmProjects/visualizing-traits/data/models'
     TEST_LOG = 'shitty_test_log.txt'
     TRAIN_LOG = 'shitty_train_log.txt'
