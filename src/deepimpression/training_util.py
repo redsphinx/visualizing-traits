@@ -95,8 +95,8 @@ def get_random_frame(video_path, seed=None, at_time=None, seconds=None, frames=1
     return img
 
 
-p = '/home/gabi/PycharmProjects/visualizing-traits/src/simple_deepimpression/1Gn4GX8miWQ.005.mp4'
-ii = get_random_frame(p, frames=5)
+# p = '/home/gabi/PycharmProjects/visualizing-traits/src/simple_deepimpression/1Gn4GX8miWQ.005.mp4'
+# ii = get_random_frame(p, frames=5)
 
 
 def get_random_audio_clip(video_path):
