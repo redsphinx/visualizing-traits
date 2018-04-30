@@ -6,6 +6,8 @@ import os
 import project_paths as pp
 import time
 import util
+import tqdm
+
 
 # VGGFACE_CAFFE_MODEL = '/media/gabi/DATADRIVE1/datasets/VGGFace/VGG_FACE.caffemodel'
 # VGGFACE_CAFFE_PROTO = '/media/gabi/DATADRIVE1/datasets/VGGFace/VGG_FACE_deploy.prototxt'
@@ -17,15 +19,8 @@ sys.path.append(pp.CAFFE_PATH)
 import caffe
 
 caffe_model = caffe.Net(pp.VGGFACE_CAFFE_PROTO, pp.VGGFACE_CAFFE_MODEL, caffe.TEST)
-is_train = False
+is_train = True
 
-if is_train:
-    name_write_to = 'train.txt'
-else:
-    name_write_to = 'test.txt'
-write_to = os.path.join(pp.CELEB_FACES_FC6_ALL, name_write_to)
-f = open(write_to, 'w')
-f.close()
 
 def extract_classic():
     caffe_model = caffe.Net(pp.VGGFACE_CAFFE_PROTO, pp.VGGFACE_CAFFE_MODEL, caffe.TEST)
@@ -45,7 +40,7 @@ def extract_classic():
         _.close()
 
     tt = time.time()
-    for i in range(len(list_faces)):
+    for i in tqdm.tqdm(range(len(list_faces))):
     # for i in range(100):
         name = os.path.join(pp.CELEB_FACES, list_faces[i])
         data = ndimage.imread(name).astype(np.float32)
@@ -74,6 +69,15 @@ def extract_classic():
                     my_file.write('%f\n' % fc6_features[j])
 
     print('total time: %f minutes' % ((time.time() - tt) / 60))
+
+
+# if is_train:
+#     name_write_to = 'train.txt'
+# else:
+#     name_write_to = 'test.txt'
+# write_to = os.path.join(pp.CELEB_FACES_FC6_ALL, name_write_to)
+# f = open(write_to, 'w')
+# f.close()
 
 
 def extract_parallel(list_faces):
@@ -109,7 +113,8 @@ def extract_parallel(list_faces):
 # example_data = ndimage.imread(example).astype(np.float32)
 
 tt = time.time()
-util.parallel_extract(is_train, [0, 30000], extract_parallel, number_processes=5)
+# util.parallel_extract(is_train, [0, 30000], extract_parallel, number_processes=5)
+extract_classic()
 print('total time: %f minutes' % ((time.time() - tt) / 60))
 # list_f = util.get_list_faces(is_train, [0,10])
 # extract_parallel(list_f)

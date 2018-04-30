@@ -45,12 +45,29 @@ def save_features_as_h5(path, h5_path):
         for i in tqdm.tqdm(range(num_features)):
             f = sed_line(path, i+1).strip().split(',')
             nam = f[0]
-            dat = [float(_) for _ in f[1:]]
-            my_file.create_dataset(name=nam, data=dat)
+            if nam == '':
+                print('nam is ''', f)
+            # dat = [float(_) for _ in f[1:]]
+            dat = []
+            for j in range(len(f[1:])):
+                _ = f[1:][j].split('.jpg')[0]
+                try:
+                    __ = float(_)
+                except (ValueError, TypeError):
+                    _ = 0.0
+                    print('weird number, setting to 0.0')
+                dat.append(float(_))
+
+            try:
+                my_file.create_dataset(name=nam, data=dat)
+            except ValueError:
+                print('name is: ', nam)
 
 
-# h5p = 'train.h5'
+# h5p = pp.FC6_TRAIN_H5
 # p = pp.CELEB_FACES_FC6_TRAIN
+# h5p = pp.FC6_TEST_H5
+# p = pp.CELEB_FACES_FC6_TEST
 # save_features_as_h5(p, h5p)
 
 

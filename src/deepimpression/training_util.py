@@ -13,7 +13,7 @@ import project_paths2 as pp
 # import scipy.io.wavfile as swf
 
 
-def get_random_frame_times(fps, seed, at_time, seconds):
+def get_random_frame_times(fps, seed, at_time, seconds, frames=1):
     if seconds is None:
         seconds = 15
     else:
@@ -22,6 +22,10 @@ def get_random_frame_times(fps, seed, at_time, seconds):
     random.seed(seed)
     random_number = randint(0, total_frames)
     each_frame = 1/(fps*1.0)
+
+    # for multiple consecutive frames, set frames > 1
+    each_frame *= frames
+
     if at_time is None:
         big_seconds = random_number * each_frame
     else:
@@ -46,7 +50,7 @@ def get_random_frame_times(fps, seed, at_time, seconds):
     return begin_time, end_time
 
 
-def get_random_frame(video_path, seed=None, at_time=None, seconds=None):
+def get_random_frame(video_path, seed=None, at_time=None, seconds=None, frames=1):
     meta_data = skvideo.io.ffprobe(video_path)
     try:
         h = int(meta_data['video']['@height'])
@@ -65,10 +69,11 @@ def get_random_frame(video_path, seed=None, at_time=None, seconds=None):
         fps = str(meta_data['video']['@avg_frame_rate'])
 
     fps = int(fps.split('/')[0][:2])
-    begin_time, end_time = get_random_frame_times(fps, seed, at_time, seconds)
+    begin_time, end_time = get_random_frame_times(fps, seed, at_time, seconds, frames)
+
     command = "ffmpeg -loglevel panic -ss %s -t %s -i %s -r %s.0 -f image2pipe -pix_fmt rgb24 -vcodec rawvideo -" % (begin_time, end_time, video_path, fps)
     pipe = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE)
-    img = pipe.stdout.read(h*w*3)
+    img = pipe.stdout.read(h*w*3*frames)
     # print('len img: ', len(img))
     img = np.fromstring(img, dtype='uint8')
     # print('len img: ', len(img))
@@ -78,14 +83,20 @@ def get_random_frame(video_path, seed=None, at_time=None, seconds=None):
     # some videos are shorter than 15 seconds, try to grab a random frame from first 5 seconds instead
     if np.size(img) == 0:
         print('recursion')
-        img = get_random_frame(video_path, seed, at_time, seconds=1)
+        img = get_random_frame(video_path, seed, at_time, seconds=1, frames=frames)
 
-
-    img = img.reshape((h, w, 3))
+    if frames == 1:
+        img = img.reshape((h, w, 3))
+    else:
+        img = img.reshape((frames, h, w, 3))
     # im = Image.fromarray(img, mode='RGB')
     # im.show()
     # print('img shape: ', img.shape)
     return img
+
+
+p = '/home/gabi/PycharmProjects/visualizing-traits/src/simple_deepimpression/1Gn4GX8miWQ.005.mp4'
+ii = get_random_frame(p, frames=5)
 
 
 def get_random_audio_clip(video_path):

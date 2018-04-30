@@ -14,6 +14,7 @@ import matplotlib.mlab as mlab
 import matplotlib.pyplot as plt
 import csv
 
+
 def main():
     model = load_model()
     model.validation = False
@@ -31,15 +32,15 @@ def main():
     print('len annotation', len(annotation_test_keys))
 
     # ---
-    y_tmp = np.zeros((pc.NUM_VIDEO_FRAMES, len(annotation_test_keys)), dtype=np.float32)
-    target_tmp = np.zeros((pc.NUM_VIDEO_FRAMES, len(annotation_test_keys)), dtype=np.float32)
+    y_tmp = np.zeros((pc.NUM_VIDEOS, len(annotation_test_keys)), dtype=np.float32)
+    target_tmp = np.zeros((pc.NUM_VIDEOS, len(annotation_test_keys)), dtype=np.float32)
 
     # make zero audios
     sample_length = 50176
     shape_audio = (1, 1, 1, sample_length)
     audios = np.zeros(shape=shape_audio, dtype='float32')
 
-    for ind in range(pc.NUM_VIDEO_FRAMES):
+    for ind in range(pc.NUM_VIDEOS):
         print('ind: ', ind)
         video_id = all_video_names[ind]
         target_labels = [annotation_test['extraversion'][video_id],
@@ -65,7 +66,7 @@ def main():
 
         # for single random frame
         # grab frame
-        frame = get_random_frame(video)
+        frame = get_random_frame(video, frames=pc.NUM_FRAMES_PER_VIDEO)
         frame_shape = np.shape(frame)
         # reshape
         frame = np.reshape(frame, (3, frame_shape[0], frame_shape[1]))
