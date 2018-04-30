@@ -11,3 +11,5 @@
 *.mp4
 *.zip
 simple_deepimpression/model
+/src/umut_reconstruction/*
+/src/progressive_growing_of_gans/*
