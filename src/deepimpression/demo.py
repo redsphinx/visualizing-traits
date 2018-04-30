@@ -68,9 +68,15 @@ def main():
         # grab frame
         frame = get_random_frame(video, frames=pc.NUM_FRAMES_PER_VIDEO)
         frame_shape = np.shape(frame)
+
         # reshape
-        frame = np.reshape(frame, (3, frame_shape[0], frame_shape[1]))
-        frame = np.expand_dims(frame, 0)
+        if pc.NUM_FRAMES_PER_VIDEO == 1:
+            frame = np.reshape(frame, (3, frame_shape[0], frame_shape[1]))
+            frame = np.expand_dims(frame, 0)
+        else:
+            frame = np.reshape(frame, (frame_shape[0], 3, frame_shape[1], frame_shape[2]))
+            frame = np.expand_dims(frame, 0) # not sure about this
+
         # prediction
         with chainer.using_config('train', False):
             prediction = model([audios, frame])

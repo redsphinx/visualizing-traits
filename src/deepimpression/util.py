@@ -40,7 +40,7 @@ def load_video(data):
     print('loading data')
     video_capture = skvideo.io.vread(data)
 
-    frames = pc.NUM_VIDEO_FRAMES
+    frames = pc.NUM_VIDEOS
     video_capture = video_capture[:frames]
 
     video_shape = np.shape(video_capture)
