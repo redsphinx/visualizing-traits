@@ -64,12 +64,22 @@ def save_features_as_h5(path, h5_path):
                 print('name is: ', nam)
 
 
+def loop_de_loop():
+    save_location = '/scratch2/gabi/VGGFACE/data'
+    keywords = 'celeba_fc6_features_train_tight'
+    cnt = 1
+    for i in os.listdir(save_location):
+        if keywords in i:
+            print('file', cnt, 10)
+            h5p = pp.FC6_TRAIN_H5
+            p = os.path.join(save_location, i)
+            save_features_as_h5(p, h5p)
+
 # h5p = pp.FC6_TRAIN_H5
 # p = pp.CELEB_FACES_FC6_TRAIN
 # h5p = pp.FC6_TEST_H5
 # p = pp.CELEB_FACES_FC6_TEST
 # save_features_as_h5(p, h5p)
-
 
 def get_features_in_batches(step, train=True):
     features = np.zeros((pc.BATCH_SIZE, 4096))
