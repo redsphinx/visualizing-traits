@@ -10,9 +10,6 @@ def get_order():
     l = list(l[110593:])
     return l
 
-    print('asdf')
-
-
 # get_order()
 
 def image_to_array():

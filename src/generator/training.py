@@ -14,6 +14,8 @@ import subprocess
 import h5py as h5
 import chainer.functions as F
 import matplotlib.pyplot as pyplot
+from chainer.links.model.vision.vgg import VGG16Layers
+
 
 def training():
     print('setting up...')
@@ -44,10 +46,8 @@ def training():
     discriminator_optimizer = chainer.optimizers.Adam(alpha=0.0002, beta1=0.9, beta2=0.999, eps=10**-8)
     discriminator_optimizer.setup(discriminator)
     # ----------------------------------------------------------------
-    # OPTIMIZER
-    # optimizer = chainer.optimizers.Adam(alpha=0.0002, beta1=0.9, beta2=0.999, eps=10**-8)
-    # optimizer.setup(generator)
-    # optimizer.setup(discriminator)
+    # VGG16 FOR FEATURE LOSS
+    vgg16 = VGG16Layers()
     # ----------------------------------------------------------------
 
     save_list = random.sample(xrange(num_features), 20)
@@ -99,8 +99,8 @@ def training():
             names = names_order[step * pc.BATCH_SIZE:(step + 1) * pc.BATCH_SIZE]
             features = util.get_features_h5_in_batches(names, train=pc.TRAIN)
             features = util.to_correct_input(features)
-            labels = util.get_labels(names)
-            labels = np.asarray(labels, dtype=np.float32)
+            labels_32, labels_224 = util.get_labels(names)
+            # labels_32 = np.asarray(labels_32, dtype=np.float32)
 
             with chainer.using_config('train', train_gen):
                 generator.cleargrads()
@@ -108,21 +108,29 @@ def training():
 
             with chainer.using_config('train', train_dis):
                 discriminator.cleargrads()
+                print('prediction shape', np.shape(prediction.data))
                 data = np.reshape(generator(chainer.Variable(features)).data, (pc.BATCH_SIZE, 32, 32, 3))
                 data = np.transpose(data, (0, 3, 1, 2))
                 fake_prob = discriminator(chainer.Variable(data))
 
-                other_data = np.reshape(labels, (pc.BATCH_SIZE, 32, 32, 3))
+                other_data = np.reshape(labels_32, (pc.BATCH_SIZE, 32, 32, 3))
                 other_data = np.transpose(other_data, (0, 3, 1, 2))
                 real_prob = discriminator(chainer.Variable(other_data))
+
+            with chainer.using_config('train', False):
+                # TODO: extract features, store as hdf5
+                feature_truth = vgg16(labels_224, layers=['conv3_3'])['conv3_3']
+                feature_reconstruction = vgg16(util.fix_prediction_for_vgg16(prediction), layers=['conv3_3'])['conv3_3']
 
                 # ----------------------------------------------------------------
                 # CALCULATE LOSS
                 lambda_adv = 10 ** 2
                 lambda_sti = 2 * (10 ** -6)
+                lambda_fea = 10 ** -2
                 l_adv = lambda_adv * F.sigmoid_cross_entropy(fake_prob, ones1.data)
-                l_sti = lambda_sti * F.mean_squared_error(labels, prediction)
-                generator_loss = l_adv + l_sti
+                l_sti = lambda_sti * F.mean_squared_error(labels_32, prediction)
+                l_fea = lambda_fea * F.mean_squared_error(feature_truth, feature_reconstruction)
+                generator_loss = l_adv + l_fea + l_sti
                 generator_loss.backward()
                 generator_optimizer.update()
                 generator_train_loss[epoch] += generator_loss.data

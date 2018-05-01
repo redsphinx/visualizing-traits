@@ -155,11 +155,21 @@ def get_names_h5_file(path):
 
 
 def get_labels(names):
-    labels = np.zeros((pc.BATCH_SIZE, 32*32*3))
+    labels_32 = np.zeros((pc.BATCH_SIZE, 32 * 32 * 3), dtype=np.float32)
+    labels_224 = np.zeros((pc.BATCH_SIZE, 3, 224, 224), dtype=np.float32)
     # labels = np.zeros((10, 1072,1072,3))
     for i in range(len(names)):
         p = os.path.join(pp.CELEB_DATA_ALIGNED, names[i])
-        img = ndimage.imread(p).astype(np.uint8)
+        img = ndimage.imread(p)
+        img_copy = img.astype(np.float32)
+        # remove mean
+        img_copy[:, :, 0] -= 123.68
+        img_copy[:, :, 1] -= 116.779
+        img_copy[:, :, 2] -= 103.939
+
+        # TODO: maybe this needs to be downscaled in terms of resolution. Keep in mind.
+        labels_224[i] = np.transpose(img_copy, (2, 0, 1)).astype(np.float32)
+
         tmp_img = Image.fromarray(img, mode='RGB')
         # n = os.path.join(pp.ORIGINAL, names[i])
         # n = os.path.join(pp.CELEB_DATA_ALIGNED, names[i])
@@ -168,10 +178,10 @@ def get_labels(names):
         tmp_img = tmp_img.resize((32, 32), Image.ANTIALIAS)
         img = np.array(tmp_img)
         img = np.ndarray.flatten(img)
-        labels[i] = img.astype(np.float32)
+        labels_32[i] = img.astype(np.float32)
 
     # labels = np.transpose(labels, (0, 3, 1, 2))
-    return labels
+    return labels_32, labels_224
 
 
 def save_image(arr, name, epoch, location):
@@ -238,3 +248,14 @@ def plot_everything(information, fig, lines, axis, prev_max, step):
     return information_max
 
 
+def fix_prediction_for_vgg16(prediction):
+    pred = np.zeros((pc.BATCH_SIZE, 3, 224, 224)).astype(np.float32)
+    for pr in range(pc.BATCH_SIZE):
+        im = np.array(Image.fromarray(np.reshape(prediction.data[pr], (32, 32, 3)).astype(np.uint8)).resize((224, 224),
+                                                                                                            Image.ANTIALIAS),
+                      dtype=np.float32)
+        im[:, :, 0] -= 123.68
+        im[:, :, 1] -= 116.779
+        im[:, :, 2] -= 103.939
+        pred[pr] = im.transpose((2, 0, 1)).astype(np.float32)
+    return pred
