@@ -145,8 +145,7 @@ def resize(image, width=None, height=None, inter=cv2.INTER_AREA):
     return resized
 
 
-def get_template_landmark():
-    file_path = pp.TEMPLATE
+def get_template_landmark(file_path=pp.TEMPLATE):
     template = list(np.genfromtxt(file_path, dtype=str))
     num_landmarks = len(template)
     template_arr = np.zeros((num_landmarks, 2), dtype='int')

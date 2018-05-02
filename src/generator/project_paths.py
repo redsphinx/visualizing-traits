@@ -20,5 +20,6 @@ if VAR_LOCAL:
     # TRAIN_LOG = 'train_log.txt'
     TEST_RECONSTRUCTION_FOLDER = '/home/gabi/Documents/temp_datasets/test_celeba_reconstruction'
     VGG16_RELU_H5 = '' # TODO, waiting for it on hinton
+    TEMPLATE = '/home/gabi/PycharmProjects/visualizing-traits/src/align_face/landmarks_tight_crop_resize.txt'
 else:
     pass

@@ -12,6 +12,11 @@ import h5py as h5
 import tqdm
 from matplotlib.pyplot import plot as pyplot
 from multiprocessing import Pool
+from src.align_face.face_utils.helpers import get_template_landmark
+from src.align_face.util2 import resize_template
+from shapely.geometry import Point
+from shapely.geometry.polygon import Polygon
+from scipy.spatial import ConvexHull
 
 
 def csv_pandas(path, num):
@@ -262,3 +267,33 @@ def fix_prediction_for_vgg16(prediction):
         im[:, :, 2] -= 103.939
         pred[pr] = im.transpose((2, 0, 1)).astype(np.float32)
     return pred
+
+
+def remove_inside_landmarks(template):
+    hull = ConvexHull(template)
+    return hull
+
+
+def get_L_sti_mask():
+    h = 32
+    w = 32
+    template = resize_template(pp.TEMPLATE, (w, h))
+    template = remove_inside_landmarks(template)
+    template = Polygon(template)
+    mask = []
+    # images.shape = (batchsize, 3, w, h)
+    for x in range(w):
+        for y in range(h):
+            point = Point(x, y)
+            if not template.contains(point):
+                mask.append([x, y])
+
+    mask = np.asarray(mask)
+    return mask
+
+
+def apply_mask(images, mask):
+    # TODO
+    pass
+
+

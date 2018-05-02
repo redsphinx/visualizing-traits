@@ -7,6 +7,7 @@ import numpy as np
 # from redis import Redis
 # from rq import Queue
 import project_paths as pp
+from src.align_face.face_utils import helpers
 
 
 def safe_mkdir(my_path):
@@ -146,5 +147,11 @@ def find_largest_face(face_rectangles):
         return face_rectangles[which_rectangle]
 
 
-def tight_template():
-    current_template = pp.TEMPLATE
+def resize_template(path_to_template, (x, y)):
+    template = helpers.get_template_landmark(path_to_template)
+    new_template = np.zeros(np.shape(template),dtype=int)
+    for i in range(len(template)):
+        new_template[i] = [(template[i][0]/186)*x, (template[i][1]/192)*y]
+    return new_template
+
+

@@ -30,6 +30,7 @@ def training():
         path_images = pp.CELEB_FACES_FC6_TEST
 
     total_steps = num_features / pc.BATCH_SIZE
+    mask_L_sti = util.get_L_sti_mask()
 
     # ----------------------------------------------------------------
     # GENERATOR
@@ -131,7 +132,8 @@ def training():
                 lambda_sti = 2 * (10 ** -6)
                 lambda_fea = 10 ** -2
                 l_adv = lambda_adv * F.sigmoid_cross_entropy(fake_prob, ones1.data)
-                l_sti = lambda_sti * F.mean_squared_error(labels_32, prediction)
+                l_sti = lambda_sti * F.mean_squared_error(util.apply_mask(labels_32, mask_L_sti),
+                                                          util.apply_mask(prediction, mask_L_sti))
                 l_fea = lambda_fea * F.mean_squared_error(vgg16_features, feature_reconstruction)
                 generator_loss = l_adv + l_fea + l_sti
                 generator_loss.backward()
