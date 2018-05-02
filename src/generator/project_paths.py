@@ -19,5 +19,6 @@ if VAR_LOCAL:
     # FC6_TRAIN_H5 = '/home/gabi/Documents/tight_crop_everything/celeba_vggface_features/train.h5'
     # TRAIN_LOG = 'train_log.txt'
     TEST_RECONSTRUCTION_FOLDER = '/home/gabi/Documents/temp_datasets/test_celeba_reconstruction'
+    VGG16_RELU_H5 = '' # TODO, waiting for it on hinton
 else:
     pass

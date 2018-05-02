@@ -105,12 +105,16 @@ def get_features_in_batches(step, train=True):
     return names, features
 
 
-def get_features_h5_in_batches(keys, train):
+def get_features_h5_in_batches(keys, train, which_features=None):
     features = np.zeros((pc.BATCH_SIZE, 4096))
-    if train:
-        h5_path = pp.FC6_TRAIN_H5
+
+    if which_features == 'vgg16':
+        h5_path = pp.VGG16_RELU_H5
     else:
-        h5_path = pp.FC6_TEST_H5
+        if train:
+            h5_path = pp.FC6_TRAIN_H5
+        else:
+            h5_path = pp.FC6_TEST_H5
 
     h5_file = h5.File(h5_path, 'r')
 
@@ -156,19 +160,18 @@ def get_names_h5_file(path):
 
 def get_labels(names):
     labels_32 = np.zeros((pc.BATCH_SIZE, 32 * 32 * 3), dtype=np.float32)
-    labels_224 = np.zeros((pc.BATCH_SIZE, 3, 224, 224), dtype=np.float32)
+    # labels_224 = np.zeros((pc.BATCH_SIZE, 3, 224, 224), dtype=np.float32)
     # labels = np.zeros((10, 1072,1072,3))
     for i in range(len(names)):
         p = os.path.join(pp.CELEB_DATA_ALIGNED, names[i])
         img = ndimage.imread(p)
-        img_copy = img.astype(np.float32)
+        # img_copy = img.astype(np.float32)
         # remove mean
-        img_copy[:, :, 0] -= 123.68
-        img_copy[:, :, 1] -= 116.779
-        img_copy[:, :, 2] -= 103.939
+        # img_copy[:, :, 0] -= 123.68
+        # img_copy[:, :, 1] -= 116.779
+        # img_copy[:, :, 2] -= 103.939
 
-        # TODO: maybe this needs to be downscaled in terms of resolution. Keep in mind.
-        labels_224[i] = np.transpose(img_copy, (2, 0, 1)).astype(np.float32)
+        # labels_224[i] = np.transpose(img_copy, (2, 0, 1)).astype(np.float32)
 
         tmp_img = Image.fromarray(img, mode='RGB')
         # n = os.path.join(pp.ORIGINAL, names[i])
@@ -181,7 +184,7 @@ def get_labels(names):
         labels_32[i] = img.astype(np.float32)
 
     # labels = np.transpose(labels, (0, 3, 1, 2))
-    return labels_32, labels_224
+    return labels_32
 
 
 def save_image(arr, name, epoch, location):

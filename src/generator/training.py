@@ -99,7 +99,10 @@ def training():
             names = names_order[step * pc.BATCH_SIZE:(step + 1) * pc.BATCH_SIZE]
             features = util.get_features_h5_in_batches(names, train=pc.TRAIN)
             features = util.to_correct_input(features)
-            labels_32, labels_224 = util.get_labels(names)
+            # labels_32, labels_224 = util.get_labels(names)
+            labels_32 = util.get_labels(names)
+            vgg16_features = util.get_features_h5_in_batches(names, train=pc.TRAIN, which_features='vgg16')
+            # vgg16_features = util.to_correct_input(vgg16_features)
             # labels_32 = np.asarray(labels_32, dtype=np.float32)
 
             with chainer.using_config('train', train_gen):
@@ -119,7 +122,7 @@ def training():
 
             with chainer.using_config('train', False):
                 # TODO: extract features, store as hdf5
-                feature_truth = vgg16(labels_224, layers=['conv3_3'])['conv3_3']
+                # feature_truth = vgg16(labels_224, layers=['conv3_3'])['conv3_3']
                 feature_reconstruction = vgg16(util.fix_prediction_for_vgg16(prediction), layers=['conv3_3'])['conv3_3']
 
                 # ----------------------------------------------------------------
@@ -129,7 +132,7 @@ def training():
                 lambda_fea = 10 ** -2
                 l_adv = lambda_adv * F.sigmoid_cross_entropy(fake_prob, ones1.data)
                 l_sti = lambda_sti * F.mean_squared_error(labels_32, prediction)
-                l_fea = lambda_fea * F.mean_squared_error(feature_truth, feature_reconstruction)
+                l_fea = lambda_fea * F.mean_squared_error(vgg16_features, feature_reconstruction)
                 generator_loss = l_adv + l_fea + l_sti
                 generator_loss.backward()
                 generator_optimizer.update()
