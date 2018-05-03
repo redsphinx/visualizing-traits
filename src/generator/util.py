@@ -168,18 +168,18 @@ def get_names_h5_file(path):
 
 def get_labels(names):
     labels_32 = np.zeros((pc.BATCH_SIZE, 32 * 32 * 3), dtype=np.float32)
-    # labels_224 = np.zeros((pc.BATCH_SIZE, 3, 224, 224), dtype=np.float32)
+    labels_224 = np.zeros((pc.BATCH_SIZE, 3, 224, 224), dtype=np.float32)
     # labels = np.zeros((10, 1072,1072,3))
     for i in range(len(names)):
         p = os.path.join(pp.CELEB_DATA_ALIGNED, names[i])
         img = ndimage.imread(p)
-        # img_copy = img.astype(np.float32)
+        img_copy = img.astype(np.float32)
         # remove mean
-        # img_copy[:, :, 0] -= 123.68
-        # img_copy[:, :, 1] -= 116.779
-        # img_copy[:, :, 2] -= 103.939
+        img_copy[:, :, 0] -= 123.68
+        img_copy[:, :, 1] -= 116.779
+        img_copy[:, :, 2] -= 103.939
 
-        # labels_224[i] = np.transpose(img_copy, (2, 0, 1)).astype(np.float32)
+        labels_224[i] = np.transpose(img_copy, (2, 0, 1)).astype(np.float32)
 
         tmp_img = Image.fromarray(img, mode='RGB')
         # n = os.path.join(pp.ORIGINAL, names[i])
@@ -192,7 +192,7 @@ def get_labels(names):
         labels_32[i] = img.astype(np.float32)
 
     # labels = np.transpose(labels, (0, 3, 1, 2))
-    return labels_32
+    return labels_32, labels_224
 
 
 def save_image(arr, name, epoch, location):
@@ -224,6 +224,7 @@ def make_ones(generator):
     ones = generator.xp.asarray(ones, dtype=np.int32)
     ones = chainer.Variable(ones)
     return ones
+
 
 def make_zeros(generator):
     ones = []
@@ -313,8 +314,23 @@ def manual_make_convex_hull(w=32, h=32):
     print('')
 
 
-def get_boundary(points):
-    return None
+def manual_get_index_boundary(template):
+    convex = pc.CONVEX_HULL_32
+    index_list = []
+    for i in range(len(convex)):
+        for j, x in enumerate(template):
+            if convex[i][0] == x[0] and convex[i][1] == x[1]:
+                print(convex[i], x)
+                index_list.append(j)
+    print(index_list, len(index_list))  # this is the value of pc.CONVEX_HULL_INDEX
+    return index_list
+
+
+def get_boundary(template):
+    new_template = []
+    for i in pc.CONVEX_HULL_INDEX:
+        new_template.append(template[i])
+    return new_template
 
 
 def get_L_sti_mask():
@@ -330,19 +346,28 @@ def get_L_sti_mask():
     # images.shape = (batchsize, 3, w, h)
     for x in range(w):
         for y in range(h):
-            point = Point(x, y)
+            point = Point(y, x)
             if not template.contains(point):
-                mask.append([x, y])
-
-    mask = np.asarray(mask)
+                mask.append(False)
+            else:
+                mask.append(True)
+                # mask.append([y, x])
+    mask = np.asarray(mask).reshape((w, h))
+    mask = np.array([mask, mask, mask])
+    mask = mask.transpose((1, 2, 0))
     return mask
 
 
 def apply_mask(images, mask):
-    # images has shape (batchsize, 3, 32, 32)
+    # images has shape (batchsize, 32*32*3)
+    # images needs to be shape (batchsize, 32, 32, 3)
+    images = images.reshape((pc.BATCH_SIZE, 32, 32, 3))
     for i in range(pc.BATCH_SIZE):
-        masked_image = ma.array(images[i], mask)
+        masked_image = images[i] * mask
+        # masked_image = images[i][~np.array(mask)]
+        # masked_image = ma.array(images[i], mask)
         images[i] = masked_image
+        # imshow(masked_image)
     return images
 
 
