@@ -264,9 +264,12 @@ def plot_everything(information, fig, lines, axis, prev_max, step):
 def fix_prediction_for_vgg16(prediction):
     pred = np.zeros((pc.BATCH_SIZE, 3, 224, 224)).astype(np.float32)
     for pr in range(pc.BATCH_SIZE):
-        im = np.array(Image.fromarray(np.reshape(prediction.data[pr], (32, 32, 3)).astype(np.uint8)).resize((224, 224),
-                                                                                                            Image.ANTIALIAS),
-                      dtype=np.float32)
+        dat = prediction.data[pr]
+        dat = np.reshape(dat, (32, 32, 3))
+        dat = dat.astype(np.uint8)
+        dat = Image.fromarray(dat)
+        dat = dat.resize((224, 224), Image.ANTIALIAS)
+        im = np.array(dat, dtype=np.float32)
         im[:, :, 0] -= 123.68
         im[:, :, 1] -= 116.779
         im[:, :, 2] -= 103.939
