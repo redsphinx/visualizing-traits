@@ -124,8 +124,8 @@ def training():
             with chainer.using_config('train', False):
                 # TODO: extract features, store as hdf5
                 # feature_truth = vgg16(labels_224, layers=['conv3_3'])['conv3_3']
-                feature_reconstruction = vgg16(util.fix_prediction_for_vgg16(prediction), layers=['conv3_3'])['conv3_3']
-
+                # feature_reconstruction = vgg16(util.fix_prediction_for_vgg16(prediction), layers=['conv3_3'])['conv3_3']
+                feature_reconstruction = None
                 # ----------------------------------------------------------------
                 # CALCULATE LOSS
                 lambda_adv = 10 ** 2

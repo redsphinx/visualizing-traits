@@ -149,9 +149,9 @@ def find_largest_face(face_rectangles):
 
 def resize_template(path_to_template, (x, y)):
     template = helpers.get_template_landmark(path_to_template)
-    new_template = np.zeros(np.shape(template),dtype=int)
+    new_template = np.zeros(np.shape(template), dtype=int)
     for i in range(len(template)):
-        new_template[i] = [(template[i][0]/186)*x, (template[i][1]/192)*y]
+        new_template[i] = [int((template[i][0]/186.)*x), int((template[i][1]/192.)*y)]
     return new_template
 
 

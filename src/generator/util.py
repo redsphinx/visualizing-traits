@@ -10,13 +10,16 @@ from shlex import split
 import pandas as pd
 import h5py as h5
 import tqdm
-from matplotlib.pyplot import plot as pyplot
 from multiprocessing import Pool
 from src.align_face.face_utils.helpers import get_template_landmark
 from src.align_face.util2 import resize_template
 from shapely.geometry import Point
 from shapely.geometry.polygon import Polygon
 from scipy.spatial import ConvexHull
+import numpy.ma as ma
+import matplotlib.pyplot as plt
+from matplotlib import colors
+from scipy.misc import imshow
 
 
 def csv_pandas(path, num):
@@ -269,17 +272,60 @@ def fix_prediction_for_vgg16(prediction):
     return pred
 
 
-def remove_inside_landmarks(template):
-    hull = ConvexHull(template)
-    return hull
+def manual_make_convex_hull(w=32, h=32):
+    template = resize_template(pp.TEMPLATE, (w, h))
+    canvas = np.ones((33, 33))
+    # canvas[:, :, 0] = 255
+    # canvas[:, :, 1] = 255
+    # canvas[:, :, 2] = 255
+    for p in template:
+        x, y = p
+        canvas[y, x] = 0#[255, 255, 255]
+    plt.figure(figsize=(10,10))
+    im = plt.imshow(canvas, interpolation='none', vmin=0, vmax=1, aspect='equal')
+    ax = plt.gca();
+    ax = plt.gca();
+    x, y = np.meshgrid(range(33), range(33))
+
+    # Major ticks
+    ax.set_xticks(np.arange(0, 33, 1));
+    ax.set_yticks(np.arange(0, 33, 1));
+
+    # Labels for major ticks
+    ax.set_xticklabels(np.arange(0, 33, 1));
+    ax.set_yticklabels(np.arange(0, 33, 1));
+
+    # Minor ticks
+    ax.set_xticks(np.arange(-.5, 33, 1), minor=True);
+    ax.set_yticks(np.arange(-.5, 33, 1), minor=True);
+
+    # font size
+    ax.tick_params(axis='both', which='major', labelsize=7)
+    ax.tick_params(axis='both', which='minor', labelsize=7)
+
+    for i, (x_val, y_val) in enumerate(zip(x.flatten(), y.flatten())):
+        if canvas[y_val][x_val] == 0:
+            c = str(x_val)+','+str(y_val)
+            ax.text(x_val, y_val, c, va='center', ha='center', fontsize=9, color='white')
+
+    # Gridlines based on minor ticks
+    # ax.grid(which='both', color='w', linestyle='-', linewidth=1)
+    print('')
+
+
+def get_boundary(points):
+    return None
 
 
 def get_L_sti_mask():
     h = 32
     w = 32
     template = resize_template(pp.TEMPLATE, (w, h))
-    template = remove_inside_landmarks(template)
+    template = get_boundary(template)
+    # template = ConvexHull(template).simplices
     template = Polygon(template)
+    assert template.is_valid
+
     mask = []
     # images.shape = (batchsize, 3, w, h)
     for x in range(w):
@@ -293,7 +339,10 @@ def get_L_sti_mask():
 
 
 def apply_mask(images, mask):
-    # TODO
-    pass
+    # images has shape (batchsize, 3, 32, 32)
+    for i in range(pc.BATCH_SIZE):
+        masked_image = ma.array(images[i], mask)
+        images[i] = masked_image
+    return images
 
 

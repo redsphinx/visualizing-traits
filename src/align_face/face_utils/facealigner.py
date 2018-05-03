@@ -48,6 +48,7 @@ class FaceAligner:
         # for p in template_landmarks:
         #     x, y = p
         #     result[y, x] = [0, 255, 0]  # OG
+        #     surround
         #     result[y-1, x] = [0, 255, 0]
         #     result[y-1, x+1] = [0, 255, 0]
         #     result[y, x+1] = [0, 255, 0]
