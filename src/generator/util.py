@@ -9,7 +9,7 @@ import chainer
 from shlex import split
 import pandas as pd
 import h5py as h5
-import tqdm
+# import tqdm
 from multiprocessing import Pool
 from src.align_face.face_utils.helpers import get_template_landmark
 from src.align_face.util2 import resize_template
@@ -50,7 +50,8 @@ def save_features_as_h5(path, h5_path):
     num_features = get_number_of_features(path)
     action = 'a' if os.path.exists(h5_path) else 'w'
     with h5.File(h5_path, action) as my_file:
-        for i in tqdm.tqdm(range(num_features)):
+        # for i in tqdm.tqdm(range(num_features)):
+        for i in range(num_features):
             f = sed_line(path, i+1).strip().split(',')
             nam = f[0]
             if nam == '':
@@ -89,6 +90,7 @@ def loop_de_loop():
 # p = pp.CELEB_FACES_FC6_TEST
 # save_features_as_h5(p, h5p)
 
+
 def get_features_in_batches(step, train=True):
     features = np.zeros((pc.BATCH_SIZE, 4096))
     names = [''] * pc.BATCH_SIZE
@@ -113,16 +115,13 @@ def get_features_in_batches(step, train=True):
     return names, features
 
 
-def get_features_h5_in_batches(keys, train, which_features=None):
+def get_features_h5_in_batches(keys, train):
     features = np.zeros((pc.BATCH_SIZE, 4096))
 
-    if which_features == 'vgg16':
-        h5_path = pp.VGG16_RELU_H5
+    if train:
+        h5_path = pp.FC6_TRAIN_H5
     else:
-        if train:
-            h5_path = pp.FC6_TRAIN_H5
-        else:
-            h5_path = pp.FC6_TEST_H5
+        h5_path = pp.FC6_TEST_H5
 
     h5_file = h5.File(h5_path, 'r')
 
@@ -235,6 +234,8 @@ def make_zeros(generator):
     ones = chainer.Variable(ones)
     return ones
 
+#####################################################################
+#####################################################################
 
 def update_information(information, step, generator_loss, l1, l2):
     information = np.transpose(information, (1, 0))
@@ -284,21 +285,21 @@ def manual_make_convex_hull(w=32, h=32):
         canvas[y, x] = 0#[255, 255, 255]
     plt.figure(figsize=(10,10))
     im = plt.imshow(canvas, interpolation='none', vmin=0, vmax=1, aspect='equal')
-    ax = plt.gca();
-    ax = plt.gca();
+    ax = plt.gca()
+    ax = plt.gca()
     x, y = np.meshgrid(range(33), range(33))
 
     # Major ticks
-    ax.set_xticks(np.arange(0, 33, 1));
-    ax.set_yticks(np.arange(0, 33, 1));
+    ax.set_xticks(np.arange(0, 33, 1))
+    ax.set_yticks(np.arange(0, 33, 1))
 
     # Labels for major ticks
-    ax.set_xticklabels(np.arange(0, 33, 1));
-    ax.set_yticklabels(np.arange(0, 33, 1));
+    ax.set_xticklabels(np.arange(0, 33, 1))
+    ax.set_yticklabels(np.arange(0, 33, 1))
 
     # Minor ticks
-    ax.set_xticks(np.arange(-.5, 33, 1), minor=True);
-    ax.set_yticks(np.arange(-.5, 33, 1), minor=True);
+    ax.set_xticks(np.arange(-.5, 33, 1), minor=True)
+    ax.set_yticks(np.arange(-.5, 33, 1), minor=True)
 
     # font size
     ax.tick_params(axis='both', which='major', labelsize=7)
@@ -371,3 +372,9 @@ def apply_mask(images, mask):
     return images
 
 
+def get_number_of_features_from_train(p):
+    total = 0
+    files = os.listdir(p)
+    for f in files:
+        total += get_number_of_features(os.path.join(p, f))
+    return total

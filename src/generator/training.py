@@ -22,6 +22,7 @@ def training():
 
     if pc.TRAIN:
         num_features = util.get_number_of_features(pp.CELEB_FACES_FC6_TRAIN)
+        # num_features = util.get_number_of_features_from_train(pp.CELEB_FACES_FC6_TRAIN)  # for server
         all_names = np.array(util.get_names_h5_file(pp.FC6_TRAIN_H5))
         path_images = pp.CELEB_FACES_FC6_TRAIN
     else:
@@ -70,28 +71,6 @@ def training():
         random.shuffle(order)
 
         names_order = all_names[order]
-
-        # visualizing loss
-        # r = range(total_steps)
-        # information1 = np.zeros((3, total_steps))
-        # information2 = np.zeros((3, total_steps))
-        # pyplot.ion()
-        # fig1 = pyplot.figure()
-        # fig2 = pyplot.figure()
-        # ax1 = fig1.add_subplot(111)
-        # line_0, = ax1.plot(r, information1[0], 'r')
-        # line_1, = ax1.plot(r, information1[1], 'g')
-        # line_2, = ax1.plot(r, information1[2], 'b')
-        # ax2 = fig2.add_subplot(111)
-        # line_3, = ax2.plot(r, information2[0], 'r')
-        # line_4, = ax2.plot(r, information2[1], 'g')
-        # line_5, = ax2.plot(r, information2[2], 'b')
-
-        # lines1 = [line_0, line_1, line_2]
-        # lines2 = [line_3, line_4, line_5]
-        prev_max_ax1 = 0
-        prev_max_ax2 = 0
-
         train_gen = True
         train_dis = True
 
@@ -121,8 +100,6 @@ def training():
                 other_data = np.transpose(other_data, (0, 3, 1, 2))
                 real_prob = discriminator(chainer.Variable(other_data))
 
-            with chainer.using_config('train', False):
-                # TODO: extract features, store as hdf5
                 feature_truth = vgg16(labels_224, layers=['conv3_3'])['conv3_3']
                 feature_reconstruction = vgg16(util.fix_prediction_for_vgg16(prediction), layers=['conv3_3'])['conv3_3']
                 # feature_reconstruction = None
@@ -166,8 +143,8 @@ def training():
                 # print('%d/%d %d/%d  generator: %f   l_adv: %f  l_sti: %f   discriminator: %f  l3: %f  l4: %f' % (
                 # epoch, pc.EPOCHS, step, total_steps, generator_loss.data, l_adv.data, l_sti.data, discriminator_loss.data,
                 # l3.data, l4.data))
-                print('%d/%d %d/%d  generator: %f   l_adv: %f  l_sti: %f   discriminator: %f    dis/adv: %f' % (
-                    epoch, pc.EPOCHS, step, total_steps, generator_loss.data, l_adv.data, l_sti.data,
+                print('%d/%d %d/%d  generator: %f   l_adv: %f  l_sti: %f   l_fea: %f    discriminator: %f    dis/adv: %f' % (
+                    epoch, pc.EPOCHS, step, total_steps, generator_loss.data, l_adv.data, l_sti.data, l_fea.data,
                     discriminator_loss.data, dis_adv_ratio))
 
                 # information = util.update_information(information1, step, generator_loss.data, l_adv.data, l_sti.data)
