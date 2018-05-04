@@ -109,6 +109,7 @@ def training():
                 lambda_sti = 2 * (10 ** -6)
                 lambda_fea = 10 ** -2
                 l_adv = lambda_adv * F.sigmoid_cross_entropy(fake_prob, ones1.data)
+                # TODO: mask is probably breaking the graph, fix this
                 thing_1 = util.apply_mask(labels_32, mask_L_sti)
                 thing_2 = util.apply_mask(prediction.data, mask_L_sti)
                 l_sti = lambda_sti * F.mean_squared_error(thing_1, thing_2)
