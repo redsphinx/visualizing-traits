@@ -20,6 +20,7 @@ import numpy.ma as ma
 import matplotlib.pyplot as plt
 from matplotlib import colors
 from scipy.misc import imshow
+from chainer.functions import resize_images, transpose, reshape
 
 
 def csv_pandas(path, num):
@@ -261,20 +262,32 @@ def plot_everything(information, fig, lines, axis, prev_max, step):
     return information_max
 
 
-def fix_prediction_for_vgg16(prediction):
-    pred = np.zeros((pc.BATCH_SIZE, 3, 224, 224)).astype(np.float32)
-    for pr in range(pc.BATCH_SIZE):
-        dat = prediction.data[pr]
-        dat = np.reshape(dat, (32, 32, 3))
-        dat = dat.astype(np.uint8)
-        dat = Image.fromarray(dat)
-        dat = dat.resize((224, 224), Image.ANTIALIAS)
-        im = np.array(dat, dtype=np.float32)
-        im[:, :, 0] -= 123.68
-        im[:, :, 1] -= 116.779
-        im[:, :, 2] -= 103.939
-        pred[pr] = im.transpose((2, 0, 1)).astype(np.float32)
-    return pred
+def fix_prediction_for_vgg16(prediction, vgg16):
+    prediction = reshape(prediction, (pc.BATCH_SIZE, 32, 32, 3))
+    prediction = transpose(prediction, (0, 3, 1, 2))
+    prediction = resize_images(prediction, (224, 224))
+    return prediction
+    # remove channel means
+    # for i in range(pc.BATCH_SIZE):
+    #     prediction[i][:, :, 0] -= chainer.Variable(vgg16.xp.array([123.68], dtype=vgg16.xp.float32))
+    #     prediction[i][:, :, 1] -= chainer.Variable(vgg16.xp.array([116.779], dtype=vgg16.xp.float32))
+    #     prediction[i][:, :, 2] -= chainer.Variable(vgg16.xp.array([103.939], dtype=vgg16.xp.float32))
+
+    # prediction = transpose(prediction, (0, 2, 3, 1))
+    # pred = np.zeros((pc.BATCH_SIZE, 3, 224, 224)).astype(np.float32)
+    # for pr in range(pc.BATCH_SIZE):
+    #     dat = prediction.data[pr]
+    #     dat = np.reshape(dat, (32, 32, 3))
+    #     dat = dat.astype(np.uint8)
+    #     dat = Image.fromarray(dat)
+    #     dat = dat.resize((224, 224), Image.ANTIALIAS)
+    #     im = np.array(dat, dtype=np.float32)
+    #     im[:, :, 0] -= 123.68
+    #     im[:, :, 1] -= 116.779
+    #     im[:, :, 2] -= 103.939
+    #     pred[pr] = im.transpose((2, 0, 1)).astype(np.float32)
+    # return pred
+
 
 
 def manual_make_convex_hull(w=32, h=32):

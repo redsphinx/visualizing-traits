@@ -101,7 +101,7 @@ def training():
                 real_prob = discriminator(chainer.Variable(other_data))
 
                 feature_truth = vgg16(labels_224, layers=['conv3_3'])['conv3_3']
-                feature_reconstruction = vgg16(util.fix_prediction_for_vgg16(prediction), layers=['conv3_3'])['conv3_3']
+                feature_reconstruction = vgg16(util.fix_prediction_for_vgg16(prediction, vgg16), layers=['conv3_3'])['conv3_3']
                 # feature_reconstruction = None
                 # ----------------------------------------------------------------
                 # CALCULATE LOSS
